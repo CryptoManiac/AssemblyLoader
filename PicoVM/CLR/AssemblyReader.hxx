@@ -91,8 +91,7 @@ class AssemblyReader {
 			if (distance(start_it, end_it) >= limit) {
 				end_it = next(start_it, limit);
 			}
-			result.clear();
-            result.assign(start_it, end_it);
+            copy(start_it, end_it, result.begin());
             return distance(start_it, end_it);
         }
 
@@ -116,15 +115,13 @@ class AssemblyReader {
 		}
 
         void read_guid(std::vector<uint8_t>& result) {
-            result.clear();
-            result.assign(pc, next(pc, 16));
+            copy(pc, next(pc, 16), result.begin());
 			pc = next(pc, 16);
         }
 
 		void read_guid(std::vector<uint8_t>& result, uint32_t offset) const {
 			auto start_it = next(data.cbegin(), offset);
-			result.clear();
-			result.assign(start_it, next(start_it, 16));
+            copy(start_it, next(start_it, 16), result.begin());
 		}
 
         uint32_t read_varsize(uint32_t& code) {
