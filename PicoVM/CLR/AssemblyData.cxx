@@ -153,9 +153,23 @@ void AssemblyData::FillTables() {
     map<CliMetadataTableIndex, uint32_t> mapTableLength;
 
 	auto& r = reader; // reader can't be captured directly, so make a local reference
-	auto str_index = [&r, heapSizes]() { return (heapSizes & 0x01) != 0 ? r.read_uint32() : r.read_uint16(); };
-	auto guid_index = [&r, heapSizes]() { return (heapSizes & 0x02) != 0 ? r.read_uint32() : r.read_uint16(); };
-	auto blob_index = [&r, heapSizes]() { return (heapSizes & 0x04) != 0 ? r.read_uint32() : r.read_uint16(); };
+    auto readStr = [&r, heapSizes, stringStreamOffset](vector<uint16_t>& result) { 
+        uint32_t offset = (heapSizes & 0x01) != 0 ? r.read_uint32() : r.read_uint16();
+        r.read_utf8z(result, stringStreamOffset + offset, 0xffffffff);
+    };
+	auto readGuid = [&r, heapSizes, guidStreamOffset](vector<uint8_t>& result) {
+        uint32_t index = (heapSizes & 0x02) != 0 ? r.read_uint32() : r.read_uint16();
+        if (index != 0) {
+            r.read_guid(result, guidStreamOffset + ((index - 1) << 4));
+        }
+    };
+	auto readBlob = [&r, heapSizes, blobStreamOffset](vector<uint8_t>& result) {
+        uint32_t index = (heapSizes & 0x04) != 0 ? r.read_uint32() : r.read_uint16();
+        uint32_t offset = blobStreamOffset + index;
+        uint32_t length;
+        uint32_t read = r.read_varsize(length, offset);
+        r.read_bytes(result, offset + read, length);
+    };
 
 	auto metaDataOffset = metaHeaderOffset + 24;
 	reader.seek(metaDataOffset);
@@ -165,141 +179,62 @@ void AssemblyData::FillTables() {
         if (isSet) {
             // Load table length record for existent and valid table.
             mapTableLength[bit] = reader.read_uint32();
+            cout << getTableName(bit) << " " << dec << mapTableLength[bit] << endl;
         }
     }
 
-    for(const auto& item : mapTableLength) {
-        auto tableType = item.first;
-        auto tableRows = item.second;
-        cout << getTableName(tableType) << " " << dec << tableRows << endl;
-
-        switch(tableType) {
-            case Module: {
-                if (tableRows != 1) {
-                    throw runtime_error("Module table most contain one and only one row.");
-                }
-                cliMetaDataTables.module.generation = reader.read_uint16();
-                reader.read_utf8z(cliMetaDataTables.module.name, stringStreamOffset + str_index(), 0xFFFF);
-				reader.read_guid(cliMetaDataTables.module.guid, guidStreamOffset + (guid_index() - 1) * 16);
-            }
-            break;
-            case TypeRef: {
-
-            }
-            break;
-            case TypeDef:
-
-            break;
-            case Field:
-
-            break;
-            case Method:
-
-            break;
-            case Param:
-
-            break;
-            case InterfaceImpl:
-
-            break;
-            case MemberRef:
-
-            break;
-            case Constant:
-
-            break;
-            case CustomAttribute:
-
-            break;
-            case FieldMarshal:
-
-            break;
-            case DeclSecurity:
-
-            break;
-            case ClassLayout:
-
-            break;
-            case FieldLayout:
-
-            break;
-            case StandAloneSig:
-
-            break;
-            case EventMap:
-
-            break;
-            case Event:
-
-            break;
-            case PropertyMap:
-
-            break;
-            case Property:
-
-            break;
-            case MethodSemantics:
-
-            break;
-            case MethodImpl:
-
-            break;
-            case ModuleRef:
-
-            break;
-            case TypeSpec:
-
-            break;
-            case ImplMap:
-
-            break;
-            case FieldRVA:
-
-            break;
-            case Assembly:
-
-            break;
-            case AssemblyProcessor:
-
-            break;
-            case AssemblyOS:
-
-            break;
-            case AssemblyRef:
-
-            break;
-            case AssemblyRefProcessor:
-
-            break;
-            case AssemblyRefOS:
-
-            break;
-            case File:
-
-            break;
-            case ExportedType:
-
-            break;
-            case ManifestResource:
-
-            break;
-            case NestedClass:
-
-            break;
-            case GenericParam:
-
-            break;
-            case MethodSpec:
-
-            break;
-            case GenericParamConstraint:
-
-            break;
-            default:
-                cout << "Bit #" << hex << tableType << " is set" << endl;
-                throw runtime_error("Unknown table");
+    auto readRowIndex = [&r, &mapTableLength](CliMetadataTableIndex tableIndex)->uint32_t {
+        if (mapTableLength.find(tableIndex) != mapTableLength.end()) {
+            return mapTableLength[tableIndex] >= 0xffff ? r.read_uint32() : r.read_uint16();
         }
+
+        return r.read_uint16();
+    };
+
+    auto readRowIndexChoice = [&r, &mapTableLength](const vector<CliMetadataTableIndex>& tables)->pair<uint32_t, CliMetadataTableIndex> {
+        uint32_t max = 0;
+
+        for (const auto& tableID : tables) {
+            if (mapTableLength.find(tableID) != mapTableLength.end() && max < mapTableLength[tableID]) {
+                max = mapTableLength[tableID];
+            }
+        }
+
+        uint32_t shift = 0, bit = 1;
+        while (tables.size() > bit) {
+            bit <<= 1;
+            ++shift;
+        }
+
+        uint32_t index = (max << shift) >= 0xffff ? r.read_uint32() : r.read_uint16();
+
+        return { index, tables[index & (bit - 1)] };
+    };
+
+    {
+        // Module table
+        if (mapTableLength[Module] != 1) {
+            throw runtime_error("Module table most contain one and only one row.");
+        }
+        cliMetaDataTables.module.generation = r.read_uint16();
+        readStr(cliMetaDataTables.module.name);
+        readGuid(cliMetaDataTables.module.guid);
+
+        vector<uint8_t> tmp;
+        readGuid(tmp); // encId 
+        readGuid(tmp); // endBaseId 
     }
+
+    {
+        // TypeRef
+        vector<CliMetadataTableIndex> scope = { Module, ModuleRef, AssemblyRef, TypeRef };
+    }
+
+    {
+        // TypeDef
+        vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
+    }
+
 }
 
 uint32_t AssemblyData::getDataOffset (uint32_t address) const {
