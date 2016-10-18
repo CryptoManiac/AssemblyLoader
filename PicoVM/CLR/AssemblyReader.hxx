@@ -174,34 +174,16 @@ class AssemblyReader {
 			return distance(data.cbegin(), it);
 		}
 
-		void read_ntheader32(ImageNTHeader32& header32) {
-			header32 = *reinterpret_cast<ImageNTHeader32*>(&(*pc));
-			pc = next(pc, sizeof(ImageNTHeader32));
-		}
-
 		void read_ntheader32(ImageNTHeader32& header32, uint32_t offset) {
 			header32 = *reinterpret_cast<ImageNTHeader32*>(&(*(data.begin() + offset)));
-		}
-
-		void read_ntheader64(ImageNTHeader64& header64) {
-			header64 = *reinterpret_cast<ImageNTHeader64*>(&(*pc));
-			pc = next(pc, sizeof(ImageNTHeader64));
 		}
 
 		void read_ntheader64(ImageNTHeader64& header64, uint32_t offset) {
 			header64 = *reinterpret_cast<ImageNTHeader64*>(&(*(data.begin() + offset)));
 		}
 
-		void read_sectionheader(ImageSectionHeader& sectionheader) {
-			sectionheader = *reinterpret_cast<ImageSectionHeader*>(&(*pc));
-		}
-
 		void read_sectionheader(ImageSectionHeader& sectionheader, uint32_t offset) {
 			sectionheader = *reinterpret_cast<ImageSectionHeader*>(&(*(data.begin() + offset)));
-		}
-
-		void read_cliheader(CLIHeader& cliheader) {
-			cliheader = *reinterpret_cast<CLIHeader*>(&(*pc));
 		}
 
 		void read_cliheader(CLIHeader& cliheader, uint32_t offset) {
