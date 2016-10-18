@@ -115,7 +115,7 @@ void AssemblyData::InitAssembly() {
         }
     }
 
-    // CLI Meta Data
+    // CLI MetaData section
     cliMetadata.cliMetadataOffset = getDataOffset(cliHeader.metaData.rva);
     if (reader.read_uint32(cliMetadata.cliMetadataOffset) != 0x424A5342) {
         throw runtime_error("Invalid CLI metadata.");
@@ -142,17 +142,22 @@ void AssemblyData::InitAssembly() {
 void AssemblyData::FillTables() {
     const auto metaHeaderOffset = cliMetadata.getStreamOffset({'#', '~'});
     const auto stringStreamOffset = cliMetadata.getStreamOffset({'#', 'S', 't', 'r', 'i', 'n', 'g', 's'});
-    const auto blobStreamOffset = cliMetadata.getStreamOffset({'#', 'B', 'l', 'o', 'b'});
     const auto usStreamOffset = cliMetadata.getStreamOffset({'#', 'U', 'S'});
     const auto guidStreamOffset = cliMetadata.getStreamOffset({'#', 'G', 'U', 'I', 'D'});
+	const auto blobStreamOffset = cliMetadata.getStreamOffset({ '#', 'B', 'l', 'o', 'b' });
 
-    const auto heapSizes = reader[metaHeaderOffset + 6];
-    const auto valid = reader.read_uint64(metaHeaderOffset + 8);
+	const auto heapSizes = reader[metaHeaderOffset + 6];
+	const auto valid = reader.read_uint64(metaHeaderOffset + 8);
     const auto sorted = reader.read_uint64(metaHeaderOffset + 16);
 
     map<CliMetadataTableIndex, uint32_t> mapTableLength;
 
-    auto metaDataOffset = metaHeaderOffset + 24;
+	auto& r = reader; // reader can't be captured directly, so make a local reference
+	auto str_index = [&r, heapSizes]() { return (heapSizes & 0x01) != 0 ? r.read_uint32() : r.read_uint16(); };
+	auto guid_index = [&r, heapSizes]() { return (heapSizes & 0x02) != 0 ? r.read_uint32() : r.read_uint16(); };
+	auto blob_index = [&r, heapSizes]() { return (heapSizes & 0x04) != 0 ? r.read_uint32() : r.read_uint16(); };
+
+	auto metaDataOffset = metaHeaderOffset + 24;
 	reader.seek(metaDataOffset);
 
     for (CliMetadataTableIndex bit = Module; bit <= GenericParamConstraint; ++bit) {
@@ -170,15 +175,12 @@ void AssemblyData::FillTables() {
 
         switch(tableType) {
             case Module: {
-                uint32_t index;
                 if (tableRows != 1) {
                     throw runtime_error("Module table most contain one and only one row.");
                 }
                 cliMetaDataTables.module.generation = reader.read_uint16();
-				index = (heapSizes & 0x01) ? reader.read_uint32() : reader.read_uint16();
-                reader.read_utf8z(cliMetaDataTables.module.name, stringStreamOffset + index, 0xFFFF);
-				index = (heapSizes & 0x02) ? reader.read_uint32() : reader.read_uint16();
-				reader.read_guid(cliMetaDataTables.module.guid, guidStreamOffset + (index - 1) * 16);
+                reader.read_utf8z(cliMetaDataTables.module.name, stringStreamOffset + str_index(), 0xFFFF);
+				reader.read_guid(cliMetaDataTables.module.guid, guidStreamOffset + (guid_index() - 1) * 16);
             }
             break;
             case TypeRef: {

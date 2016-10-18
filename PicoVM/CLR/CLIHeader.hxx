@@ -6,9 +6,11 @@
 
 // CLR header structure
 struct CLIHeader {
-	
+
+	// Constrained to sizeof(CLIHeader)
+	uint32_t cb; 
+
 	// Versioning
-	uint32_t cb;
 	uint16_t majorRuntime;
 	uint16_t minorRuntime;
 
@@ -20,11 +22,15 @@ struct CLIHeader {
 	// Binding info
 	ImageDataDirectory resources;
 	ImageDataDirectory strongNameSignature;
-	ImageDataDirectory codeManagerTable;
-	ImageDataDirectory vTableFixups;
-	ImageDataDirectory exportAddresstableJumps;
 
 	// Always set to zero
+	ImageDataDirectory codeManagerTable;
+
+	// Regular fixup
+	ImageDataDirectory vTableFixups;
+
+	// Always set to zero
+	ImageDataDirectory exportAddresstableJumps;
 	ImageDataDirectory managednativeImageHeader;
 };
 
