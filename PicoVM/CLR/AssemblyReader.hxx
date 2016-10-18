@@ -14,35 +14,76 @@
 class AssemblyReader {
     public:
         AssemblyReader() : data(0) { }
-        AssemblyReader(const std::vector<uint8_t>& data) : data(data) { }
+		AssemblyReader(const std::vector<uint8_t>& data) : data(data) { reset(); }
+
+		void seek(uint32_t offset) {
+			pc = next(data.begin(), offset);
+		}
+
+		void reset() {
+			pc = data.begin();
+		}
+
+		uint32_t tell() {
+			return distance(data.begin(), pc);
+		}
 
         const uint8_t& operator[](uint32_t offset) const {
             return data[offset];
         }
 
+		uint16_t read_uint16() {
+			return static_cast<uint16_t>(*(pc++)) | static_cast<uint16_t>(*(pc++)) << 8;
+		}
+
         uint16_t read_uint16(uint32_t offset) const {
 			return static_cast<uint16_t>(data[offset]) | static_cast<uint16_t>(data[offset + 1]) << 8;
         }
         
-        uint32_t read_uint32(uint32_t offset) const {
-			auto it = next(data.cbegin(), offset);
-			return  static_cast<uint32_t>(*(it++)) |
-                    static_cast<uint32_t>(*(it++)) << 8 |
-                    static_cast<uint32_t>(*(it++)) << 16 |
-                    static_cast<uint32_t>(*(it++)) << 24;
+        uint32_t read_uint32() {
+			return  static_cast<uint32_t>(*(pc++)) |
+                    static_cast<uint32_t>(*(pc++)) << 8 |
+                    static_cast<uint32_t>(*(pc++)) << 16 |
+                    static_cast<uint32_t>(*(pc++)) << 24;
         }
 
-        uint64_t read_uint64(uint32_t offset) const {
+		uint32_t read_uint32(uint32_t offset) const {
+			auto it = next(data.cbegin(), offset);
+			return  static_cast<uint32_t>(*(it++)) |
+				static_cast<uint32_t>(*(it++)) << 8 |
+				static_cast<uint32_t>(*(it++)) << 16 |
+				static_cast<uint32_t>(*(it++)) << 24;
+		}
+
+        uint64_t read_uint64() {
+			return  static_cast<uint64_t>(*(pc++)) |
+                    static_cast<uint64_t>(*(pc++)) << 8 |
+                    static_cast<uint64_t>(*(pc++)) << 16 |
+                    static_cast<uint64_t>(*(pc++)) << 24 |
+                    static_cast<uint64_t>(*(pc++)) << 32 |
+                    static_cast<uint64_t>(*(pc++)) << 40 |
+                    static_cast<uint64_t>(*(pc++)) << 48 |
+                    static_cast<uint64_t>(*(pc++)) << 56;
+        }
+
+		uint64_t read_uint64(uint32_t offset) const {
 			auto it = next(data.cbegin(), offset);
 			return  static_cast<uint64_t>(*(it++)) |
-                    static_cast<uint64_t>(*(it++)) << 8 |
-                    static_cast<uint64_t>(*(it++)) << 16 |
-                    static_cast<uint64_t>(*(it++)) << 24 |
-                    static_cast<uint64_t>(*(it++)) << 32 |
-                    static_cast<uint64_t>(*(it++)) << 40 |
-                    static_cast<uint64_t>(*(it++)) << 48 |
-                    static_cast<uint64_t>(*(it++)) << 56;
-        }
+				static_cast<uint64_t>(*(it++)) << 8 |
+				static_cast<uint64_t>(*(it++)) << 16 |
+				static_cast<uint64_t>(*(it++)) << 24 |
+				static_cast<uint64_t>(*(it++)) << 32 |
+				static_cast<uint64_t>(*(it++)) << 40 |
+				static_cast<uint64_t>(*(it++)) << 48 |
+				static_cast<uint64_t>(*(it++)) << 56;
+		}
+
+		uint32_t read_asciiz(std::vector<uint8_t>& result, uint32_t limit = 8) {
+			uint32_t offset = distance(data.begin(), pc);
+			uint32_t read = read_asciiz(result, offset, limit);
+			pc = next(pc, read);
+			return read;
+		}
 
         uint32_t read_asciiz(std::vector<uint8_t>& result, uint32_t offset, uint32_t limit = 8) const {
 			auto start_it = next(data.cbegin(), offset);
@@ -55,69 +96,131 @@ class AssemblyReader {
             return distance(start_it, end_it);
         }
 
-        uint32_t read_utf8z(std::vector<uint16_t>& result, uint32_t offset, uint32_t limit = 0xffff) const {
-            auto start_it = next(data.cbegin(), offset);
-            auto end_it = std::find(start_it, data.cend(), 0);
+        uint32_t read_utf8z(std::vector<uint16_t>& result, uint32_t limit = 0xffff) {
+			uint32_t offset = distance(data.begin(), pc);
+			uint32_t read = read_utf8z(result, offset, limit);
+			pc = next(pc, read);
+			return read;
+		}
+
+		uint32_t read_utf8z(std::vector<uint16_t>& result, uint32_t offset, uint32_t limit = 0xffff) const {
+			auto start_it = next(data.cbegin(), offset);
+			auto end_it = std::find(start_it, data.cend(), 0);
 			if (distance(start_it, end_it) >= limit) {
 				end_it = next(start_it, limit);
 			}
 
+			result.clear();
+			utf8::utf8to16(start_it, end_it, back_inserter(result));
+			return distance(start_it, end_it);
+		}
+
+        void read_guid(std::vector<uint8_t>& result) {
             result.clear();
-            utf8::utf8to16(start_it, end_it, back_inserter(result));
-            return end_it - start_it;
+            result.assign(pc, next(pc, 16));
+			pc = next(pc, 16);
         }
 
-        void read_guid(std::vector<uint8_t>& result, uint32_t offset) const {
-            auto start_it = next(data.cbegin(), offset);
-            result.clear();
-            result.assign(start_it, next(start_it, 16));
-        }
+		void read_guid(std::vector<uint8_t>& result, uint32_t offset) const {
+			auto start_it = next(data.cbegin(), offset);
+			result.clear();
+			result.assign(start_it, next(start_it, 16));
+		}
 
-        uint32_t read_varsize(uint32_t& code, uint32_t offset) const {
-			auto it = data.cbegin();
-            uint8_t b1 = *(it++);
+        uint32_t read_varsize(uint32_t& code) {
+			auto it = pc;
+            uint8_t b1 = *(pc++);
 
             if ((b1 & 0x80) == 0) {
                 code = b1;
             } else if ((b1 & 0xC0) == 0x80) {
                 code = (b1 & 0x3F) << 8;
-                code |= *(it++);
+                code |= *(pc++);
             } else if ((b1 & 0xE0) == 0xC0) {
                 code = (b1 & 0x1F) << 24;
-                code |= *(it++) << 16;
-                code |= *(it++) << 8;
-                code |= *(it++);
+                code |= *(pc++) << 16;
+                code |= *(pc++) << 8;
+                code |= *(pc++);
             } else {
                 //We don't recognize this encoding
                 throw std::runtime_error("Invalid signature");
             }
 
-            return distance(data.cbegin(), it);
+            return distance(it, pc);
         }
+
+		uint32_t read_varsize(uint32_t& code, uint32_t offset) const {
+			auto it = data.cbegin();
+			uint8_t b1 = *(it++);
+
+			if ((b1 & 0x80) == 0) {
+				code = b1;
+			}
+			else if ((b1 & 0xC0) == 0x80) {
+				code = (b1 & 0x3F) << 8;
+				code |= *(it++);
+			}
+			else if ((b1 & 0xE0) == 0xC0) {
+				code = (b1 & 0x1F) << 24;
+				code |= *(it++) << 16;
+				code |= *(it++) << 8;
+				code |= *(it++);
+			}
+			else {
+				//We don't recognize this encoding
+				throw std::runtime_error("Invalid signature");
+			}
+
+			return distance(data.cbegin(), it);
+		}
+
+		void read_ntheader32(ImageNTHeader32& header32) {
+			header32 = *reinterpret_cast<ImageNTHeader32*>(&(*pc));
+			pc = next(pc, sizeof(ImageNTHeader32));
+		}
 
 		void read_ntheader32(ImageNTHeader32& header32, uint32_t offset) {
 			header32 = *reinterpret_cast<ImageNTHeader32*>(&(*(data.begin() + offset)));
+		}
+
+		void read_ntheader64(ImageNTHeader64& header64) {
+			header64 = *reinterpret_cast<ImageNTHeader64*>(&(*pc));
+			pc = next(pc, sizeof(ImageNTHeader64));
 		}
 
 		void read_ntheader64(ImageNTHeader64& header64, uint32_t offset) {
 			header64 = *reinterpret_cast<ImageNTHeader64*>(&(*(data.begin() + offset)));
 		}
 
+		void read_sectionheader(ImageSectionHeader& sectionheader) {
+			sectionheader = *reinterpret_cast<ImageSectionHeader*>(&(*pc));
+		}
+
 		void read_sectionheader(ImageSectionHeader& sectionheader, uint32_t offset) {
 			sectionheader = *reinterpret_cast<ImageSectionHeader*>(&(*(data.begin() + offset)));
+		}
+
+		void read_cliheader(CLIHeader& cliheader) {
+			cliheader = *reinterpret_cast<CLIHeader*>(&(*pc));
 		}
 
 		void read_cliheader(CLIHeader& cliheader, uint32_t offset) {
 			cliheader = *reinterpret_cast<CLIHeader*>(&(*(data.begin() + offset)));
 		}
 
-        void read_directory(ImageDataDirectory& directory, uint32_t offset) const {
-            directory.rva = read_uint32(offset);
-            directory.size = read_uint32(offset + 4);
+        void read_directory(ImageDataDirectory& directory) {
+            directory.rva = read_uint32();
+            directory.size = read_uint32();
         }
+
+		void read_directory(ImageDataDirectory& directory, uint32_t offset) const {
+			directory.rva = read_uint32(offset);
+			directory.size = read_uint32(offset + 4);
+		}
 
     private:
         std::vector<uint8_t> data;
+		std::vector<uint8_t>::iterator pc;
 };
 
 
