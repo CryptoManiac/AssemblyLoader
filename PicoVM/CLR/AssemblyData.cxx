@@ -153,12 +153,13 @@ void AssemblyData::FillTables() {
     map<CliMetadataTableIndex, uint32_t> mapTableLength;
 
     auto metaDataOffset = metaHeaderOffset + 24;
+	reader.seek(metaDataOffset);
+
     for (CliMetadataTableIndex bit = Module; bit <= GenericParamConstraint; ++bit) {
         bool isSet = ((valid >> bit) & 1) != 0;
         if (isSet) {
             // Load table length record for existent and valid table.
-            mapTableLength[bit] = reader.read_uint32(metaDataOffset);
-            metaDataOffset += 4;
+            mapTableLength[bit] = reader.read_uint32();
         }
     }
 
@@ -173,25 +174,11 @@ void AssemblyData::FillTables() {
                 if (tableRows != 1) {
                     throw runtime_error("Module table most contain one and only one row.");
                 }
-                cliMetaDataTables.module.generation = reader.read_uint16(metaDataOffset);
-                metaDataOffset += 2;
-                if (heapSizes & 0x01) {
-                    index = reader.read_uint32(metaDataOffset);
-                    metaDataOffset += 4;
-                } else {
-                    index = reader.read_uint16(metaDataOffset);
-                    metaDataOffset += 2;
-                }
+                cliMetaDataTables.module.generation = reader.read_uint16();
+				index = (heapSizes & 0x01) ? reader.read_uint32() : reader.read_uint16();
                 reader.read_utf8z(cliMetaDataTables.module.name, stringStreamOffset + index, 0xFFFF);
-
-                if (heapSizes & 0x02) {
-                    index = reader.read_uint32(metaDataOffset);
-                    metaDataOffset += 4;
-                } else {
-                    index = reader.read_uint16(metaDataOffset);
-                    metaDataOffset += 2;
-                }
-                reader.read_guid(cliMetaDataTables.module.guid, guidStreamOffset + (index - 1) * 16);
+				index = (heapSizes & 0x02) ? reader.read_uint32() : reader.read_uint16();
+				reader.read_guid(cliMetaDataTables.module.guid, guidStreamOffset + (index - 1) * 16);
             }
             break;
             case TypeRef: {
