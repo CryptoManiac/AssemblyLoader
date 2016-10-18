@@ -150,7 +150,7 @@ class AssemblyReader {
         }
 
 		uint32_t read_varsize(uint32_t& code, uint32_t offset) const {
-			auto it = data.cbegin();
+			auto it = next(data.cbegin(), offset);
 			uint8_t b1 = *(it++);
 
 			if ((b1 & 0x80) == 0) {
@@ -193,7 +193,8 @@ class AssemblyReader {
         void read_directory(ImageDataDirectory& directory) {
             directory.rva = read_uint32();
             directory.size = read_uint32();
-        }
+
+		}
 
 		void read_directory(ImageDataDirectory& directory, uint32_t offset) const {
 			directory.rva = read_uint32(offset);
