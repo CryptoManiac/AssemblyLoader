@@ -312,7 +312,7 @@ uint32_t AssemblyData::getDataOffset (uint32_t address) const {
         }
     }
 
-    return -1;
+    return std::numeric_limits<uint32_t>::max();
 }
 
 uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name) const {
@@ -323,6 +323,6 @@ uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name)
         }
     }
 
-    return -1;
+    return std::numeric_limits<uint32_t>::max();
 };
 
