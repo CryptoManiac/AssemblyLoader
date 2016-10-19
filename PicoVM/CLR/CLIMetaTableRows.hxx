@@ -86,12 +86,12 @@ struct DeclSecurityRow {
 struct ClassLayoutRow {
     uint16_t packingSize;
     uint32_t classSize;
-    std::pair<uint32_t, CliMetadataTableIndex> parent;
+    uint32_t parent;
 };
 
 struct FieldLayoutRow {
     uint32_t offset;
-    std::pair<uint32_t, CliMetadataTableIndex> parent;
+    uint32_t parent;
 };
 
 ////
@@ -213,7 +213,7 @@ struct GenericParamRow {
 
 struct MethodSpecRow {
     std::pair<uint32_t, CliMetadataTableIndex> method;
-    std::vector<uint8_t> instantiation;
+    std::vector<uint32_t> instantiation;
 };
 
 struct GenericParamConstraintRow {

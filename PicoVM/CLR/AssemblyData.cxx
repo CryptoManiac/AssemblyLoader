@@ -140,28 +140,28 @@ void AssemblyData::InitAssembly() {
 }
 
 void AssemblyData::FillTables() {
-    const auto metaHeaderOffset = cliMetadata.getStreamOffset({'#', '~'});
-    const auto stringStreamOffset = cliMetadata.getStreamOffset({'#', 'S', 't', 'r', 'i', 'n', 'g', 's'});
-    const auto usStreamOffset = cliMetadata.getStreamOffset({'#', 'U', 'S'});
-    const auto guidStreamOffset = cliMetadata.getStreamOffset({'#', 'G', 'U', 'I', 'D'});
-	const auto blobStreamOffset = cliMetadata.getStreamOffset({ '#', 'B', 'l', 'o', 'b' });
+    const auto metaHeaderOffset = cliMetadata.getStreamOffset({ '#', '~' });
+    const auto stringStreamOffset = cliMetadata.getStreamOffset({ '#', 'S', 't', 'r', 'i', 'n', 'g', 's' });
+    const auto usStreamOffset = cliMetadata.getStreamOffset({ '#', 'U', 'S' });
+    const auto guidStreamOffset = cliMetadata.getStreamOffset({ '#', 'G', 'U', 'I', 'D' });
+    const auto blobStreamOffset = cliMetadata.getStreamOffset({ '#', 'B', 'l', 'o', 'b' });
 
     const auto heapSizes = reader[metaHeaderOffset + 6];
-	const auto valid = reader.read_uint64(metaHeaderOffset + 8);
+    const auto valid = reader.read_uint64(metaHeaderOffset + 8);
     const auto sorted = reader.read_uint64(metaHeaderOffset + 16);
 
-	auto& r = reader; // reader can't be captured directly, so make a local reference
-    auto readString = [&r, heapSizes, stringStreamOffset](vector<uint16_t>& result) { 
+    auto& r = reader; // reader can't be captured directly, so make a local reference
+    auto readString = [&r, heapSizes, stringStreamOffset](vector<uint16_t>& result) {
         uint32_t offset = (heapSizes & 0x01) != 0 ? r.read_uint32() : r.read_uint16();
         r.read_utf8z(result, stringStreamOffset + offset, 0xffff);
     };
-	auto readGuid = [&r, heapSizes, guidStreamOffset](vector<uint8_t>& result) {
+    auto readGuid = [&r, heapSizes, guidStreamOffset](vector<uint8_t>& result) {
         uint32_t index = (heapSizes & 0x02) != 0 ? r.read_uint32() : r.read_uint16();
         if (index != 0) {
             r.read_guid(result, guidStreamOffset + ((index - 1) << 4));
         }
     };
-	auto readBlob = [&r, heapSizes, blobStreamOffset](vector<uint8_t>& result) {
+    auto readBlob = [&r, heapSizes, blobStreamOffset](vector<uint8_t>& result) {
         uint32_t index = (heapSizes & 0x04) != 0 ? r.read_uint32() : r.read_uint16();
         uint32_t offset = blobStreamOffset + index;
         uint32_t length;
@@ -181,8 +181,8 @@ void AssemblyData::FillTables() {
         }
     };
 
-	auto metaDataOffset = metaHeaderOffset + 24;
-	reader.seek(metaDataOffset);
+    auto metaDataOffset = metaHeaderOffset + 24;
+    reader.seek(metaDataOffset);
 
     map<CliMetadataTableIndex, uint32_t> mapTableLength;
 
@@ -192,7 +192,8 @@ void AssemblyData::FillTables() {
             // Load table length record for existent and valid table.
             mapTableLength[bit] = reader.read_uint32();
             cout << getTableName(bit) << " " << dec << mapTableLength[bit] << endl;
-        } else {
+        }
+        else {
             mapTableLength[bit] = 0;
             cout << getTableName(bit) << " " << dec << mapTableLength[bit] << endl;
         }
@@ -210,7 +211,7 @@ void AssemblyData::FillTables() {
         uint32_t max = 0;
 
         for (const auto& tableID : tables) {
-            if (mapTableLength.find(tableID) != mapTableLength.end() && max < mapTableLength[tableID]) {
+            if (tableID != Unknown && mapTableLength.find(tableID) != mapTableLength.end() && max < mapTableLength[tableID]) {
                 max = mapTableLength[tableID];
             }
         }
@@ -223,7 +224,7 @@ void AssemblyData::FillTables() {
 
         uint32_t index = (max << shift) >= 0xffff ? r.read_uint32() : r.read_uint16();
 
-        return { index, tables[index & (bit - 1)] };
+        return{ index, tables[index & (bit - 1)] };
     };
 
     {
@@ -267,40 +268,34 @@ void AssemblyData::FillTables() {
         }
     }
 
-    {
-        // Field
-        for (uint32_t n = 0; n < mapTableLength[Field]; ++n) {
-            FieldRow row;
-            row.flags = reader.read_uint16();
-            readString(row.name);
-            readSignature(row.signature);
-            cliMetaDataTables._Field.push_back(row);
-        }
+    // Field
+    for (uint32_t n = 0; n < mapTableLength[Field]; ++n) {
+        FieldRow row;
+        row.flags = reader.read_uint16();
+        readString(row.name);
+        readSignature(row.signature);
+        cliMetaDataTables._Field.push_back(row);
     }
 
-    {
-        // MethodDef
-        for (uint32_t n = 0; n < mapTableLength[MethodDef]; ++n) {
-            MethodDefRow row;
-            row.rva = reader.read_uint32();
-            row.implFlags = reader.read_uint16();
-            row.flags = reader.read_uint16();
-            readString(row.name);
-            readSignature(row.signature);
-            row.paramList = readRowIndex(Param);
-            cliMetaDataTables._MethodDef.push_back(row);
-        }
+    // MethodDef
+    for (uint32_t n = 0; n < mapTableLength[MethodDef]; ++n) {
+        MethodDefRow row;
+        row.rva = reader.read_uint32();
+        row.implFlags = reader.read_uint16();
+        row.flags = reader.read_uint16();
+        readString(row.name);
+        readSignature(row.signature);
+        row.paramList = readRowIndex(Param);
+        cliMetaDataTables._MethodDef.push_back(row);
     }
 
-    {
-        // Param
-        for (uint32_t n = 0; n < mapTableLength[Param]; ++n) {
-            ParamRow row;
-            row.flags = reader.read_uint16();
-            row.sequence = reader.read_uint16();
-            readString(row.name);
-            cliMetaDataTables._Param.push_back(row);
-        }
+    // Param
+    for (uint32_t n = 0; n < mapTableLength[Param]; ++n) {
+        ParamRow row;
+        row.flags = reader.read_uint16();
+        row.sequence = reader.read_uint16();
+        readString(row.name);
+        cliMetaDataTables._Param.push_back(row);
     }
 
     {
@@ -337,6 +332,327 @@ void AssemblyData::FillTables() {
             // ^ HasConstant
             readBlob(row.value);
             cliMetaDataTables._Constant.push_back(row);
+        }
+    }
+
+    {
+        // CustomAttribute
+        vector<CliMetadataTableIndex> parent = {
+            MethodDef, Field, TypeRef, TypeDef, Param, InterfaceImpl, MemberRef, Module, Unknown /* FIXME: ??? was Permission */,
+            Property, Event, StandAloneSig, ModuleRef, TypeSpec, Assembly, AssemblyRef, File, ExportedType, ManifestResource
+        };
+        vector<CliMetadataTableIndex> type = { Unknown, Unknown, MethodDef, MemberRef, Unknown };
+        for (uint32_t n = 0; n < mapTableLength[CustomAttribute]; ++n) {
+            CustomAttributeRow row;
+            // iss.4,page 296 -> HasCustomAttribute -> Permission ???
+            row.parent = readRowIndexChoice(parent);
+
+            // ^ HasCustomAttribute
+            row.type = readRowIndexChoice(type);
+            // ^ CustomAttributeType
+            readBlob(row.value);
+            cliMetaDataTables._CustomAttribute.push_back(row);
+        };
+    }
+
+    {
+        // FieldMarshal
+        vector<CliMetadataTableIndex> parent = { Field, Param };
+        for (uint32_t n = 0; n < mapTableLength[FieldMarshal]; ++n) {
+            FieldMarshalRow row;
+            row.parent = readRowIndexChoice(parent);
+            // ^ HasFieldMarshal
+            readBlob(row.nativeType);
+            cliMetaDataTables._FieldMarshal.push_back(row);
+        }
+    }
+
+    // DeclSecurity
+    vector<CliMetadataTableIndex> parent = { TypeDef, MethodDef, Assembly };
+    for (uint32_t n = 0; n < mapTableLength[DeclSecurity]; ++n) {
+        DeclSecurityRow row;
+        row.action = reader.read_uint16();
+        row.parent = readRowIndexChoice(parent);
+        readBlob(row.permissionSet);
+        cliMetaDataTables._DeclSecurity.push_back(row);
+    }
+
+    // ClassLayout"
+    for (uint32_t n = 0; n < mapTableLength[DeclSecurity]; ++n) {
+        ClassLayoutRow row;
+        row.packingSize = reader.read_uint16();
+        row.classSize = reader.read_uint32();
+        row.parent = readRowIndex(TypeDef);
+        cliMetaDataTables._ClassLayout.push_back(row);
+    }
+
+    // FieldLayout
+    for (uint32_t n = 0; n < mapTableLength[FieldLayout]; ++n) {
+        FieldLayoutRow row;
+        row.offset = reader.read_uint32();
+        row.parent = readRowIndex(Field);
+        cliMetaDataTables._FieldLayout.push_back(row);
+    }
+
+    // StandAloneSig
+    for (uint32_t n = 0; n < mapTableLength[StandAloneSig]; ++n) {
+        vector<uint32_t> signature;
+        readSignature(signature);
+        cliMetaDataTables._StandAloneSig.push_back(signature);
+    }
+
+    // EventMap
+    for (uint32_t n = 0; n < mapTableLength[EventMap]; ++n) {
+        EventMapRow row;
+        row.parent = readRowIndex(TypeDef);
+        row.eventList = readRowIndex(Event);
+        cliMetaDataTables._EventMap.push_back(row);
+    };
+
+    {
+        // Event
+        vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
+        for (uint32_t n = 0; n < mapTableLength[Event]; ++n) {
+            EventRow row;
+            row.eventFlags = reader.read_uint16();
+            readString(row.name);
+            row.eventType = readRowIndexChoice(scope);
+            // ^ TypeDefOrRef
+            cliMetaDataTables._Event.push_back(row);
+        }
+    }
+
+    // PropertyMap
+    for (uint32_t n = 0; n < mapTableLength[PropertyMap]; ++n) {
+        PropertyMapRow row;
+        row.parent = readRowIndex(TypeDef);
+        row.propertyList = readRowIndex(Property);
+        cliMetaDataTables._PropertyMap.push_back(row);
+    }
+
+    // Property
+    for (uint32_t n = 0; n < mapTableLength[Property]; ++n) {
+        PropertyRow row;
+        row.flags = reader.read_uint16();
+        readString(row.name);
+        readSignature(row.signature);
+        cliMetaDataTables._Property.push_back(row);
+    }
+
+    {
+        // MethodSemantics
+        vector<CliMetadataTableIndex> scope = { Event, Property };
+        for (uint32_t n = 0; n < mapTableLength[MethodSemantics]; ++n) {
+            MethodSemanticsRow row;
+            row.semantics = reader.read_uint16();
+            row.method = readRowIndex(MethodDef);
+            row.association = readRowIndexChoice(scope);
+            // ^ HasSemantics
+            cliMetaDataTables._MethodSemantics.push_back(row);
+        }
+    }
+
+    {
+        // MethodImpl
+        vector<CliMetadataTableIndex> body = { MethodDef, MemberRef };
+        vector<CliMetadataTableIndex> declaration = { MethodDef, MemberRef };
+        for (uint32_t n = 0; n < mapTableLength[MethodImpl]; ++n) {
+            MethodImplRow row;
+            row.classRef = readRowIndex(TypeDef);
+            row.methodBody = readRowIndexChoice(body);
+            // ^ MethodDefOrRef
+            row.methodDeclaration = readRowIndexChoice(declaration);
+            // ^ MethodDefOrRef
+            cliMetaDataTables._MethodImpl.push_back(row);
+        }
+    }
+
+    // ModuleRef
+    for (uint32_t n = 0; n < mapTableLength[ModuleRef]; ++n) {
+        vector<uint16_t> name;
+        readString(name);
+        cliMetaDataTables._ModuleRef.push_back(name);
+    }
+
+    // TypeSpec
+    for (uint32_t n = 0; n < mapTableLength[TypeSpec]; ++n) {
+        vector<uint32_t> signature;
+        readSignature(signature);
+        cliMetaDataTables._TypeSpec.push_back(signature);
+    }
+
+    {
+        // ImplMap
+        vector<CliMetadataTableIndex> scope = { Field, MethodDef };
+        for (uint32_t n = 0; n < mapTableLength[ImplMap]; ++n) {
+            ImplMapRow row;
+            row.mappingFlags = reader.read_uint16();
+            row.memberForwarded = readRowIndexChoice(scope);
+            // ^ MemberForwarded
+            readString(row.importName);
+            row.importScope = readRowIndex(ModuleRef);
+            cliMetaDataTables._ImplMap.push_back(row);
+        }
+    }
+
+    // FieldRVA
+    for (uint32_t n = 0; n < mapTableLength[FieldRVA]; ++n) {
+        FieldRVARow row;
+        row.rva = reader.read_uint32();
+        row.field = readRowIndex(Field);
+        cliMetaDataTables._FieldRVA.push_back(row);
+    }
+
+    // Assembly
+    for (uint32_t n = 0; n < mapTableLength[Assembly]; ++n) {
+        AssemblyRow row;
+        row.hashAlgId = reader.read_uint32();
+
+        row.version.clear();
+        row.version.push_back(reader.read_uint16());
+        row.version.push_back(reader.read_uint16());
+        row.version.push_back(reader.read_uint16());
+        row.version.push_back(reader.read_uint16());
+
+        row.flags = reader.read_uint32();
+        readBlob(row.publicKey);
+        readString(row.name);
+        readString(row.culture);
+        cliMetaDataTables._Assembly.push_back(row);
+    }
+
+    // AssemblyProcessor
+    for (uint32_t n = 0; n < mapTableLength[AssemblyProcessor]; ++n) {
+        cliMetaDataTables._AssemblyProcessor.push_back(reader.read_uint32());
+    }
+
+    // AssemblyOS
+    for (uint32_t n = 0; n < mapTableLength[AssemblyOS]; ++n) {
+        AssemblyOSRow row = {};
+        row.osPlatformID = reader.read_uint32();
+        row.osMajorVersion = reader.read_uint32();
+        row.osMinorVersion = reader.read_uint32();
+        cliMetaDataTables._AssemblyOS.push_back(row);
+    };
+
+    // AssemblyRef
+    for (uint32_t n = 0; n < mapTableLength[AssemblyRef]; ++n) {
+        AssemblyRefRow row;
+
+        row.version.clear();
+        row.version.push_back(reader.read_uint16());
+        row.version.push_back(reader.read_uint16());
+        row.version.push_back(reader.read_uint16());
+        row.version.push_back(reader.read_uint16());
+
+        row.flags = reader.read_uint32();
+        readBlob(row.publicKeyOrToken);
+        readString(row.name);
+        readString(row.culture);
+        readBlob(row.hashValue);
+        cliMetaDataTables._AssemblyRef.push_back(row);
+    }
+
+    // AssemblyRefProcessor
+    for (uint32_t n = 0; n < mapTableLength[AssemblyRefProcessor]; ++n) {
+        AssemblyRefProcessorRow row;
+        row.processor = reader.read_uint32();
+        row.assemblyRef = readRowIndex(AssemblyRef);
+        cliMetaDataTables._AssemblyRefProcessor.push_back(row);
+    }
+
+    // AssemblyRefOS
+    for (uint32_t n = 0; n < mapTableLength[AssemblyRefOS]; ++n) {
+        AssemblyRefOSRow row;
+        row.osPlatformID = reader.read_uint32();
+        row.osMajorVersion = reader.read_uint32();
+        row.osMinorVersion = reader.read_uint32();
+        row.assemblyRef = readRowIndex(AssemblyRef);
+        cliMetaDataTables._AssemblyRefOS.push_back(row);
+    }
+
+    // File
+    for (uint32_t n = 0; n < mapTableLength[File]; ++n) {
+        FileRow row;
+        row.flags = reader.read_uint32();
+        readString(row.name);
+        readBlob(row.hashValue);
+        cliMetaDataTables._File.push_back(row);
+    }
+
+    {
+        // ExportedType
+        vector<CliMetadataTableIndex> scope = { File, AssemblyRef /*nl*/, ExportedType };
+        for (uint32_t n = 0; n < mapTableLength[ExportedType]; ++n) {
+            ExportedTypeRow row;
+            row.flags = reader.read_uint32();
+            row.typeDefId = reader.read_uint32();
+            readString(row.typeName);
+            readString(row.typeNamespace);
+            row.implementation = readRowIndexChoice(scope);
+            // ^ Implementation
+            cliMetaDataTables._ExportedType.push_back(row);
+        }
+    }
+
+    {
+        // ManifestResource
+        vector<CliMetadataTableIndex> scope = { File, AssemblyRef, ExportedType /*nl*/ };
+        for (uint32_t n = 0; n < mapTableLength[ManifestResource]; ++n) {
+            ManifestResourceRow row;
+            row.offset = reader.read_uint32();
+            row.flags = reader.read_uint32();
+            readString(row.name);
+            row.implementation = readRowIndexChoice(scope);
+            // ^ Implementation
+            cliMetaDataTables._ManifestResource.push_back(row);
+        }
+    }
+
+    // NestedClass
+    for (uint32_t n = 0; n < mapTableLength[NestedClass]; ++n) {
+        NestedClassRow row;
+        row.nestedClass = readRowIndex(TypeDef);
+        row.enclosingClass = readRowIndex(TypeDef);
+        cliMetaDataTables._NestedClass.push_back(row);
+    }
+
+    {
+        // GenericParam
+        vector<CliMetadataTableIndex> scope = { TypeDef, MethodDef };
+        for (uint32_t n = 0; n < mapTableLength[GenericParam]; ++n) {
+            GenericParamRow row;
+            row.number = reader.read_uint16();
+            row.flags = reader.read_uint16();
+            row.owner = readRowIndexChoice(scope);
+            // ^ TypeOrMethodDef
+            readString(row.name);
+            cliMetaDataTables._GenericParam.push_back(row);
+        }
+    }
+
+    {
+        // MethodSpec
+        vector<CliMetadataTableIndex> scope = { MethodDef, MemberRef };
+        for (uint32_t n = 0; n < mapTableLength[MethodSpec]; ++n) {
+            MethodSpecRow row;
+            row.method = readRowIndexChoice(scope);
+            // ^ MethodDefOrRef
+            readSignature(row.instantiation);
+            cliMetaDataTables._MethodSpec.push_back(row);
+        }
+    }
+
+    {
+        // GenericParamConstraint
+        vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
+        for (uint32_t n = 0; n < mapTableLength[GenericParamConstraint]; ++n) {
+            GenericParamConstraintRow row;
+
+            row.owner = readRowIndex(GenericParam);
+            row.constraint = readRowIndexChoice(scope);
+            // ^ TypeDefOrRef
+            cliMetaDataTables._GenericParamConstraint.push_back(row);
         }
     }
 }
