@@ -146,14 +146,12 @@ void AssemblyData::FillTables() {
     const auto guidStreamOffset = cliMetadata.getStreamOffset({'#', 'G', 'U', 'I', 'D'});
 	const auto blobStreamOffset = cliMetadata.getStreamOffset({ '#', 'B', 'l', 'o', 'b' });
 
-	const auto heapSizes = reader[metaHeaderOffset + 6];
+    const auto heapSizes = reader[metaHeaderOffset + 6];
 	const auto valid = reader.read_uint64(metaHeaderOffset + 8);
     const auto sorted = reader.read_uint64(metaHeaderOffset + 16);
 
-    map<CliMetadataTableIndex, uint32_t> mapTableLength;
-
 	auto& r = reader; // reader can't be captured directly, so make a local reference
-    auto readStr = [&r, heapSizes, stringStreamOffset](vector<uint16_t>& result) { 
+    auto readString = [&r, heapSizes, stringStreamOffset](vector<uint16_t>& result) { 
         uint32_t offset = (heapSizes & 0x01) != 0 ? r.read_uint32() : r.read_uint16();
         r.read_utf8z(result, stringStreamOffset + offset, 0xffffffff);
     };
@@ -171,8 +169,22 @@ void AssemblyData::FillTables() {
         r.read_bytes(result, offset + read, length);
     };
 
+    auto readSignature = [&r, &readBlob](vector<uint32_t>& result) {
+        vector<uint8_t> buffer;
+        readBlob(buffer);
+        uint32_t offset = 0;
+        while (offset < buffer.size()) {
+            uint32_t value;
+            uint32_t read = AssemblyReader::read_varsize(value, buffer, offset);
+            result.push_back(value);
+            offset += read;
+        }
+    };
+
 	auto metaDataOffset = metaHeaderOffset + 24;
 	reader.seek(metaDataOffset);
+
+    map<CliMetadataTableIndex, uint32_t> mapTableLength;
 
     for (CliMetadataTableIndex bit = Module; bit <= GenericParamConstraint; ++bit) {
         bool isSet = ((valid >> bit) & 1) != 0;
@@ -220,7 +232,7 @@ void AssemblyData::FillTables() {
             throw runtime_error("Module table most contain one and only one row.");
         }
         cliMetaDataTables.module.generation = r.read_uint16();
-        readStr(cliMetaDataTables.module.name);
+        readString(cliMetaDataTables.module.name);
         readGuid(cliMetaDataTables.module.guid);
 
         vector<uint8_t> tmp;
@@ -231,11 +243,64 @@ void AssemblyData::FillTables() {
     {
         // TypeRef
         vector<CliMetadataTableIndex> scope = { Module, ModuleRef, AssemblyRef, TypeRef };
+        for (uint32_t n = 0; n < mapTableLength[TypeRef]; ++n) {
+            TypeRefRow row;
+            row.resolutionScope = readRowIndexChoice(scope);
+            readString(row.typeName);
+            readString(row.typeNamespace);
+            cliMetaDataTables._TypeRef.push_back(row);
+        }
     }
 
     {
         // TypeDef
         vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
+        for (uint32_t n = 0; n < mapTableLength[TypeDef]; ++n) {
+            TypeDefRow row;
+            row.flags = reader.read_uint32();
+            readString(row.typeName);
+            readString(row.typeNamespace);
+            row.extendsType = readRowIndexChoice(scope);
+            row.fieldList = readRowIndex(Field);
+            row.methodList = readRowIndex(MethodDef);
+            cliMetaDataTables._TypeDef.push_back(row);
+        }
+    }
+
+    {
+        // Field
+        for (uint32_t n = 0; n < mapTableLength[Field]; ++n) {
+            FieldRow row;
+            row.flags = reader.read_uint16();
+            readString(row.name);
+            readSignature(row.signature);
+            cliMetaDataTables._Field.push_back(row);
+        }
+    }
+
+    {
+        // MethodDef
+        for (uint32_t n = 0; n < mapTableLength[MethodDef]; ++n) {
+            MethodDefRow row;
+            row.rva = reader.read_uint32();
+            row.implFlags = reader.read_uint16();
+            row.flags = reader.read_uint16();
+            readString(row.name);
+            readSignature(row.signature);
+            row.paramList = readRowIndex(Param);
+            cliMetaDataTables._MethodDef.push_back(row);
+        }
+    }
+
+    {
+        // Param
+        for (uint32_t n = 0; n < mapTableLength[Param]; ++n) {
+            ParamRow row;
+            row.flags = reader.read_uint16();
+            row.sequence = reader.read_uint16();
+            readString(row.name);
+            cliMetaDataTables._Param.push_back(row);
+        }
     }
 
 }

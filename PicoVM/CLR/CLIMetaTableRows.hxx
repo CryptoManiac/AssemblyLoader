@@ -13,15 +13,15 @@ struct ModuleRow {
 };
 
 struct TypeRefRow {
-    std::pair<uint32_t, CliMetadataTableIndex> scope;
-    std::vector<uint16_t> name;
-    std::vector<uint16_t> nameSpace;
+    std::pair<uint32_t, CliMetadataTableIndex> resolutionScope;
+    std::vector<uint16_t> typeName;
+    std::vector<uint16_t> typeNamespace;
 };
 
 struct TypeDefRow {
     uint32_t flags;
-    std::vector<uint16_t> name;
-    std::vector<uint16_t> nameSpace;
+    std::vector<uint16_t> typeName;
+    std::vector<uint16_t> typeNamespace;
     std::pair<uint32_t, CliMetadataTableIndex> extendsType;
 
     uint32_t fieldList;
@@ -31,7 +31,7 @@ struct TypeDefRow {
 struct FieldRow {
     uint16_t flags;
     std::vector<uint16_t> name;
-    std::vector<uint8_t> signature;
+    std::vector<uint32_t> signature;
 };
 
 struct MethodDefRow {
@@ -39,7 +39,7 @@ struct MethodDefRow {
     uint16_t implFlags;
     uint16_t flags;
     std::vector<uint16_t> name;
-    std::vector<uint8_t> signature;
+    std::vector<uint32_t> signature;
     uint32_t paramList;
 };
 
@@ -57,7 +57,7 @@ struct InterfaceImplRow {
 struct MemberRefRow {
     std::pair<uint32_t, CliMetadataTableIndex> classRef;
     std::vector<uint16_t> name;
-    std::vector<uint8_t> signature;
+    std::vector<uint32_t> signature;
 };
 
 struct ConstantRow {
@@ -115,7 +115,7 @@ struct PropertyMapRow {
 struct PropertyRow {
     uint16_t flags;
     std::vector<uint16_t> name;
-    std::vector<uint8_t> signature;
+    std::vector<uint32_t> signature;
 };
 
 struct MethodSemanticsRow {

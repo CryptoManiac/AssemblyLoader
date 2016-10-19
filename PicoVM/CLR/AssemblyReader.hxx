@@ -144,7 +144,7 @@ public:
         result.assign(start_it, next(start_it, 16));
     }
 
-    void read_bytes(std::vector<uint8_t> result, uint32_t offset, uint32_t length) const
+    void read_bytes(std::vector<uint8_t>& result, uint32_t offset, uint32_t length) const
     {
         result.clear();
         auto start_it = next(data.cbegin(), offset);
@@ -176,7 +176,8 @@ public:
 
     uint32_t read_varsize(uint32_t& code, uint32_t offset) const
     {
-        auto it = next(data.cbegin(), offset);
+        auto it_start = next(data.cbegin(), offset);
+        auto it = it_start;
         uint8_t b1 = *(it++);
 
         if ((b1 & 0x80) == 0) {
@@ -194,7 +195,34 @@ public:
             throw std::runtime_error("Invalid signature");
         }
 
-        return distance(data.cbegin(), it);
+        return distance(it_start, it);
+    }
+
+    static uint32_t read_varsize(uint32_t& code, const std::vector<uint8_t>& data, uint32_t offset)
+    {
+        auto it_start = next(data.cbegin(), offset);
+        auto it = it_start;
+        uint8_t b1 = *(it++);
+
+        if ((b1 & 0x80) == 0) {
+            code = b1;
+        }
+        else if ((b1 & 0xC0) == 0x80) {
+            code = (b1 & 0x3F) << 8;
+            code |= *(it++);
+        }
+        else if ((b1 & 0xE0) == 0xC0) {
+            code = (b1 & 0x1F) << 24;
+            code |= *(it++) << 16;
+            code |= *(it++) << 8;
+            code |= *(it++);
+        }
+        else {
+            //We don't recognize this encoding
+            throw std::runtime_error("Invalid signature");
+        }
+
+        return distance(it_start, it);
     }
 
     void read_ntheader32(ImageNTHeader32& header32, uint32_t offset)
