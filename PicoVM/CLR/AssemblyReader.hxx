@@ -198,7 +198,7 @@ public:
         return distance(it_start, it);
     }
 
-    static uint32_t read_varsize(uint32_t& code, const std::vector<uint8_t>& data, ptrdiff_t offset)
+    static ptrdiff_t read_varsize(uint32_t& code, const std::vector<uint8_t>& data, ptrdiff_t offset)
     {
         auto it_start = next(data.cbegin(), offset);
         auto it = it_start;

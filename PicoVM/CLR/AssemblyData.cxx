@@ -172,10 +172,10 @@ void AssemblyData::FillTables() {
     auto readSignature = [&r, &readBlob](vector<uint32_t>& result) {
         vector<uint8_t> buffer;
         readBlob(buffer);
-        uint32_t offset = 0;
+        ptrdiff_t offset = 0;
         while (offset < buffer.size()) {
             uint32_t value;
-            uint32_t read = AssemblyReader::read_varsize(value, buffer, offset);
+            ptrdiff_t read = AssemblyReader::read_varsize(value, buffer, offset);
             result.push_back(value);
             offset += read;
         }
