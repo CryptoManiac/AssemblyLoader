@@ -153,7 +153,7 @@ void AssemblyData::FillTables() {
 	auto& r = reader; // reader can't be captured directly, so make a local reference
     auto readString = [&r, heapSizes, stringStreamOffset](vector<uint16_t>& result) { 
         uint32_t offset = (heapSizes & 0x01) != 0 ? r.read_uint32() : r.read_uint16();
-        r.read_utf8z(result, stringStreamOffset + offset, 0xffffffff);
+        r.read_utf8z(result, stringStreamOffset + offset, 0xffff);
     };
 	auto readGuid = [&r, heapSizes, guidStreamOffset](vector<uint8_t>& result) {
         uint32_t index = (heapSizes & 0x02) != 0 ? r.read_uint32() : r.read_uint16();
@@ -303,6 +303,42 @@ void AssemblyData::FillTables() {
         }
     }
 
+    {
+        // InterfaceImpl
+        vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
+        for (uint32_t n = 0; n < mapTableLength[InterfaceImpl]; ++n) {
+            InterfaceImplRow row;
+            row.classRef = readRowIndex(TypeDef);
+            row.interfaceRef = readRowIndexChoice(scope);
+            cliMetaDataTables._InterfaceImpl.push_back(row);
+        }
+    }
+
+    {
+        // MemberRef
+        vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, ModuleRef, MethodDef, TypeSpec };
+        for (uint32_t n = 0; n < mapTableLength[MemberRef]; ++n) {
+            MemberRefRow row;
+            row.classRef = readRowIndexChoice(scope);
+            // ^ MemberRefParent
+            readString(row.name);
+            readSignature(row.signature);
+            cliMetaDataTables._MemberRef.push_back(row);
+        }
+    }
+
+    {
+        // Constant
+        vector<CliMetadataTableIndex> scope = { Field, Param, Property };
+        for (uint32_t n = 0; n < mapTableLength[Constant]; ++n) {
+            ConstantRow row;
+            row.type = reader.read_uint16();
+            row.parent = readRowIndexChoice(scope);
+            // ^ HasConstant
+            readBlob(row.value);
+            cliMetaDataTables._Constant.push_back(row);
+        }
+    }
 }
 
 uint32_t AssemblyData::getDataOffset (uint32_t address) const {
