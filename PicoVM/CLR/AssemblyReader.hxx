@@ -144,7 +144,7 @@ public:
         result.assign(start_it, next(start_it, 16));
     }
 
-    void read_bytes(std::vector<uint8_t> result, ptrdiff_t offset, uint32_t length) const
+    void read_bytes(std::vector<uint8_t>& result, ptrdiff_t offset, uint32_t length) const
     {
         result.clear();
         auto start_it = next(data.cbegin(), offset);
