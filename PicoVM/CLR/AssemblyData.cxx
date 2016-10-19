@@ -5,6 +5,7 @@
 #include <sstream>
 #include <algorithm>
 #include <map>
+#include <limits>
 
 #include "AssemblyData.hxx"
 #include "Formatting.hxx"
@@ -97,7 +98,7 @@ void AssemblyData::InitAssembly() {
     // CLI Header 
     {
         uint32_t cliHeaderOffset = getDataOffset(cliHeaderRVA);
-        if (cliHeaderOffset == -1) {
+        if (cliHeaderOffset == numeric_limits<uint32_t>::max()) {
             throw runtime_error("CLI header could not be found.");
         }
 
