@@ -165,7 +165,7 @@ void AssemblyData::FillTables() {
         uint32_t index = (heapSizes & 0x04) != 0 ? r.read_uint32() : r.read_uint16();
         uint32_t offset = blobStreamOffset + index;
         uint32_t length;
-        uint32_t read = r.read_varsize(length, offset);
+        ptrdiff_t read = r.read_varsize(length, offset);
         r.read_bytes(result, offset + read, length);
     };
 

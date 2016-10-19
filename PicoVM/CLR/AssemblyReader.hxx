@@ -27,7 +27,7 @@ public:
         pc = data.begin();
     }
 
-    uint32_t tell()
+    ptrdiff_t tell()
     {
         return distance(data.begin(), pc);
     }
@@ -89,7 +89,7 @@ public:
                static_cast<uint64_t>(*(it++)) << 56;
     }
 
-    ptrdiff_t read_asciiz(std::vector<uint8_t>& result, uint32_t limit)
+    ptrdiff_t read_asciiz(std::vector<uint8_t>& result, ptrdiff_t limit)
     {
         ptrdiff_t offset = distance(data.begin(), pc);
         ptrdiff_t read = read_asciiz(result, offset, limit);
@@ -97,7 +97,7 @@ public:
         return read;
     }
 
-    ptrdiff_t read_asciiz(std::vector<uint8_t>& result, ptrdiff_t offset, uint32_t limit) const
+    ptrdiff_t read_asciiz(std::vector<uint8_t>& result, ptrdiff_t offset, ptrdiff_t limit) const
     {
         auto start_it = next(data.cbegin(), offset);
         auto end_it = std::find(start_it, data.cend(), 0);
@@ -117,7 +117,7 @@ public:
         return read;
     }
 
-    ptrdiff_t read_utf8z(std::vector<uint16_t>& result, ptrdiff_t offset, uint32_t limit) const
+    ptrdiff_t read_utf8z(std::vector<uint16_t>& result, ptrdiff_t offset, ptrdiff_t limit) const
     {
         auto start_it = next(data.cbegin(), offset);
         auto end_it = std::find(start_it, data.cend(), 0);
@@ -137,21 +137,21 @@ public:
         pc = next(pc, 16);
     }
 
-    void read_guid(std::vector<uint8_t>& result, uint32_t offset) const
+    void read_guid(std::vector<uint8_t>& result, ptrdiff_t offset) const
     {
         auto start_it = next(data.cbegin(), offset);
         result.clear();
         result.assign(start_it, next(start_it, 16));
     }
 
-    void read_bytes(std::vector<uint8_t>& result, uint32_t offset, uint32_t length) const
+    void read_bytes(std::vector<uint8_t> result, ptrdiff_t offset, uint32_t length) const
     {
         result.clear();
         auto start_it = next(data.cbegin(), offset);
         result.assign(start_it, next(start_it, length));
     }
 
-    uint32_t read_varsize(uint32_t& code)
+    ptrdiff_t read_varsize(uint32_t& code)
     {
         auto it = pc;
         uint8_t b1 = *(pc++);
@@ -174,7 +174,7 @@ public:
         return distance(it, pc);
     }
 
-    uint32_t read_varsize(uint32_t& code, uint32_t offset) const
+    ptrdiff_t read_varsize(uint32_t& code, ptrdiff_t offset) const
     {
         auto it_start = next(data.cbegin(), offset);
         auto it = it_start;
@@ -198,7 +198,7 @@ public:
         return distance(it_start, it);
     }
 
-    static uint32_t read_varsize(uint32_t& code, const std::vector<uint8_t>& data, uint32_t offset)
+    static uint32_t read_varsize(uint32_t& code, const std::vector<uint8_t>& data, ptrdiff_t offset)
     {
         auto it_start = next(data.cbegin(), offset);
         auto it = it_start;
