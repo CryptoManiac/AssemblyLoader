@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "CLIMeta.hxx"
+#include "CLIMetadataTableIndex.hxx"
 
 struct ModuleRow {
     uint16_t generation;

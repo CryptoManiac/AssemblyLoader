@@ -6,6 +6,7 @@
 
 #include "AssemblyReader.hxx"
 #include "Property.hxx"
+#include "CLIMetaTableRows.hxx"
 
 class AssemblyData {
 public:
@@ -35,11 +36,7 @@ public:
     } cliMetadata;
 
     struct CLIMetaDataTables {
-        struct {
-			uint16_t generation;
-			std::vector<uint16_t> name;
-			std::vector<uint8_t> guid;
-        } module;
+        ModuleRow module;
 
     } cliMetaDataTables;
 

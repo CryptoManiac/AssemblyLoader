@@ -147,13 +147,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CLR\AssemblyData.cxx" />
+    <ClCompile Include="CLR\CliMetadataTableIndex.cxx" />
     <ClCompile Include="main.cxx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLR\AssemblyData.hxx" />
     <ClInclude Include="CLR\AssemblyReader.hxx" />
     <ClInclude Include="CLR\CLIHeader.hxx" />
-    <ClInclude Include="CLR\CLIMeta.hxx" />
+    <ClInclude Include="CLR\CliMetadataTableIndex.hxx" />
     <ClInclude Include="CLR\CLIMetaTableRows.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
     <ClInclude Include="CLR\ImageDataDirectory.hxx" />

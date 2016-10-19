@@ -9,7 +9,6 @@
 
 #include "AssemblyData.hxx"
 #include "Formatting.hxx"
-#include "CLIMeta.hxx"
 
 using namespace std;
 
@@ -180,6 +179,9 @@ void AssemblyData::FillTables() {
         if (isSet) {
             // Load table length record for existent and valid table.
             mapTableLength[bit] = reader.read_uint32();
+            cout << getTableName(bit) << " " << dec << mapTableLength[bit] << endl;
+        } else {
+            mapTableLength[bit] = 0;
             cout << getTableName(bit) << " " << dec << mapTableLength[bit] << endl;
         }
     }
