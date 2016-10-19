@@ -62,5 +62,11 @@
     <ClInclude Include="CLR\CLIHeader.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="CLR\ImageSectionHeader.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CLR\CLIMetaTableRows.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

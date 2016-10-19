@@ -154,6 +154,7 @@
     <ClInclude Include="CLR\AssemblyReader.hxx" />
     <ClInclude Include="CLR\CLIHeader.hxx" />
     <ClInclude Include="CLR\CLIMeta.hxx" />
+    <ClInclude Include="CLR\CLIMetaTableRows.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
     <ClInclude Include="CLR\ImageDataDirectory.hxx" />
     <ClInclude Include="CLR\ImageFileHeader.hxx" />
