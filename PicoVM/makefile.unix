@@ -1,0 +1,3 @@
+CXX=g++
+picovm: main.cxx
+	$(CXX) -std=c++11 -Wall -Wextra main.cxx ./CLR/AssemblyData.cxx
