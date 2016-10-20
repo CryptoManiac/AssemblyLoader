@@ -23,11 +23,11 @@ public:
         uint32_t cliMetadataOffset; // In memory only
 
         std::vector<uint16_t> version;
-		uint16_t streamsCount;
+		uint16_t streamsCount = 0;
 
         struct CLIStream {
-			uint32_t offset;
-			uint32_t size;
+			uint32_t offset = 0;
+			uint32_t size = 0;
             std::vector<uint8_t> name;
         };
 

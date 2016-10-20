@@ -8,7 +8,7 @@
 
 // A one row table representing the current assembly.
 struct ModuleRow {
-    uint16_t generation;
+    uint16_t generation = 0;
     std::vector<uint16_t> name;
     std::vector<uint8_t> guid;
 };
@@ -22,13 +22,13 @@ struct TypeRefRow {
 
 struct TypeDefRow {
     // 4-byte bit mask of type TypeAttributes
-    uint32_t flags;
+    uint32_t flags = 0;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
     std::pair<uint32_t, CLIMetadataTableIndex> extendsType;
 
-    uint32_t fieldList;
-    uint32_t methodList;
+    uint32_t fieldList = 0;
+    uint32_t methodList = 0;
 
     enum struct TypeAttributes : uint32_t {
         // Use this mask to retrieve the type visibility information.
@@ -77,7 +77,7 @@ struct TypeDefRow {
 
 struct FieldRow {
     // 2-byte bit mask of type FieldAttributes
-    uint16_t flags;
+    uint16_t flags = 0;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
 
@@ -110,14 +110,14 @@ struct FieldRow {
 };
 
 struct MethodDefRow {
-    uint32_t rva;
+    uint32_t rva = 0;
     // 2-byte bit mask of type MethodImplAttributes
-    uint16_t implFlags;
+    uint16_t implFlags = 0;
     // 2-byte bit mask of type MethodAttribute
-    uint16_t flags;
+    uint16_t flags = 0;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
-    uint32_t paramList;
+    uint32_t paramList = 0;
 
     enum struct MethodAttribute : uint16_t {
         // Use this mask to retrieve accessibility information.
@@ -181,7 +181,7 @@ struct MethodDefRow {
 };
 
 struct ParamRow {
-    uint16_t flags;
+    uint16_t flags = 0;
     // 2-byte bit mask of type ParamAttributes
     uint16_t sequence;
     std::vector<uint16_t> name;
@@ -200,7 +200,7 @@ struct ParamRow {
 };
 
 struct InterfaceImplRow {
-    uint32_t classRef;
+    uint32_t classRef = 0;
     std::pair<uint32_t, CLIMetadataTableIndex> interfaceRef;
 };
 
@@ -211,7 +211,7 @@ struct MemberRefRow {
 };
 
 struct ConstantRow {
-    uint16_t type;
+    uint16_t type = 0;
     std::pair<uint32_t, CLIMetadataTableIndex> parent;
     std::vector<uint8_t> value;
 };
@@ -228,30 +228,30 @@ struct FieldMarshalRow {
 };
 
 struct DeclSecurityRow {
-    uint16_t action;
+    uint16_t action = 0;
     std::pair<uint32_t, CLIMetadataTableIndex> parent;
     std::vector<uint8_t> permissionSet;
 };
 
 struct ClassLayoutRow {
-    uint16_t packingSize;
-    uint32_t classSize;
-    uint32_t parent;
+    uint16_t packingSize = 0;
+    uint32_t classSize = 0;
+    uint32_t parent = 0;
 };
 
 struct FieldLayoutRow {
-    uint32_t offset;
-    uint32_t parent;
+    uint32_t offset = 0;
+    uint32_t parent = 0;
 };
 
 struct EventMapRow {
-    uint32_t parent;
-    uint32_t eventList;
+    uint32_t parent = 0;
+    uint32_t eventList = 0;
 };
 
 struct EventRow {
     // 2-byte bit mask of type EventAttribute
-    uint16_t eventFlags;
+    uint16_t eventFlags = 0;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CLIMetadataTableIndex> eventType;
 
@@ -270,7 +270,7 @@ struct PropertyMapRow {
 
 struct PropertyRow {
     // 2-byte bit mask of type PropertyAttributes
-    uint16_t flags;
+    uint16_t flags = 0;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
 
@@ -286,8 +286,8 @@ struct PropertyRow {
 
 struct MethodSemanticsRow {
     // 2-byte bit mask of type MethodSemanticsAttributes
-    uint16_t semantics;
-    uint32_t method;
+    uint16_t semantics = 0;
+    uint32_t method = 0;
     std::pair<uint32_t, CLIMetadataTableIndex> association;
 
     enum struct MethodSemanticsAttributes : uint16_t {
@@ -301,17 +301,17 @@ struct MethodSemanticsRow {
 };
 
 struct MethodImplRow {
-    uint32_t classRef;
+    uint32_t classRef = 0;
     std::pair<uint32_t, CLIMetadataTableIndex> methodBody;
     std::pair<uint32_t, CLIMetadataTableIndex> methodDeclaration;
 };
 
 struct ImplMapRow {
     // 2-byte bit mask of type PInvokeAttributes
-    uint16_t mappingFlags;
+    uint16_t mappingFlags = 0;
     std::pair<uint32_t, CLIMetadataTableIndex> memberForwarded;
     std::vector<uint16_t> importName;
-    uint32_t importScope;
+    uint32_t importScope = 0;
 
     enum struct PInvokeAttributes : uint16_t {
         NoMangle          = 0x0001,   
@@ -350,16 +350,16 @@ struct ImplMapRow {
 };
 
 struct FieldRVARow {
-    uint32_t rva;
-    uint32_t field;
+    uint32_t rva = 0;
+    uint32_t field = 0;
 };
 
 struct AssemblyRow {
     // 4-byte constant of type AssemblyHashAlgorithm
-    uint32_t hashAlgId;
+    uint32_t hashAlgId = 0;
     std::vector<uint16_t> version;
     // 4-byte bit mask of type AssemblyFlags
-    uint32_t flags;
+    uint32_t flags = 0;
     std::vector<uint8_t> publicKey;
     std::vector<uint16_t> name;
     std::vector<uint16_t> culture;
@@ -398,15 +398,15 @@ struct AssemblyRow {
 };
 
 struct AssemblyOSRow {
-    uint32_t osPlatformID;
-    uint32_t osMajorVersion;
-    uint32_t osMinorVersion;
+    uint32_t osPlatformID = 0;
+    uint32_t osMajorVersion = 0;
+    uint32_t osMinorVersion = 0;
 };
 
 struct AssemblyRefRow {
     std::vector<uint16_t> version;
     // 4-byte bit mask of type AssemblyFlags
-    uint32_t flags;
+    uint32_t flags = 0;
     std::vector<uint8_t> publicKeyOrToken;
     std::vector<uint16_t> name;
     std::vector<uint16_t> culture;
@@ -414,20 +414,20 @@ struct AssemblyRefRow {
 };
 
 struct AssemblyRefProcessorRow {
-    uint32_t processor;
-    uint32_t assemblyRef;
+    uint32_t processor = 0;
+    uint32_t assemblyRef = 0;
 };
 
 struct AssemblyRefOSRow {
-    uint32_t osPlatformID;
-    uint32_t osMajorVersion;
-    uint32_t osMinorVersion;
-    uint32_t assemblyRef;
+    uint32_t osPlatformID = 0;
+    uint32_t osMajorVersion = 0;
+    uint32_t osMinorVersion = 0;
+    uint32_t assemblyRef = 0;
 };
 
 struct FileRow {
     // 4-byte bit mask of type FileAttributes
-    uint32_t flags;
+    uint32_t flags = 0;
     std::vector<uint16_t> name;
     std::vector<uint8_t> hashValue;
 
@@ -439,8 +439,8 @@ struct FileRow {
 
 struct ExportedTypeRow {
     // 4-byte bit mask of type TypeAttributes
-    uint32_t flags;
-    uint32_t typeDefId;
+    uint32_t flags = 0;
+    uint32_t typeDefId = 0;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
     std::pair<uint32_t, CLIMetadataTableIndex> implementation;
@@ -449,7 +449,7 @@ struct ExportedTypeRow {
 struct ManifestResourceRow {
     uint32_t offset;
     // 4-byte bit mask of type ManifestResourceAttributes
-    uint32_t flags;
+    uint32_t flags = 0;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CLIMetadataTableIndex> implementation;
 
@@ -461,14 +461,14 @@ struct ManifestResourceRow {
 };
 
 struct NestedClassRow {
-    uint32_t nestedClass;
-    uint32_t enclosingClass;
+    uint32_t nestedClass = 0;
+    uint32_t enclosingClass = 0;
 };
 
 struct GenericParamRow {
-    uint16_t number;
+    uint16_t number = 0;
     // 2-byte bitmask of type GenericParamAttributes
-    uint16_t flags;
+    uint16_t flags = 0;
     std::pair<uint32_t, CLIMetadataTableIndex> owner;
     std::vector<uint16_t> name;
 
@@ -496,7 +496,7 @@ struct MethodSpecRow {
 };
 
 struct GenericParamConstraintRow {
-    uint32_t owner;
+    uint32_t owner = 0;
     std::pair<uint32_t, CLIMetadataTableIndex> constraint;
 };
 

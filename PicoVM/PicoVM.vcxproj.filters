@@ -77,5 +77,8 @@
     <ClInclude Include="CLR\CLIMethodBody.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="CLR\EnumCasting.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

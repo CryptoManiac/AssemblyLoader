@@ -9,6 +9,7 @@
 
 #include "AssemblyData.hxx"
 #include "Formatting.hxx"
+#include "EnumCasting.hxx"
 
 using namespace std;
 
@@ -68,7 +69,7 @@ void AssemblyData::InitAssembly() {
 			}
 			fileHeader = header.fileHeader;
             // CLI header address
-            cliHeaderRVA = header.optionalHeader.nt.directories[ImageDirectoryType::cliHeader].rva;
+            cliHeaderRVA = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)].rva;
 			peOffset += sizeof(ImageNTHeader32);
 		}
 		break;
@@ -81,7 +82,7 @@ void AssemblyData::InitAssembly() {
 			}
 			fileHeader = header.fileHeader;
             // CLI header address
-			cliHeaderRVA = header.optionalHeader.nt.directories[ImageDirectoryType::cliHeader].rva;
+			cliHeaderRVA = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)].rva;
 			peOffset += sizeof(ImageNTHeader64);
 		}
 		break;
@@ -112,7 +113,7 @@ void AssemblyData::InitAssembly() {
         // Load CLI header
         reader.read_cliheader(cliHeader, cliHeaderOffset);
 
-        if ((cliHeader.flags & CLIHeaderFlags::nativeEntryPoint) != 0) {
+        if ((cliHeader.flags & _u(CLIHeaderFlags::nativeEntryPoint)) != 0) {
             // Reject header if there are any native-specific flags specified.
             throw runtime_error("Only pure IL assemblies are supported.");
         }
@@ -209,7 +210,7 @@ void AssemblyData::FillTables() {
     map<CLIMetadataTableIndex, uint32_t> mapTableLength;
 
     for (CLIMetadataTableIndex bit = CLIMetadataTableIndex::Module; bit <= CLIMetadataTableIndex::GenericParamConstraint; ++bit) {
-        bool isSet = ((valid >> static_cast<uint8_t>(bit)) & 1) != 0;
+        bool isSet = ((valid >> _u(bit)) & 1) != 0;
         if (isSet) {
             // Load table length record for existent and valid table.
             mapTableLength[bit] = reader.read_uint32();
@@ -752,4 +753,15 @@ uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name)
 
 void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) const {
     methodBody.methodDef = cliMetaDataTables._MethodDef[index];
+    uint32_t offset = getDataOffset(methodBody.methodDef.rva);
+    MethodBodyFlags format = static_cast<MethodBodyFlags>(reader[offset] & 0x03);
+
+    switch (format) {
+    case MethodBodyFlags::TinyFormat:
+        break;
+    case MethodBodyFlags::FatFormat:
+        break;
+    default:
+        throw runtime_error("Invalid body format.");
+    }
 }

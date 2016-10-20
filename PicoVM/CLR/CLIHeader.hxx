@@ -34,7 +34,7 @@ struct CLIHeader {
 	ImageDataDirectory managednativeImageHeader;
 };
 
-enum CLIHeaderFlags : uint32_t {
+enum struct CLIHeaderFlags : uint32_t {
     ilOnly = 0x00000001,
 	thirtyTwoBitOnly = 0x00000002,
     ilLibrary = 0x00000004,

@@ -3,9 +3,10 @@
 
 #include <cstdint>
 #include <vector>
+
 #include "CLIMetadataTableRows.hxx"
 
-enum struct MethodbodyFlags : uint8_t {
+enum struct MethodBodyFlags : uint8_t {
     TinyFormat = 0x2, // Method header is Tiny.
     FatFormat = 0x3,  // Method header is Fat.
     MoreSects = 0x8,  // More sections follow after this header.
@@ -13,11 +14,11 @@ enum struct MethodbodyFlags : uint8_t {
 };
 
 struct ExceptionClause {
-    uint16_t flags;
-    uint16_t tryOffset;
-    uint16_t handlerOffset;
-    uint16_t handlerlength;
-    uint32_t classTokenOrFilterOffset;
+    uint16_t flags = 0;
+    uint16_t tryOffset = 0;
+    uint16_t handlerOffset = 0;
+    uint16_t handlerlength = 0;
+    uint32_t classTokenOrFilterOffset = 0;
 };
 
 enum struct ExceptionClauseFlags : uint8_t {
@@ -30,9 +31,9 @@ struct MethodBody {
     MethodDefRow methodDef;
     std::vector<uint8_t> data;
     std::vector<ExceptionClause> exceptions;
-    uint32_t maxStack;
-    uint32_t localVarSigTok;
-    bool initLocals;
+    uint32_t maxStack = 0;
+    uint32_t localVarSigTok = 0;
+    bool initLocals = false;
 };
 
 #endif

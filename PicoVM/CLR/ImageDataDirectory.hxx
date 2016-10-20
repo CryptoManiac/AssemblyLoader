@@ -4,11 +4,11 @@
 #include <cstdint>
 
 struct ImageDataDirectory {
-	uint32_t rva;
-	uint32_t size;
+	uint32_t rva = 0;
+	uint32_t size = 0;
 };
 
-enum ImageDirectoryType : uint32_t {
+enum struct ImageDirectoryType : uint32_t {
 	exportTable = 0,
 	importTable = 1,
 	resourceDirectory = 2,

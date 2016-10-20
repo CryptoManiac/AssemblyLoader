@@ -158,6 +158,7 @@
     <ClInclude Include="CLR\CLIMetadataTableIndex.hxx" />
     <ClInclude Include="CLR\CLIMetadataTableRows.hxx" />
     <ClInclude Include="CLR\CLIMethodBody.hxx" />
+    <ClInclude Include="CLR\EnumCasting.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
     <ClInclude Include="CLR\ImageDataDirectory.hxx" />
     <ClInclude Include="CLR\ImageFileHeader.hxx" />
