@@ -726,6 +726,10 @@ void AssemblyData::FillTables() {
             cliMetaDataTables._GenericParamConstraint.push_back(row);
         }
     }
+
+//  test
+//    MethodBody mb;
+//    getMethodBody(2, mb);
 }
 
 // Get physical offset from the beginning of file.
@@ -755,7 +759,7 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) const {
     using bflags = MethodBodyFlags;
     using eflags = ExceptionFlags;
 
-    methodBody.methodDef = cliMetaDataTables._MethodDef[index];
+    methodBody.methodDef = cliMetaDataTables._MethodDef[index - 1];
     auto offset = getDataOffset(methodBody.methodDef.rva);
     auto format = bflags(reader[offset] & 0x03);
 
