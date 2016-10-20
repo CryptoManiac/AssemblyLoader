@@ -1,8 +1,11 @@
 CXX=g++
 #CXX=clang++
+CXXFLAGS=-std=c++11 -Wall -Wextra
+SOURCES=main.cxx ./CLR/AssemblyData.cxx ./CLR/CliMetadataTableIndex.cxx 
+
 picovm: main.cxx
 	mkdir build
-	$(CXX) -std=c++11 -Wall -Wextra main.cxx CLR/AssemblyData.cxx CLR/CliMetadataTableIndex.cxx -o build/picovm
+	$(CXX) $(CXXFLAGS) $(SOURCES) -o build/picovm
 clean:
-	rm ./picovm
+	rm -f ./build/picovm
 	rm -r build
