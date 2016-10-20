@@ -27,11 +27,13 @@ public:
         pc = data.begin();
     }
 
+    // tell the current location
     ptrdiff_t tell()
     {
         return distance(data.begin(), pc);
     }
 
+    // [] operator for better readability
     const uint8_t& operator[](uint32_t offset) const
     {
         return data[offset];
@@ -89,6 +91,7 @@ public:
                static_cast<uint64_t>(*(it++)) << 56;
     }
 
+    // Read ascii string 
     ptrdiff_t read_asciiz(std::vector<uint8_t>& result, ptrdiff_t limit)
     {
         ptrdiff_t offset = distance(data.begin(), pc);
@@ -97,6 +100,7 @@ public:
         return read;
     }
 
+    // Read ascii string 
     ptrdiff_t read_asciiz(std::vector<uint8_t>& result, ptrdiff_t offset, ptrdiff_t limit) const
     {
         auto start_it = next(data.cbegin(), offset);
@@ -109,6 +113,7 @@ public:
         return distance(start_it, end_it);
     }
 
+    // Read utf8 string and convert it into utf16 encoding
     ptrdiff_t read_utf8z(std::vector<uint16_t>& result, uint32_t limit)
     {
         ptrdiff_t offset = distance(data.begin(), pc);
@@ -117,6 +122,7 @@ public:
         return read;
     }
 
+    // Read utf8 string and convert it into utf16 encoding
     ptrdiff_t read_utf8z(std::vector<uint16_t>& result, ptrdiff_t offset, ptrdiff_t limit) const
     {
         auto start_it = next(data.cbegin(), offset);
@@ -130,6 +136,7 @@ public:
         return distance(start_it, end_it);
     }
 
+    // Read unique ID 
     void read_guid(std::vector<uint8_t>& result)
     {
         result.clear();
@@ -137,6 +144,7 @@ public:
         pc = next(pc, 16);
     }
 
+    // Read unique ID 
     void read_guid(std::vector<uint8_t>& result, ptrdiff_t offset) const
     {
         auto start_it = next(data.cbegin(), offset);
@@ -144,6 +152,7 @@ public:
         result.assign(start_it, next(start_it, 16));
     }
 
+    // Read binary data
     void read_bytes(std::vector<uint8_t>& result, ptrdiff_t offset, uint32_t length) const
     {
         result.clear();
@@ -151,6 +160,8 @@ public:
         result.assign(start_it, next(start_it, length));
     }
 
+    // Read and decode variable length integer
+    //   For additional information see CorSigUncompress data, declared in cor.h at line 2284.
     ptrdiff_t read_varsize(uint32_t& code)
     {
         auto it = pc;
@@ -174,6 +185,7 @@ public:
         return distance(it, pc);
     }
 
+    // Read and decode variable length integer located at the specified offset
     ptrdiff_t read_varsize(uint32_t& code, ptrdiff_t offset) const
     {
         auto it_start = next(data.cbegin(), offset);
@@ -198,6 +210,7 @@ public:
         return distance(it_start, it);
     }
 
+    // Read and decode variable length integer (static version)
     static ptrdiff_t read_varsize(uint32_t& code, const std::vector<uint8_t>& data, ptrdiff_t offset)
     {
         auto it_start = next(data.cbegin(), offset);
@@ -225,26 +238,31 @@ public:
         return distance(it_start, it);
     }
 
+    // Load PE32 header from the specified offset
     void read_ntheader32(ImageNTHeader32& header32, uint32_t offset)
     {
         header32 = *reinterpret_cast<ImageNTHeader32*>(&(*(data.begin() + offset)));
     }
 
+    // Load PE32+ header from the specified offset
     void read_ntheader64(ImageNTHeader64& header64, uint32_t offset)
     {
         header64 = *reinterpret_cast<ImageNTHeader64*>(&(*(data.begin() + offset)));
     }
 
+    // Load section header from the specified offset
     void read_sectionheader(ImageSectionHeader& sectionheader, uint32_t offset)
     {
         sectionheader = *reinterpret_cast<ImageSectionHeader*>(&(*(data.begin() + offset)));
     }
 
+    // Load CLI header from the specified offset
     void read_cliheader(CLIHeader& cliheader, uint32_t offset)
     {
         cliheader = *reinterpret_cast<CLIHeader*>(&(*(data.begin() + offset)));
     }
 
+    // Read ImageDataDirectory item at the current location
     void read_directory(ImageDataDirectory& directory)
     {
         directory.rva = read_uint32();

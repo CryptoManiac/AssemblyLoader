@@ -6,12 +6,14 @@
 
 #include "CLIMetadataTableIndex.hxx"
 
+// A one row table representing the current assembly.
 struct ModuleRow {
     uint16_t generation;
     std::vector<uint16_t> name;
     std::vector<uint8_t> guid;
 };
 
+// Each row represents an imported class, its namespace, and the assembly which contains it.
 struct TypeRefRow {
     std::pair<uint32_t, CliMetadataTableIndex> resolutionScope;
     std::vector<uint16_t> typeName;
@@ -93,8 +95,6 @@ struct FieldLayoutRow {
     uint32_t offset;
     uint32_t parent;
 };
-
-////
 
 struct EventMapRow {
     uint32_t parent;
@@ -220,8 +220,5 @@ struct GenericParamConstraintRow {
     uint32_t owner;
     std::pair<uint32_t, CliMetadataTableIndex> constraint;
 };
-
-
-
 
 #endif
