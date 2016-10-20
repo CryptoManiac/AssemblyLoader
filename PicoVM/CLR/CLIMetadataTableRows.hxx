@@ -30,7 +30,7 @@ struct TypeDefRow {
     uint32_t fieldList;
     uint32_t methodList;
 
-    enum TypeAttributes : uint32_t {
+    enum struct TypeAttributes : uint32_t {
         // Use this mask to retrieve the type visibility information.
         VisibilityMask        =   0x00000007,
         NotPublic             =   0x00000000, // Class is not public scope.
@@ -81,7 +81,7 @@ struct FieldRow {
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
 
-    enum FieldAttributes : uint16_t {
+    enum struct FieldAttributes : uint16_t {
         // Use this mask to retrieve accessibility information.
         FieldAccessMask           =   0x0007,
         PrivateScope              =   0x0000, // Member not referenceable.
@@ -119,7 +119,7 @@ struct MethodDefRow {
     std::vector<uint32_t> signature;
     uint32_t paramList;
 
-    enum MethodAttribute : uint16_t {
+    enum struct MethodAttribute : uint16_t {
         // Use this mask to retrieve accessibility information.
         MemberAccessMask          =   0x0007,
         PrivateScope              =   0x0000, // Member not referenceable.
@@ -157,7 +157,7 @@ struct MethodDefRow {
         RequireSecObject          =   0x8000, // Method calls another method containing security code.
     };
 
-    enum MethodImplAttributes : uint16_t {
+    enum struct MethodImplAttributes : uint16_t {
         // Code impl mask
         CodeTypeMask      =   0x0003,   // Flags about code type.
         IL                =   0x0000,   // Method impl is IL.
@@ -186,7 +186,7 @@ struct ParamRow {
     uint16_t sequence;
     std::vector<uint16_t> name;
 
-    enum ParamAttributes : uint16_t {
+    enum struct ParamAttributes : uint16_t {
         In                        =   0x0001,     // Param is [In]
         Out                       =   0x0002,     // Param is [out]
         Optional                  =   0x0010,     // Param is optional
@@ -255,7 +255,7 @@ struct EventRow {
     std::vector<uint16_t> name;
     std::pair<uint32_t, CLIMetadataTableIndex> eventType;
 
-    enum EventAttribute : uint16_t {
+    enum struct EventAttribute : uint16_t {
         evSpecialName           =   0x0200, // Event is special. Name describes how.     
         // Reserved flags for Runtime use only.
         evReservedMask          =   0x0400,
@@ -274,7 +274,7 @@ struct PropertyRow {
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
 
-    enum PropertyAttributes : uint16_t {
+    enum struct PropertyAttributes : uint16_t {
         SpecialName           =   0x0200, // Property is special. Name describes how.
         // Reserved flags for Runtime use only.
         ReservedMask          =   0xf400,
@@ -290,7 +290,7 @@ struct MethodSemanticsRow {
     uint32_t method;
     std::pair<uint32_t, CLIMetadataTableIndex> association;
 
-    enum MethodSemanticsAttributes : uint16_t {
+    enum struct MethodSemanticsAttributes : uint16_t {
         Setter    =   0x0001,     // Setter for property
         Getter    =   0x0002,     // Getter for property
         Other     =   0x0004,     // other method for property or event
@@ -313,7 +313,7 @@ struct ImplMapRow {
     std::vector<uint16_t> importName;
     uint32_t importScope;
 
-    enum PInvokeAttributes : uint16_t {
+    enum struct PInvokeAttributes : uint16_t {
         NoMangle          = 0x0001,   
 
         // Use this mask to retrieve the CharSet information.
@@ -364,7 +364,7 @@ struct AssemblyRow {
     std::vector<uint16_t> name;
     std::vector<uint16_t> culture;
 
-    enum AssemblyFlags : uint16_t {
+    enum struct AssemblyFlags : uint16_t {
         PublicKey             =   0x0001,     // The assembly ref holds the full (unhashed) public key.
         PA_None               =   0x0000,     // Processor Architecture unspecified.
         PA_MSIL               =   0x0010,     // Processor Architecture: neutral (PE32).
@@ -380,7 +380,7 @@ struct AssemblyRow {
         Retargetable          =   0x0100,     // The assembly can be retargeted (at runtime) to an assembly from a different publisher.
     };
 
-    enum AssemblyHashAlgorithm : uint32_t {
+    enum struct AssemblyHashAlgorithm : uint32_t {
 		None				= 0,
 		MD2					= 0x8001,
 		MD4					= 0x8002,
@@ -431,7 +431,7 @@ struct FileRow {
     std::vector<uint16_t> name;
     std::vector<uint8_t> hashValue;
 
-    enum FileAttributes {
+    enum struct FileAttributes {
         ContainsMetaData   = 0x0000, // This is not a resource file.
         ContainsNoMetaData = 0x0001, // This is a resource file or other non-metadata-containing file.
     };
@@ -453,7 +453,7 @@ struct ManifestResourceRow {
     std::vector<uint16_t> name;
     std::pair<uint32_t, CLIMetadataTableIndex> implementation;
 
-    enum ManifestResourceAttributes {
+    enum struct ManifestResourceAttributes {
         VisibilityMask        =   0x0007,
         Public                =   0x0001, // The Resource is exported from the Assembly.
         Private               =   0x0002, // The Resource is private to the Assembly.
@@ -472,7 +472,7 @@ struct GenericParamRow {
     std::pair<uint32_t, CLIMetadataTableIndex> owner;
     std::vector<uint16_t> name;
 
-    enum GenericParamAttributes {
+    enum struct GenericParamAttributes {
         // Variance of type parameters, only applicable to generic parameters 
         // for generic interfaces and delegates
         gpVarianceMask = 0x0003,

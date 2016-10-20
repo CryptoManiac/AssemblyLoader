@@ -8,25 +8,25 @@ using namespace std;
 CLIMetadataTableIndex& operator++(CLIMetadataTableIndex& value)
 {
     const vector<CLIMetadataTableIndex> tables = {
-        /* 00 */ Module,                 /* 01 */ TypeRef,                /* 02  */ TypeDef,
-        /* 04 */ Field,                  /* 06 */ MethodDef,              /* 08  */ Param,
-        /* 09 */ InterfaceImpl,          /* 10 */ MemberRef,              /* 11  */ Constant,
-        /* 12 */ CustomAttribute,        /* 13 */ FieldMarshal,           /* 14  */ DeclSecurity,
-        /* 15 */ ClassLayout,            /* 16 */ FieldLayout,            /* 17  */ StandAloneSig,
-        /* 18 */ EventMap,               /* 20 */ Event,                  /* 21  */ PropertyMap,
-        /* 23 */ Property,               /* 24 */ MethodSemantics,        /* 25  */ MethodImpl,
-        /* 26 */ ModuleRef,              /* 27 */ TypeSpec,               /* 28  */ ImplMap,
-        /* 29 */ FieldRVA,               /* 32 */ Assembly,               /* 33  */ AssemblyProcessor,
-        /* 34 */ AssemblyOS,             /* 35 */ AssemblyRef,            /* 36  */ AssemblyRefProcessor,
-        /* 37 */ AssemblyRefOS,          /* 38 */ File,                   /* 39  */ ExportedType,
-        /* 40 */ ManifestResource,       /* 41 */ NestedClass,            /* 42  */ GenericParam,
-        /* 43 */ MethodSpec,             /* 44 */ GenericParamConstraint, /* 256 */ Unknown
+        /* 00 */ CLIMetadataTableIndex::Module,                 /* 01 */ CLIMetadataTableIndex::TypeRef,                /* 02  */ CLIMetadataTableIndex::TypeDef,
+        /* 04 */ CLIMetadataTableIndex::Field,                  /* 06 */ CLIMetadataTableIndex::MethodDef,              /* 08  */ CLIMetadataTableIndex::Param,
+        /* 09 */ CLIMetadataTableIndex::InterfaceImpl,          /* 10 */ CLIMetadataTableIndex::MemberRef,              /* 11  */ CLIMetadataTableIndex::Constant,
+        /* 12 */ CLIMetadataTableIndex::CustomAttribute,        /* 13 */ CLIMetadataTableIndex::FieldMarshal,           /* 14  */ CLIMetadataTableIndex::DeclSecurity,
+        /* 15 */ CLIMetadataTableIndex::ClassLayout,            /* 16 */ CLIMetadataTableIndex::FieldLayout,            /* 17  */ CLIMetadataTableIndex::StandAloneSig,
+        /* 18 */ CLIMetadataTableIndex::EventMap,               /* 20 */ CLIMetadataTableIndex::Event,                  /* 21  */ CLIMetadataTableIndex::PropertyMap,
+        /* 23 */ CLIMetadataTableIndex::Property,               /* 24 */ CLIMetadataTableIndex::MethodSemantics,        /* 25  */ CLIMetadataTableIndex::MethodImpl,
+        /* 26 */ CLIMetadataTableIndex::ModuleRef,              /* 27 */ CLIMetadataTableIndex::TypeSpec,               /* 28  */ CLIMetadataTableIndex::ImplMap,
+        /* 29 */ CLIMetadataTableIndex::FieldRVA,               /* 32 */ CLIMetadataTableIndex::Assembly,               /* 33  */ CLIMetadataTableIndex::AssemblyProcessor,
+        /* 34 */ CLIMetadataTableIndex::AssemblyOS,             /* 35 */ CLIMetadataTableIndex::AssemblyRef,            /* 36  */ CLIMetadataTableIndex::AssemblyRefProcessor,
+        /* 37 */ CLIMetadataTableIndex::AssemblyRefOS,          /* 38 */ CLIMetadataTableIndex::File,                   /* 39  */ CLIMetadataTableIndex::ExportedType,
+        /* 40 */ CLIMetadataTableIndex::ManifestResource,       /* 41 */ CLIMetadataTableIndex::NestedClass,            /* 42  */ CLIMetadataTableIndex::GenericParam,
+        /* 43 */ CLIMetadataTableIndex::MethodSpec,             /* 44 */ CLIMetadataTableIndex::GenericParamConstraint, /* 256 */ CLIMetadataTableIndex::Unknown
     };
 
     auto it = find(tables.cbegin(), tables.cend(), value);
-    if (*it == Unknown || it == tables.cend()) {
+    if (*it == CLIMetadataTableIndex::Unknown || it == tables.cend()) {
         // Overflow
-        return value = Module;
+        return value = CLIMetadataTableIndex::Module;
     }
 
     return value = *next(it, 1);
@@ -34,45 +34,45 @@ CLIMetadataTableIndex& operator++(CLIMetadataTableIndex& value)
 
 string getTableName(const CLIMetadataTableIndex& value) {
     const map<CLIMetadataTableIndex, string> tables = {
-        { Module, "Module"},
-        { TypeRef, "TypeRef"},
-        { TypeDef, "TypeDef"},
-        { Field, "Field"},
-        { MethodDef, "MethodDef"},
-        { Param, "Param"},
-        { InterfaceImpl, "InterfaceImpl"},
-        { MemberRef, "MemberRef"},
-        { Constant, "Constant"},
-        { CustomAttribute, "CustomAttribute"},
-        { FieldMarshal, "FieldMarshal"},
-        { DeclSecurity, "DeclSecurity"},
-        { ClassLayout, "ClassLayout"},
-        { FieldLayout, "FieldLayout"},
-        { StandAloneSig, "StandAloneSig"},
-        { EventMap, "EventMap"},
-        { Event, "Event"},
-        { PropertyMap, "PropertyMap"},
-        { Property, "Property"},
-        { MethodSemantics, "MethodSemantics"},
-        { MethodImpl, "MethodImpl"},
-        { ModuleRef, "ModuleRef"},
-        { TypeSpec, "TypeSpec"},
-        { ImplMap, "ImplMap"},
-        { FieldRVA, "FieldRVA"},
-        { Assembly, "Assembly"},
-        { AssemblyProcessor, "AssemblyProcessor"},
-        { AssemblyOS, "AssemblyOS"},
-        { AssemblyRef, "AssemblyRef"},
-        { AssemblyRefProcessor, "AssemblyRefProcessor"},
-        { AssemblyRefOS, "AssemblyRefOS"},
-        { File, "File"},
-        { ExportedType, "ExportedType"},
-        { ManifestResource, "ManifestResource"},
-        { NestedClass, "NestedClass"},
-        { GenericParam, "GenericParam"},
-        { MethodSpec, "MethodSpec"},
-        { GenericParamConstraint, "GenericParamConstraint" },
-        { Unknown, "Unknown"}
+        { CLIMetadataTableIndex::Module, "Module"},
+        { CLIMetadataTableIndex::TypeRef, "TypeRef"},
+        { CLIMetadataTableIndex::TypeDef, "TypeDef"},
+        { CLIMetadataTableIndex::Field, "Field"},
+        { CLIMetadataTableIndex::MethodDef, "MethodDef"},
+        { CLIMetadataTableIndex::Param, "Param"},
+        { CLIMetadataTableIndex::InterfaceImpl, "InterfaceImpl"},
+        { CLIMetadataTableIndex::MemberRef, "MemberRef"},
+        { CLIMetadataTableIndex::Constant, "Constant"},
+        { CLIMetadataTableIndex::CustomAttribute, "CustomAttribute"},
+        { CLIMetadataTableIndex::FieldMarshal, "FieldMarshal"},
+        { CLIMetadataTableIndex::DeclSecurity, "DeclSecurity"},
+        { CLIMetadataTableIndex::ClassLayout, "ClassLayout"},
+        { CLIMetadataTableIndex::FieldLayout, "FieldLayout"},
+        { CLIMetadataTableIndex::StandAloneSig, "StandAloneSig"},
+        { CLIMetadataTableIndex::EventMap, "EventMap"},
+        { CLIMetadataTableIndex::Event, "Event"},
+        { CLIMetadataTableIndex::PropertyMap, "PropertyMap"},
+        { CLIMetadataTableIndex::Property, "Property"},
+        { CLIMetadataTableIndex::MethodSemantics, "MethodSemantics"},
+        { CLIMetadataTableIndex::MethodImpl, "MethodImpl"},
+        { CLIMetadataTableIndex::ModuleRef, "ModuleRef"},
+        { CLIMetadataTableIndex::TypeSpec, "TypeSpec"},
+        { CLIMetadataTableIndex::ImplMap, "ImplMap"},
+        { CLIMetadataTableIndex::FieldRVA, "FieldRVA"},
+        { CLIMetadataTableIndex::Assembly, "Assembly"},
+        { CLIMetadataTableIndex::AssemblyProcessor, "AssemblyProcessor"},
+        { CLIMetadataTableIndex::AssemblyOS, "AssemblyOS"},
+        { CLIMetadataTableIndex::AssemblyRef, "AssemblyRef"},
+        { CLIMetadataTableIndex::AssemblyRefProcessor, "AssemblyRefProcessor"},
+        { CLIMetadataTableIndex::AssemblyRefOS, "AssemblyRefOS"},
+        { CLIMetadataTableIndex::File, "File"},
+        { CLIMetadataTableIndex::ExportedType, "ExportedType"},
+        { CLIMetadataTableIndex::ManifestResource, "ManifestResource"},
+        { CLIMetadataTableIndex::NestedClass, "NestedClass"},
+        { CLIMetadataTableIndex::GenericParam, "GenericParam"},
+        { CLIMetadataTableIndex::MethodSpec, "MethodSpec"},
+        { CLIMetadataTableIndex::GenericParamConstraint, "GenericParamConstraint" },
+        { CLIMetadataTableIndex::Unknown, "Unknown"}
     };
 
     auto it = tables.find(value);

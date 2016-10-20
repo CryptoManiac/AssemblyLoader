@@ -10,6 +10,7 @@
 #include "ImageNTHeader64.hxx"
 #include "ImageSectionHeader.hxx"
 #include "CLIHeader.hxx"
+#include "CLIMethodBody.hxx"
 
 class AssemblyReader
 {

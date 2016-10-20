@@ -68,10 +68,13 @@
     <ClInclude Include="CLR\ImageSectionHeader.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="CLR\CLIMetaTableRows.hxx">
+    <ClInclude Include="CLR\CLIMetadataTableIndex.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="CLR\CLIMetadataTableIndex.hxx">
+    <ClInclude Include="CLR\CLIMetadataTableRows.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CLR\CLIMethodBody.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
