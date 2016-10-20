@@ -119,7 +119,7 @@ struct MethodDefRow {
     std::vector<uint32_t> signature;
     uint32_t paramList;
 
-    enum MethodAttribute {
+    enum MethodAttribute : uint16_t {
         // Use this mask to retrieve accessibility information.
         mdMemberAccessMask          =   0x0007,
         mdPrivateScope              =   0x0000, // Member not referenceable.
@@ -160,7 +160,7 @@ struct MethodDefRow {
 
     };
 
-    enum MethodImplAttributes {
+    enum MethodImplAttributes : uint16_t {
         // Code impl mask
         miCodeTypeMask      =   0x0003,   // Flags about code type.
         miIL                =   0x0000,   // Method impl is IL.
