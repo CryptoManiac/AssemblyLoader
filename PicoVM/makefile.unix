@@ -1,3 +1,6 @@
 CXX=g++
+CXXFLAGS=-std=c++11 -Wall -Wextra
+SOURCES=main.cxx ./CLR/AssemblyData.cxx ./CLR/CliMetadataTableIndex.cxx
+
 picovm: main.cxx
-	$(CXX) -std=c++11 -Wall -Wextra main.cxx ./CLR/AssemblyData.cxx
+	$(CXX) $(CXXFLAGS) $(SOURCES)

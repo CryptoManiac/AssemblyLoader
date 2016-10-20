@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "CLIMetadataTableIndex.hxx"
+#include "CliMetadataTableIndex.hxx"
 
 // A one row table representing the current assembly.
 struct ModuleRow {
