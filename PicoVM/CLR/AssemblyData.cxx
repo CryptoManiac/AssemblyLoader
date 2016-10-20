@@ -206,9 +206,9 @@ void AssemblyData::FillTables() {
     auto metaDataOffset = metaHeaderOffset + 24;
     reader.seek(metaDataOffset);
 
-    map<CliMetadataTableIndex, uint32_t> mapTableLength;
+    map<CLIMetadataTableIndex, uint32_t> mapTableLength;
 
-    for (CliMetadataTableIndex bit = Module; bit <= GenericParamConstraint; ++bit) {
+    for (CLIMetadataTableIndex bit = Module; bit <= GenericParamConstraint; ++bit) {
         bool isSet = ((valid >> bit) & 1) != 0;
         if (isSet) {
             // Load table length record for existent and valid table.
@@ -222,12 +222,12 @@ void AssemblyData::FillTables() {
     }
 
     // Read row index.
-    auto readRowIndex = [&r, &mapTableLength](CliMetadataTableIndex tableIndex)->uint32_t {
+    auto readRowIndex = [&r, &mapTableLength](CLIMetadataTableIndex tableIndex)->uint32_t {
         // Using 32 bit addresses if table has more than 0xffff rows.
         return mapTableLength[tableIndex] >= 0xffff ? r.read_uint32() : r.read_uint16();
     };
 
-    auto readRowIndexChoice = [&r, &mapTableLength](const vector<CliMetadataTableIndex>& tables)->pair<uint32_t, CliMetadataTableIndex> {
+    auto readRowIndexChoice = [&r, &mapTableLength](const vector<CLIMetadataTableIndex>& tables)->pair<uint32_t, CLIMetadataTableIndex> {
         uint32_t max = 0;
 
         for (const auto& tableID : tables) {
@@ -272,7 +272,7 @@ void AssemblyData::FillTables() {
 
     {
         // TypeRef
-        const vector<CliMetadataTableIndex> scope = { Module, ModuleRef, AssemblyRef, TypeRef };
+        const vector<CLIMetadataTableIndex> scope = { Module, ModuleRef, AssemblyRef, TypeRef };
         for (uint32_t n = 0; n < mapTableLength[TypeRef]; ++n) {
             TypeRefRow row;
 
@@ -288,7 +288,7 @@ void AssemblyData::FillTables() {
 
     {
         // TypeDef
-        const vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
+        const vector<CLIMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
         for (uint32_t n = 0; n < mapTableLength[TypeDef]; ++n) {
             TypeDefRow row;
             // 4-byte bit mask of type TypeAttributes
@@ -342,7 +342,7 @@ void AssemblyData::FillTables() {
 
     {
         // InterfaceImpl
-        const vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
+        const vector<CLIMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
         for (uint32_t n = 0; n < mapTableLength[InterfaceImpl]; ++n) {
             InterfaceImplRow row;
             // Index into the TypeDef table
@@ -355,7 +355,7 @@ void AssemblyData::FillTables() {
 
     {
         // MemberRef
-        const vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, ModuleRef, MethodDef, TypeSpec };
+        const vector<CLIMetadataTableIndex> scope = { TypeDef, TypeRef, ModuleRef, MethodDef, TypeSpec };
         for (uint32_t n = 0; n < mapTableLength[MemberRef]; ++n) {
             MemberRefRow row;
             // MemberRefParent index into the TypeRef, ModuleRef, MethodDef, TypeSpec, or TypeDef tables
@@ -368,7 +368,7 @@ void AssemblyData::FillTables() {
 
     {
         // Constant
-        const vector<CliMetadataTableIndex> scope = { Field, Param, Property };
+        const vector<CLIMetadataTableIndex> scope = { Field, Param, Property };
         for (uint32_t n = 0; n < mapTableLength[Constant]; ++n) {
             ConstantRow row;
             row.type = reader.read_uint16();
@@ -381,11 +381,11 @@ void AssemblyData::FillTables() {
 
     {
         // CustomAttribute
-        const vector<CliMetadataTableIndex> parent = {
+        const vector<CLIMetadataTableIndex> parent = {
             MethodDef, Field, TypeRef, TypeDef, Param, InterfaceImpl, MemberRef, Module, Unknown /* FIXME: ??? was Permission */,
             Property, Event, StandAloneSig, ModuleRef, TypeSpec, Assembly, AssemblyRef, File, ExportedType, ManifestResource
         };
-        vector<CliMetadataTableIndex> type = { Unknown, Unknown, MethodDef, MemberRef, Unknown };
+        vector<CLIMetadataTableIndex> type = { Unknown, Unknown, MethodDef, MemberRef, Unknown };
         for (uint32_t n = 0; n < mapTableLength[CustomAttribute]; ++n) {
             CustomAttributeRow row;
             // HasCustomAttribute index
@@ -399,7 +399,7 @@ void AssemblyData::FillTables() {
 
     {
         // FieldMarshal
-        const vector<CliMetadataTableIndex> parent = { Field, Param };
+        const vector<CLIMetadataTableIndex> parent = { Field, Param };
         for (uint32_t n = 0; n < mapTableLength[FieldMarshal]; ++n) {
             FieldMarshalRow row;
             // HasFieldMarshal index
@@ -410,7 +410,7 @@ void AssemblyData::FillTables() {
     }
 
     // DeclSecurity
-    const vector<CliMetadataTableIndex> parent = { TypeDef, MethodDef, Assembly };
+    const vector<CLIMetadataTableIndex> parent = { TypeDef, MethodDef, Assembly };
     for (uint32_t n = 0; n < mapTableLength[DeclSecurity]; ++n) {
         DeclSecurityRow row;
         row.action = reader.read_uint16();
@@ -454,7 +454,7 @@ void AssemblyData::FillTables() {
 
     {
         // Event
-        const vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
+        const vector<CLIMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
         for (uint32_t n = 0; n < mapTableLength[Event]; ++n) {
             EventRow row;
             // 2-byte bit mask of type EventAttribute
@@ -487,7 +487,7 @@ void AssemblyData::FillTables() {
 
     {
         // MethodSemantics
-        const vector<CliMetadataTableIndex> scope = { Event, Property };
+        const vector<CLIMetadataTableIndex> scope = { Event, Property };
         for (uint32_t n = 0; n < mapTableLength[MethodSemantics]; ++n) {
             MethodSemanticsRow row;
             // 2-byte bit mask of type MethodSemanticsAttributes
@@ -502,8 +502,8 @@ void AssemblyData::FillTables() {
 
     {
         // MethodImpl
-        const vector<CliMetadataTableIndex> body = { MethodDef, MemberRef };
-        const vector<CliMetadataTableIndex> declaration = { MethodDef, MemberRef };
+        const vector<CLIMetadataTableIndex> body = { MethodDef, MemberRef };
+        const vector<CLIMetadataTableIndex> declaration = { MethodDef, MemberRef };
         for (uint32_t n = 0; n < mapTableLength[MethodImpl]; ++n) {
             MethodImplRow row;
             // Index into TypeDef table
@@ -532,7 +532,7 @@ void AssemblyData::FillTables() {
 
     {
         // ImplMap
-        const vector<CliMetadataTableIndex> scope = { Field, MethodDef };
+        const vector<CLIMetadataTableIndex> scope = { Field, MethodDef };
         for (uint32_t n = 0; n < mapTableLength[ImplMap]; ++n) {
             ImplMapRow row;
             // 2-byte bit mask of type PInvokeAttributes
@@ -646,7 +646,7 @@ void AssemblyData::FillTables() {
 
     {
         // ExportedType
-        const vector<CliMetadataTableIndex> scope = { File, AssemblyRef /*nl*/, ExportedType };
+        const vector<CLIMetadataTableIndex> scope = { File, AssemblyRef /*nl*/, ExportedType };
         for (uint32_t n = 0; n < mapTableLength[ExportedType]; ++n) {
             ExportedTypeRow row;
             // 4-byte bit mask of type TypeAttributes
@@ -663,7 +663,7 @@ void AssemblyData::FillTables() {
 
     {
         // ManifestResource
-        const vector<CliMetadataTableIndex> scope = { File, AssemblyRef, ExportedType /*nl*/ };
+        const vector<CLIMetadataTableIndex> scope = { File, AssemblyRef, ExportedType /*nl*/ };
         for (uint32_t n = 0; n < mapTableLength[ManifestResource]; ++n) {
             ManifestResourceRow row;
             row.offset = reader.read_uint32();
@@ -686,7 +686,7 @@ void AssemblyData::FillTables() {
 
     {
         // GenericParam
-        const vector<CliMetadataTableIndex> scope = { TypeDef, MethodDef };
+        const vector<CLIMetadataTableIndex> scope = { TypeDef, MethodDef };
         for (uint32_t n = 0; n < mapTableLength[GenericParam]; ++n) {
             GenericParamRow row;
             // 2-byte index of the generic parameter
@@ -702,7 +702,7 @@ void AssemblyData::FillTables() {
 
     {
         // MethodSpec
-        const vector<CliMetadataTableIndex> scope = { MethodDef, MemberRef };
+        const vector<CLIMetadataTableIndex> scope = { MethodDef, MemberRef };
         for (uint32_t n = 0; n < mapTableLength[MethodSpec]; ++n) {
             MethodSpecRow row;
             row.method = readRowIndexChoice(scope);
@@ -714,7 +714,7 @@ void AssemblyData::FillTables() {
 
     {
         // GenericParamConstraint
-        const vector<CliMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
+        const vector<CLIMetadataTableIndex> scope = { TypeDef, TypeRef, TypeSpec };
         for (uint32_t n = 0; n < mapTableLength[GenericParamConstraint]; ++n) {
             GenericParamConstraintRow row;
             // Index into the GenericParam table

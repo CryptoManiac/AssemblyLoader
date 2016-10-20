@@ -5,7 +5,7 @@ CXXFLAGS=-std=c++11 -Wall -Wextra
 OBJECTS= \
          main.o \
          ./CLR/AssemblyData.o \
-         ./CLR/CliMetadataTableIndex.o \
+         ./CLR/CLIMetadataTableIndex.o \
          ./CLR/AssemblyReader.o
 
 all: picovm

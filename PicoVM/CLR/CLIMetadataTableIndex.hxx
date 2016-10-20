@@ -2,7 +2,7 @@
 #define CLIMETA_HXX
 #include <string>
 
-enum CliMetadataTableIndex : uint8_t {
+enum CLIMetadataTableIndex : uint8_t {
     Module = 0x00,              TypeRef = 0x01,             TypeDef = 0x02,
     Field = 0x04,               MethodDef = 0x06,           Param = 0x08,
     InterfaceImpl = 0x09,       MemberRef = 0x0A,           Constant = 0x0B,
@@ -19,7 +19,7 @@ enum CliMetadataTableIndex : uint8_t {
 };
 
 // Beware, brain-compiled code ahead! 
-CliMetadataTableIndex& operator++(CliMetadataTableIndex& value);
-std::string getTableName(const CliMetadataTableIndex& value);
+CLIMetadataTableIndex& operator++(CLIMetadataTableIndex& value);
+std::string getTableName(const CLIMetadataTableIndex& value);
 
 #endif

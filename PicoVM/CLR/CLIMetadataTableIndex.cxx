@@ -5,9 +5,9 @@
 
 using namespace std;
 
-CliMetadataTableIndex& operator++(CliMetadataTableIndex& value)
+CLIMetadataTableIndex& operator++(CLIMetadataTableIndex& value)
 {
-    const vector<CliMetadataTableIndex> tables = {
+    const vector<CLIMetadataTableIndex> tables = {
         /* 00 */ Module,                 /* 01 */ TypeRef,                /* 02  */ TypeDef,
         /* 04 */ Field,                  /* 06 */ MethodDef,              /* 08  */ Param,
         /* 09 */ InterfaceImpl,          /* 10 */ MemberRef,              /* 11  */ Constant,
@@ -32,8 +32,8 @@ CliMetadataTableIndex& operator++(CliMetadataTableIndex& value)
     return value = *next(it, 1);
 }
 
-string getTableName(const CliMetadataTableIndex& value) {
-    const map<CliMetadataTableIndex, string> tables = {
+string getTableName(const CLIMetadataTableIndex& value) {
+    const map<CLIMetadataTableIndex, string> tables = {
         { Module, "Module"},
         { TypeRef, "TypeRef"},
         { TypeDef, "TypeDef"},

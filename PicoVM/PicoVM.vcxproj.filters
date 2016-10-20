@@ -21,7 +21,7 @@
     <ClCompile Include="CLR\AssemblyData.cxx">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="CLR\CliMetadataTableIndex.cxx">
+    <ClCompile Include="CLR\CLIMetadataTableIndex.cxx">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
     <ClCompile Include="CLR\AssemblyReader.cxx">
@@ -71,7 +71,7 @@
     <ClInclude Include="CLR\CLIMetaTableRows.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="CLR\CliMetadataTableIndex.hxx">
+    <ClInclude Include="CLR\CLIMetadataTableIndex.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
