@@ -148,6 +148,7 @@
   <ItemGroup>
     <ClCompile Include="CLR\AssemblyData.cxx" />
     <ClCompile Include="CLR\CliMetadataTableIndex.cxx" />
+    <ClCompile Include="CLR\AssemblyReader.cxx" />
     <ClCompile Include="main.cxx" />
   </ItemGroup>
   <ItemGroup>
