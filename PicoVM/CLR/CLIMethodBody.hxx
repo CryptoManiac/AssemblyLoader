@@ -14,17 +14,25 @@ enum struct MethodBodyFlags : uint8_t {
 };
 
 struct ExceptionClause {
-    uint16_t flags = 0;
-    uint16_t tryOffset = 0;
-    uint16_t handlerOffset = 0;
-    uint16_t handlerlength = 0;
+    uint32_t flags = 0;
+    uint32_t tryOffset = 0;
+    uint32_t tryLength = 0;
+    uint32_t handlerOffset = 0;
+    uint32_t handlerLength = 0;
     uint32_t classTokenOrFilterOffset = 0;
 };
 
-enum struct ExceptionClauseFlags : uint8_t {
+enum struct ExceptionFlags : uint8_t {
     EHTable = 0x01,   // It's exception handling section
     FatFormat = 0x40, // Section uses Fat format
     MoreSects = 0x80, // More sections to follow
+};
+
+enum struct ExceptionClauseFlags : uint16_t {
+    ClauseException = 0x0000, // A typed exception clause
+    ClauseFilter = 0x0001,    // An exception filter and handler clause
+    ClauseFinally = 0x0002,   // A finally clause
+    ClauseFault = 0x0004      // Fault clause(finally that is called on the exception only)
 };
 
 struct MethodBody {

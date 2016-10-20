@@ -47,14 +47,14 @@ AssemblyData::AssemblyData(const vector<uint8_t>& assembly_bytes) {
 
 void AssemblyData::InitAssembly() {
     // PE headers
-    uint32_t peOffset = reader.read_uint32(0x3c);
+    auto peOffset = reader.read_uint32(0x3c);
 	if (reader.read_uint32(peOffset) != 0x4550) {
         // PE header should begin with PE\0\0 magic value.
 		throw runtime_error("Invalid PE header");
 	}
 
     // PE standard identifier
-	uint16_t standard = reader.read_uint16(peOffset + 24);
+	auto standard = reader.read_uint16(peOffset + 24);
 	uint32_t cliHeaderRVA = 0;
 
 	switch (standard) {
@@ -100,7 +100,7 @@ void AssemblyData::InitAssembly() {
 
     // CLI Header 
     {
-        uint32_t cliHeaderOffset = getDataOffset(cliHeaderRVA);
+        auto cliHeaderOffset = getDataOffset(cliHeaderRVA);
         if (cliHeaderOffset == numeric_limits<uint32_t>::max()) {
             throw runtime_error("CLI header could not be found.");
         }
@@ -126,7 +126,7 @@ void AssemblyData::InitAssembly() {
     }
 
     // CLI version data string
-    uint32_t versionLength = reader.read_uint32(cliMetadata.cliMetadataOffset + 12);
+    auto versionLength = reader.read_uint32(cliMetadata.cliMetadataOffset + 12);
     cliMetadata.version.reserve(versionLength);
     reader.read_utf8z(cliMetadata.version, cliMetadata.cliMetadataOffset + 16, versionLength);
     
@@ -180,10 +180,10 @@ void AssemblyData::FillTables() {
     // Read 16 or 32 bit index, and fill the vector by binary data at this index.
     auto readBlob = [&r, heapSizes, blobStreamOffset](vector<uint8_t>& result) {
         uint32_t index = (heapSizes & 0x04) != 0 ? r.read_uint32() : r.read_uint16();
-        uint32_t offset = blobStreamOffset + index;
+        auto offset = blobStreamOffset + index;
         uint32_t length;
         // Get length of the following data stream
-        uint32_t read = r.read_varsize(length, offset);
+        auto read = r.read_varsize(length, offset);
         // Read binary data into vector
         r.read_bytes(result, offset + read, length);
     };
@@ -742,7 +742,7 @@ uint32_t AssemblyData::getDataOffset (uint32_t address) const {
 
 uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name) const {
     for (uint32_t i = 0; i < streamsCount; ++i) {
-        const vector<uint8_t>& streamName = streams[i].name;
+        const auto& streamName = streams[i].name;
         if (streamName.size() == name.size() && equal(begin(streamName), end(streamName), begin(name))) {
             return cliMetadataOffset + streams[i].offset;
         }
@@ -752,16 +752,68 @@ uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name)
 };
 
 void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) const {
-    methodBody.methodDef = cliMetaDataTables._MethodDef[index];
-    uint32_t offset = getDataOffset(methodBody.methodDef.rva);
-    MethodBodyFlags format = static_cast<MethodBodyFlags>(reader[offset] & 0x03);
+    using bflags = MethodBodyFlags;
+    using eflags = ExceptionFlags;
 
-    switch (format) {
-    case MethodBodyFlags::TinyFormat:
-        break;
-    case MethodBodyFlags::FatFormat:
-        break;
-    default:
+    methodBody.methodDef = cliMetaDataTables._MethodDef[index];
+    auto offset = getDataOffset(methodBody.methodDef.rva);
+    auto format = bflags(reader[offset] & 0x03);
+
+    if (format == bflags::TinyFormat) {
+        methodBody.maxStack = 8;
+        auto length = reader[offset++] >> 2;
+        reader.read_bytes(methodBody.data, offset, length);
+    } else if (format == bflags::FatFormat) {
+        auto flags = reader.read_uint16(offset);
+        auto headerSize = (flags >> 12) * 4;
+        auto maxStack = reader.read_uint16(offset + 2);
+        auto codeSize = reader.read_uint32(offset + 4);
+        auto localVarSigTok = reader.read_uint16(offset + 8);
+        
+        offset += headerSize;
+        methodBody.maxStack = maxStack;
+        methodBody.localVarSigTok = localVarSigTok;
+        reader.read_bytes(methodBody.data, offset, codeSize);
+
+        if ((flags & _u(bflags::MoreSects)) != 0) {
+            offset += (codeSize + 3) & ~3;
+            auto sectionHeader = reader.read_uint32(offset);
+            if ((sectionHeader & _u(eflags::MoreSects)) != 0 || (sectionHeader & _u(eflags::EHTable)) == 0) {
+                throw runtime_error("Section format is not supported");
+            } else if ((sectionHeader  & _u(eflags::FatFormat)) != 0) {
+                auto count = (sectionHeader >> 8) & 0xFFFFFF / 24;
+                offset += 4;
+                for (int i = 0; i < count; i++) {
+                    ExceptionClause clause;
+                    clause.flags = reader.read_uint32(offset);
+                    clause.tryOffset = reader.read_uint32(offset + 4);
+                    clause.tryLength = reader.read_uint32(offset + 8);
+                    clause.handlerOffset = reader.read_uint32(offset + 12);
+                    clause.handlerLength = reader.read_uint32(offset + 16);
+                    clause.classTokenOrFilterOffset = reader.read_uint32(offset + 20);
+                    methodBody.exceptions.push_back(clause);
+                    offset += 24;
+                }
+            } else {
+                auto count = (sectionHeader >> 8) & 0xFF / 12;
+                offset += 4;
+                for (int i = 0; i < count; i++) {
+                    ExceptionClause clause;
+                    clause.flags = reader.read_uint16(offset);
+                    clause.tryOffset = reader.read_uint16(offset + 2);
+                    clause.tryLength = reader[offset + 4];
+                    clause.handlerOffset = reader.read_uint16(offset + 5);
+                    clause.handlerLength = reader[offset + 7];
+                    clause.classTokenOrFilterOffset = reader.read_uint32(offset + 8);
+                    methodBody.exceptions.push_back(clause);
+                    offset += 12;
+                }
+            }
+        }
+
+        methodBody.initLocals = ((flags & _u(bflags::InitLocals)) != 0);
+
+    } else {
         throw runtime_error("Invalid body format.");
     }
 }
