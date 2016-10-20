@@ -194,7 +194,7 @@ void AssemblyData::FillTables() {
 
         // Signature is presented by a set of variable length 
         //   integers, we're simply reading these numbers consequently.
-        ptrdiff_t offset = 0;
+        uint32_t offset = 0;
         while (offset < buffer.size()) {
             uint32_t value;
             ptrdiff_t read = AssemblyReader::read_varsize(value, buffer, offset);
@@ -221,13 +221,10 @@ void AssemblyData::FillTables() {
         }
     }
 
-    // Read row index. Using 32 bit addresses if table has more than 0xffff rows.
+    // Read row index.
     auto readRowIndex = [&r, &mapTableLength](CliMetadataTableIndex tableIndex)->uint32_t {
-        if (mapTableLength.find(tableIndex) != mapTableLength.end()) {
-            return mapTableLength[tableIndex] >= 0xffff ? r.read_uint32() : r.read_uint16();
-        }
-
-        return r.read_uint16();
+        // Using 32 bit addresses if table has more than 0xffff rows.
+        return mapTableLength[tableIndex] >= 0xffff ? r.read_uint32() : r.read_uint16();
     };
 
     auto readRowIndexChoice = [&r, &mapTableLength](const vector<CliMetadataTableIndex>& tables)->pair<uint32_t, CliMetadataTableIndex> {

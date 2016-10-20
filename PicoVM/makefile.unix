@@ -1,3 +1,8 @@
 CXX=g++
+#CXX=clang++
 picovm: main.cxx
-	$(CXX) -std=c++11 -Wall -Wextra main.cxx ./CLR/AssemblyData.cxx
+	mkdir build
+	$(CXX) -std=c++11 -Wall -Wextra main.cxx CLR/AssemblyData.cxx CLR/CliMetadataTableIndex.cxx -o build/picovm
+clean:
+	rm ./picovm
+	rm -r build

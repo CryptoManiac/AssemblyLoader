@@ -1,5 +1,6 @@
 #include "CliMetadataTableIndex.hxx"
 #include <vector>
+#include <algorithm>
 #include <map>
 
 using namespace std;
@@ -22,7 +23,7 @@ CliMetadataTableIndex& operator++(CliMetadataTableIndex& value)
         /* 43 */ MethodSpec,             /* 44 */ GenericParamConstraint, /* 256 */ Unknown
     };
 
-    auto it = std::find(tables.cbegin(), tables.cend(), value);
+    auto it = find(tables.cbegin(), tables.cend(), value);
     if (*it == Unknown || it == tables.cend()) {
         // Overflow
         return value = Module;
