@@ -787,7 +787,7 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) const {
             } else if ((sectionHeader  & _u(eflags::FatFormat)) != 0) {
                 auto count = (sectionHeader >> 8) & 0xFFFFFF / 24;
                 offset += 4;
-                for (int i = 0; i < count; i++) {
+                for (uint32_t i = 0; i < count; i++) {
                     ExceptionClause clause;
                     clause.flags = reader.read_uint32(offset);
                     clause.tryOffset = reader.read_uint32(offset + 4);
@@ -801,7 +801,7 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) const {
             } else {
                 auto count = (sectionHeader >> 8) & 0xFF / 12;
                 offset += 4;
-                for (int i = 0; i < count; i++) {
+                for (uint32_t i = 0; i < count; i++) {
                     ExceptionClause clause;
                     clause.flags = reader.read_uint16(offset);
                     clause.tryOffset = reader.read_uint16(offset + 2);
