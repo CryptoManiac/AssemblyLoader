@@ -2,7 +2,6 @@
 #define ASSEMBLYREADER_HXX
 #include <vector>
 #include <cstdint>
-#include <cstddef>
 
 #include "utf8.h"
 #include "Property.hxx"
@@ -21,7 +20,7 @@ public:
     void reset();
 
     // tell the current location
-    ptrdiff_t tell();
+    uint32_t tell();
 
     // [] operator for better readability
     const uint8_t& operator[](uint32_t offset) const;
@@ -34,35 +33,35 @@ public:
     uint64_t read_uint64(uint32_t offset) const;
 
     // Read ascii string
-    ptrdiff_t read_asciiz(std::vector<uint8_t>& result, ptrdiff_t limit);
+    uint32_t read_asciiz(std::vector<uint8_t>& result, uint32_t limit);
 
     // Read ascii string
-    ptrdiff_t read_asciiz(std::vector<uint8_t>& result, ptrdiff_t offset, ptrdiff_t limit) const;
+    uint32_t read_asciiz(std::vector<uint8_t>& result, uint32_t offset, uint32_t limit) const;
 
     // Read utf8 string and convert it into utf16 encoding
-    ptrdiff_t read_utf8z(std::vector<uint16_t>& result, uint32_t limit);
+    uint32_t read_utf8z(std::vector<uint16_t>& result, uint32_t limit);
 
     // Read utf8 string and convert it into utf16 encoding
-    ptrdiff_t read_utf8z(std::vector<uint16_t>& result, ptrdiff_t offset, ptrdiff_t limit) const;
+    uint32_t read_utf8z(std::vector<uint16_t>& result, uint32_t offset, uint32_t limit) const;
 
     // Read unique ID
     void read_guid(std::vector<uint8_t>& result);
 
     // Read unique ID
-    void read_guid(std::vector<uint8_t>& result, ptrdiff_t offset) const;
+    void read_guid(std::vector<uint8_t>& result, uint32_t offset) const;
 
     // Read binary data
-    void read_bytes(std::vector<uint8_t>& result, ptrdiff_t offset, uint32_t length) const;
+    void read_bytes(std::vector<uint8_t>& result, uint32_t offset, uint32_t length) const;
 
     // Read and decode variable length integer
     //   For additional information see CorSigUncompress data, declared in cor.h at line 2284.
-    ptrdiff_t read_varsize(uint32_t& code);
+    uint32_t read_varsize(uint32_t& code);
 
     // Read and decode variable length integer located at the specified offset
-    ptrdiff_t read_varsize(uint32_t& code, ptrdiff_t offset) const;
+    uint32_t read_varsize(uint32_t& code, uint32_t offset) const;
 
     // Read and decode variable length integer (static version)
-    static ptrdiff_t read_varsize(uint32_t& code, const std::vector<uint8_t>& data, ptrdiff_t offset);
+    static uint32_t read_varsize(uint32_t& code, const std::vector<uint8_t>& data, uint32_t offset);
 
     // Load PE32 header from the specified offset
     void read_ntheader32(ImageNTHeader32& header32, uint32_t offset);

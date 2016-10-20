@@ -182,7 +182,7 @@ void AssemblyData::FillTables() {
         uint32_t offset = blobStreamOffset + index;
         uint32_t length;
         // Get length of the following data stream
-        ptrdiff_t read = r.read_varsize(length, offset);
+        uint32_t read = r.read_varsize(length, offset);
         // Read binary data into vector
         r.read_bytes(result, offset + read, length);
     };
@@ -197,7 +197,7 @@ void AssemblyData::FillTables() {
         uint32_t offset = 0;
         while (offset < buffer.size()) {
             uint32_t value;
-            ptrdiff_t read = AssemblyReader::read_varsize(value, buffer, offset);
+            uint32_t read = AssemblyReader::read_varsize(value, buffer, offset);
             result.push_back(value);
             offset += read;
         }
