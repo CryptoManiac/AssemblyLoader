@@ -31,7 +31,7 @@ void AssemblyReader::reset()
 
 uint32_t AssemblyReader::tell()
 {
-    return distance(data.begin(), pc);
+    return static_cast<uint32_t>(distance(data.begin(), pc));
 }
 
 const uint8_t& AssemblyReader::operator[](uint32_t offset) const
@@ -93,7 +93,7 @@ uint64_t AssemblyReader::read_uint64(uint32_t offset) const
 
 uint32_t AssemblyReader::read_asciiz(vector<uint8_t>& result, uint32_t limit)
 {
-    uint32_t offset = distance(data.begin(), pc);
+    uint32_t offset = static_cast<uint32_t>(distance(data.begin(), pc));
     uint32_t read = read_asciiz(result, offset, limit);
     pc = next(pc, read);
     return read;
@@ -108,12 +108,12 @@ uint32_t AssemblyReader::read_asciiz(vector<uint8_t>& result, uint32_t offset, u
     }
     result.clear();
     result.assign(start_it, end_it);
-    return distance(start_it, end_it);
+    return static_cast<uint32_t>(distance(start_it, end_it));
 }
 
 uint32_t AssemblyReader::read_utf8z(vector<uint16_t>& result, uint32_t limit)
 {
-    uint32_t offset = distance(data.begin(), pc);
+    uint32_t offset = static_cast<uint32_t>(distance(data.begin(), pc));
     uint32_t read = read_utf8z(result, offset, limit);
     pc = next(pc, read);
     return read;
@@ -128,7 +128,7 @@ uint32_t AssemblyReader::read_utf8z(vector<uint16_t>& result, uint32_t offset, u
     }
     result.clear();
     utf8::utf8to16(start_it, end_it, back_inserter(result));
-    return distance(start_it, end_it);
+    return static_cast<uint32_t>(distance(start_it, end_it));
 }
 
 void AssemblyReader::read_guid(vector<uint8_t>& result)
@@ -170,7 +170,7 @@ uint32_t AssemblyReader::read_varsize(uint32_t& code)
         //We don't recognize this encoding
         throw runtime_error("Invalid signature");
     }
-    return distance(it, pc);
+    return static_cast<uint32_t>(distance(it, pc));
 }
 
 uint32_t AssemblyReader::read_varsize(uint32_t& code, uint32_t offset) const
@@ -192,7 +192,7 @@ uint32_t AssemblyReader::read_varsize(uint32_t& code, uint32_t offset) const
         //We don't recognize this encoding
         throw runtime_error("Invalid signature");
     }
-    return distance(it_start, it);
+    return static_cast<uint32_t>(distance(it_start, it));
 }
 
 uint32_t AssemblyReader::read_varsize(uint32_t& code, const vector<uint8_t>& data, uint32_t offset)
@@ -217,7 +217,7 @@ uint32_t AssemblyReader::read_varsize(uint32_t& code, const vector<uint8_t>& dat
         //We don't recognize this encoding
         throw runtime_error("Invalid signature");
     }
-    return distance(it_start, it);
+    return static_cast<uint32_t>(distance(it_start, it));
 }
 
 void AssemblyReader::read_ntheader32(ImageNTHeader32& header32, uint32_t offset)
