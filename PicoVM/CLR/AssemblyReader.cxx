@@ -29,7 +29,7 @@ void AssemblyReader::reset()
     pc = data.begin();
 }
 
-ptrdiff_t AssemblyReader::tell()
+uint32_t AssemblyReader::tell()
 {
     return distance(data.begin(), pc);
 }
@@ -91,15 +91,15 @@ uint64_t AssemblyReader::read_uint64(uint32_t offset) const
            static_cast<uint64_t>(*(it++)) << 56;
 }
 
-ptrdiff_t AssemblyReader::read_asciiz(vector<uint8_t>& result, ptrdiff_t limit)
+uint32_t AssemblyReader::read_asciiz(vector<uint8_t>& result, uint32_t limit)
 {
-    ptrdiff_t offset = distance(data.begin(), pc);
-    ptrdiff_t read = read_asciiz(result, offset, limit);
+    uint32_t offset = distance(data.begin(), pc);
+    uint32_t read = read_asciiz(result, offset, limit);
     pc = next(pc, read);
     return read;
 }
 
-ptrdiff_t AssemblyReader::read_asciiz(vector<uint8_t>& result, ptrdiff_t offset, ptrdiff_t limit) const
+uint32_t AssemblyReader::read_asciiz(vector<uint8_t>& result, uint32_t offset, uint32_t limit) const
 {
     auto start_it = next(data.cbegin(), offset);
     auto end_it = find(start_it, data.cend(), 0);
@@ -111,15 +111,15 @@ ptrdiff_t AssemblyReader::read_asciiz(vector<uint8_t>& result, ptrdiff_t offset,
     return distance(start_it, end_it);
 }
 
-ptrdiff_t AssemblyReader::read_utf8z(vector<uint16_t>& result, uint32_t limit)
+uint32_t AssemblyReader::read_utf8z(vector<uint16_t>& result, uint32_t limit)
 {
-    ptrdiff_t offset = distance(data.begin(), pc);
-    ptrdiff_t read = read_utf8z(result, offset, limit);
+    uint32_t offset = distance(data.begin(), pc);
+    uint32_t read = read_utf8z(result, offset, limit);
     pc = next(pc, read);
     return read;
 }
 
-ptrdiff_t AssemblyReader::read_utf8z(vector<uint16_t>& result, ptrdiff_t offset, ptrdiff_t limit) const
+uint32_t AssemblyReader::read_utf8z(vector<uint16_t>& result, uint32_t offset, uint32_t limit) const
 {
     auto start_it = next(data.cbegin(), offset);
     auto end_it = find(start_it, data.cend(), 0);
@@ -138,21 +138,21 @@ void AssemblyReader::read_guid(vector<uint8_t>& result)
     pc = next(pc, 16);
 }
 
-void AssemblyReader::read_guid(vector<uint8_t>& result, ptrdiff_t offset) const
+void AssemblyReader::read_guid(vector<uint8_t>& result, uint32_t offset) const
 {
     auto start_it = next(data.cbegin(), offset);
     result.clear();
     result.assign(start_it, next(start_it, 16));
 }
 
-void AssemblyReader::read_bytes(vector<uint8_t>& result, ptrdiff_t offset, uint32_t length) const
+void AssemblyReader::read_bytes(vector<uint8_t>& result, uint32_t offset, uint32_t length) const
 {
     result.clear();
     auto start_it = next(data.cbegin(), offset);
     result.assign(start_it, next(start_it, length));
 }
 
-ptrdiff_t AssemblyReader::read_varsize(uint32_t& code)
+uint32_t AssemblyReader::read_varsize(uint32_t& code)
 {
     auto it = pc;
     uint8_t b1 = *(pc++);
@@ -173,7 +173,7 @@ ptrdiff_t AssemblyReader::read_varsize(uint32_t& code)
     return distance(it, pc);
 }
 
-ptrdiff_t AssemblyReader::read_varsize(uint32_t& code, ptrdiff_t offset) const
+uint32_t AssemblyReader::read_varsize(uint32_t& code, uint32_t offset) const
 {
     auto it_start = next(data.cbegin(), offset);
     auto it = it_start;
@@ -195,7 +195,7 @@ ptrdiff_t AssemblyReader::read_varsize(uint32_t& code, ptrdiff_t offset) const
     return distance(it_start, it);
 }
 
-ptrdiff_t AssemblyReader::read_varsize(uint32_t& code, const vector<uint8_t>& data, ptrdiff_t offset)
+uint32_t AssemblyReader::read_varsize(uint32_t& code, const vector<uint8_t>& data, uint32_t offset)
 {
     auto it_start = next(data.cbegin(), offset);
     auto it = it_start;
