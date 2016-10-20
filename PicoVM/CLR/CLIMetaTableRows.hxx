@@ -121,65 +121,62 @@ struct MethodDefRow {
 
     enum MethodAttribute : uint16_t {
         // Use this mask to retrieve accessibility information.
-        mdMemberAccessMask          =   0x0007,
-        mdPrivateScope              =   0x0000, // Member not referenceable.
-        mdPrivate                   =   0x0001, // Accessible only by the parent type.     
-        mdFamANDAssem               =   0x0002, // Accessible by sub-types only in this Assembly.     
-        mdAssem                     =   0x0003, // Accessibly by anyone in the Assembly.     
-        mdFamily                    =   0x0004, // Accessible only by type and sub-types.     
-        mdFamORAssem                =   0x0005, // Accessibly by sub-types anywhere, plus anyone in assembly.     
-        mdPublic                    =   0x0006, // Accessibly by anyone who has visibility to this scope.     
+        MemberAccessMask          =   0x0007,
+        PrivateScope              =   0x0000, // Member not referenceable.
+        Private                   =   0x0001, // Accessible only by the parent type.     
+        FamANDAssem               =   0x0002, // Accessible by sub-types only in this Assembly.     
+        Assem                     =   0x0003, // Accessibly by anyone in the Assembly.     
+        Family                    =   0x0004, // Accessible only by type and sub-types.     
+        FamORAssem                =   0x0005, // Accessibly by sub-types anywhere, plus anyone in assembly.     
+        Public                    =   0x0006, // Accessibly by anyone who has visibility to this scope.     
 
         // method contract attributes.
-        mdStatic                    =   0x0010, // Defined on type, else per instance.     
-        mdFinal                     =   0x0020, // Method may not be overridden.     
-        mdVirtual                   =   0x0040, // Method virtual.     
-        mdHideBySig                 =   0x0080, // Method hides by name+sig, else just by name.
+        Static                    =   0x0010, // Defined on type, else per instance.     
+        Final                     =   0x0020, // Method may not be overridden.     
+        Virtual                   =   0x0040, // Method virtual.     
+        HideBySig                 =   0x0080, // Method hides by name+sig, else just by name.
 
         // Use this mask to retrieve vtable attributes.
-        mdVtableLayoutMask          =   0x0100,
-        mdReuseSlot                 =   0x0000, // The default.
-        mdNewSlot                   =   0x0100, // Method always gets a new slot in the vtable.
+        VtableLayoutMask          =   0x0100,
+        ReuseSlot                 =   0x0000, // The default.
+        NewSlot                   =   0x0100, // Method always gets a new slot in the vtable.
 
         // Method implementation attributes.
-        mdCheckAccessOnOverride     =   0x0200, // Overridability is the same as the visibility.
-        mdAbstract                  =   0x0400, // Method does not provide an implementation.   
-        mdSpecialName               =   0x0800, // Method is special. Name describes how.    
+        CheckAccessOnOverride     =   0x0200, // Overridability is the same as the visibility.
+        Abstract                  =   0x0400, // Method does not provide an implementation.   
+        SpecialName               =   0x0800, // Method is special. Name describes how.    
        
         // Interop attributes
-        mdPinvokeImpl               =   0x2000, // Implementation is forwarded through pinvoke.
-        mdUnmanagedExport           =   0x0008, // Managed method exported via thunk to unmanaged code.
+        PinvokeImpl               =   0x2000, // Implementation is forwarded through pinvoke.
+        UnmanagedExport           =   0x0008, // Managed method exported via thunk to unmanaged code.
        
         // Reserved flags for runtime use only.
-        mdReservedMask              =   0xd000,
-        mdRTSpecialName             =   0x1000, // Runtime should check name encoding.
-        mdHasSecurity               =   0x4000, // Method has security associate with it.
-        mdRequireSecObject          =   0x8000, // Method calls another method containing security code.
-       
-
-
+        ReservedMask              =   0xd000,
+        RTSpecialName             =   0x1000, // Runtime should check name encoding.
+        HasSecurity               =   0x4000, // Method has security associate with it.
+        RequireSecObject          =   0x8000, // Method calls another method containing security code.
     };
 
     enum MethodImplAttributes : uint16_t {
         // Code impl mask
-        miCodeTypeMask      =   0x0003,   // Flags about code type.
-        miIL                =   0x0000,   // Method impl is IL.
-        miNative            =   0x0001,   // Method impl is native.
-        miOPTIL             =   0x0002,   // Method impl is OPTIL
-        miRuntime           =   0x0003,   // Method impl is provided by the runtime.
+        CodeTypeMask      =   0x0003,   // Flags about code type.
+        IL                =   0x0000,   // Method impl is IL.
+        Native            =   0x0001,   // Method impl is native.
+        OPTIL             =   0x0002,   // Method impl is OPTIL
+        Runtime           =   0x0003,   // Method impl is provided by the runtime.
 
         // Managed mask
-        miManagedMask       =   0x0004,   // Flags specifying whether the code is managed or unmanaged.
-        miUnmanaged         =   0x0004,   // Method impl is unmanaged, otherwise managed.
-        miManaged           =   0x0000,   // Method impl is managed.
+        ManagedMask       =   0x0004,   // Flags specifying whether the code is managed or unmanaged.
+        Unmanaged         =   0x0004,   // Method impl is unmanaged, otherwise managed.
+        Managed           =   0x0000,   // Method impl is managed.
 
         // Implementation info and interop
-        miForwardRef        =   0x0010,   // Indicates method is defined; used primarily in merge scenarios.
-        miPreserveSig       =   0x0080,   // Indicates method sig is not to be mangled to do HRESULT conversion.
-        miInternalCall      =   0x1000,   // Reserved for internal use.
-        miSynchronized      =   0x0020,   // Method is single threaded through the body.
-        miNoInlining        =   0x0008,   // Method may not be inlined.
-        miMaxMethodImplVal  =   0xffff,   // Range check value
+        ForwardRef        =   0x0010,   // Indicates method is defined; used primarily in merge scenarios.
+        PreserveSig       =   0x0080,   // Indicates method sig is not to be mangled to do HRESULT conversion.
+        InternalCall      =   0x1000,   // Reserved for internal use.
+        Synchronized      =   0x0020,   // Method is single threaded through the body.
+        NoInlining        =   0x0008,   // Method may not be inlined.
+        MaxMethodImplVal  =   0xffff,   // Range check value
     };
 };
 
@@ -188,6 +185,18 @@ struct ParamRow {
     // 2-byte bit mask of type ParamAttributes
     uint16_t sequence;
     std::vector<uint16_t> name;
+
+    enum ParamAttributes : uint16_t {
+        In                        =   0x0001,     // Param is [In]
+        Out                       =   0x0002,     // Param is [out]
+        Optional                  =   0x0010,     // Param is optional
+
+        // Reserved flags for Runtime use only.
+        ReservedMask              =   0xf000,
+        HasDefault                =   0x1000,     // Param has default value.
+        HasFieldMarshal           =   0x2000,     // Param has FieldMarshal.
+        Unused                    =   0xcfe0,
+    };
 };
 
 struct InterfaceImplRow {
@@ -245,6 +254,13 @@ struct EventRow {
     uint16_t eventFlags;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CliMetadataTableIndex> eventType;
+
+    enum EventAttribute : uint16_t {
+        evSpecialName           =   0x0200, // Event is special. Name describes how.     
+        // Reserved flags for Runtime use only.
+        evReservedMask          =   0x0400,
+        evRTSpecialName         =   0x0400, // Runtime(metadata internal APIs) should check name encoding. 
+    };
 };
 
 struct PropertyMapRow {
@@ -257,12 +273,31 @@ struct PropertyRow {
     uint16_t flags;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
+
+    enum PropertyAttributes : uint16_t {
+        SpecialName           =   0x0200, // Property is special. Name describes how.
+        // Reserved flags for Runtime use only.
+        ReservedMask          =   0xf400,
+        RTSpecialName         =   0x0400, // Runtime(metadata internal APIs) should check name encoding.
+        HasDefault            =   0x1000, // Property has default.
+        Unused                =   0xe9ff,
+    };
 };
 
 struct MethodSemanticsRow {
+    // 2-byte bit mask of type MethodSemanticsAttributes
     uint16_t semantics;
     uint32_t method;
     std::pair<uint32_t, CliMetadataTableIndex> association;
+
+    enum MethodSemanticsAttributes : uint16_t {
+        Setter    =   0x0001,     // Setter for property
+        Getter    =   0x0002,     // Getter for property
+        Other     =   0x0004,     // other method for property or event
+        AddOn     =   0x0008,     // AddOn method for event
+        RemoveOn  =   0x0010,     // RemoveOn method for event
+        Fire      =   0x0020,     // Fire method for event
+    };
 };
 
 struct MethodImplRow {
@@ -277,6 +312,41 @@ struct ImplMapRow {
     std::pair<uint32_t, CliMetadataTableIndex> memberForwarded;
     std::vector<uint16_t> importName;
     uint32_t importScope;
+
+    enum PInvokeAttributes : uint16_t {
+        NoMangle          = 0x0001,   
+
+        // Use this mask to retrieve the CharSet information.
+        CharSetMask       = 0x0006,
+        CharSetNotSpec    = 0x0000,
+        CharSetAnsi       = 0x0002,
+        CharSetUnicode    = 0x0004,
+        CharSetAuto       = 0x0006,
+
+        BestFitUseAssem   = 0x0000,
+        BestFitEnabled    = 0x0010,
+        BestFitDisabled   = 0x0020,
+        BestFitMask       = 0x0030,
+
+        ThrowOnUnmappableCharUseAssem   = 0x0000,
+        ThrowOnUnmappableCharEnabled    = 0x1000,
+        ThrowOnUnmappableCharDisabled   = 0x2000,
+        ThrowOnUnmappableCharMask       = 0x3000,
+
+        SupportsLastError = 0x0040,   
+
+        // Information about target function. Not relevant for fields.
+        // None of the calling convention flags is relevant for fields.
+        CallConvMask      = 0x0700,
+        CallConvWinapi    = 0x0100,   
+        // Pinvoke will use native callconv appropriate to target windows platform.
+        CallConvCdecl     = 0x0200,
+        CallConvStdcall   = 0x0300,
+        CallConvThiscall  = 0x0400,   
+        // In M9, pinvoke will raise exception.
+        CallConvFastcall  = 0x0500,
+        MaxValue          = 0xFFFF,
+    };
 };
 
 struct FieldRVARow {
@@ -292,6 +362,22 @@ struct AssemblyRow {
     std::vector<uint8_t> publicKey;
     std::vector<uint16_t> name;
     std::vector<uint16_t> culture;
+
+    enum AssemblyFlags : uint16_t {
+        PublicKey             =   0x0001,     // The assembly ref holds the full (unhashed) public key.
+        PA_None               =   0x0000,     // Processor Architecture unspecified.
+        PA_MSIL               =   0x0010,     // Processor Architecture: neutral (PE32).
+        PA_x86                =   0x0020,     // Processor Architecture: x86 (PE32).
+        PA_IA64               =   0x0030,     // Processor Architecture: Itanium (PE32+).
+        PA_AMD64              =   0x0040,     // Processor Architecture: AMD X64 (PE32+).
+        PA_Specified          =   0x0080,     // Propagate PA flags to AssemblyRef record.
+        PA_Mask               =   0x0070,     // Bits describing the processor architecture.
+        PA_FullMask           =   0x00F0,     // Bits describing the PA incl. Specified
+        PA_Shift              =   0x0004,     // NOT A FLAG, shift count in PA flags <--> index conversion.
+        EnableJITcompileTracking  =   0x8000, // From "DebuggableAttribute".
+        DisableJITcompileOptimizer=   0x4000, // From "DebuggableAttribute".
+        Retargetable          =   0x0100,     // The assembly can be retargeted (at runtime) to an assembly from a different publisher.
+    };
 };
 
 struct AssemblyOSRow {
