@@ -24,6 +24,9 @@
     <ClCompile Include="CLR\CliMetadataTableIndex.cxx">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="CLR\AssemblyReader.cxx">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLR\AssemblyData.hxx">
