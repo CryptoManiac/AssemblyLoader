@@ -195,9 +195,9 @@ uint32_t AssemblyReader::read_varsize(uint32_t& code, uint32_t offset) const
     return static_cast<uint32_t>(distance(it_start, it));
 }
 
-uint32_t AssemblyReader::read_varsize(uint32_t& code, const vector<uint8_t>& data, uint32_t offset)
+uint32_t AssemblyReader::read_varsize(uint32_t& code, const vector<uint8_t>& _data, uint32_t offset)
 {
-    auto it_start = next(data.cbegin(), offset);
+    auto it_start = next(_data.cbegin(), offset);
     auto it = it_start;
     uint8_t b1 = *(it++);
     if ((b1 & 0x80) == 0) {

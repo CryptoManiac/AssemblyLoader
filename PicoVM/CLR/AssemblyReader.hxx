@@ -61,7 +61,7 @@ public:
     uint32_t read_varsize(uint32_t& code, uint32_t offset) const;
 
     // Read and decode variable length integer (static version)
-    static uint32_t read_varsize(uint32_t& code, const std::vector<uint8_t>& data, uint32_t offset);
+    static uint32_t read_varsize(uint32_t& code, const std::vector<uint8_t>& _data, uint32_t offset);
 
     // Load PE32 header from the specified offset
     void read_ntheader32(ImageNTHeader32& header32, uint32_t offset);
