@@ -21,16 +21,94 @@ struct TypeRefRow {
 };
 
 struct TypeDefRow {
+    // 4-byte bit mask of type TypeAttributes
     uint32_t flags;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
     std::pair<uint32_t, CliMetadataTableIndex> extendsType;
 
     uint32_t fieldList;
-    uint32_t methodList; 
+    uint32_t methodList;
+
+    enum TypeAttributes : uint32_t {
+        // Use this mask to retrieve the type visibility information.
+        VisibilityMask        =   0x00000007,
+        // Class is not public scope.
+        NotPublic             =   0x00000000,     
+        // Class is public scope.
+        Public                =   0x00000001,     
+        // Class is nested with public visibility.
+        NestedPublic          =   0x00000002,     
+        // Class is nested with private visibility.
+        NestedPrivate         =   0x00000003,     
+        // Class is nested with family visibility.
+        NestedFamily          =   0x00000004,     
+        // Class is nested with assembly visibility.
+        NestedAssembly        =   0x00000005,     
+        // Class is nested with family and assembly visibility.
+        NestedFamANDAssem     =   0x00000006,     
+        // Class is nested with family or assembly visibility.
+        NestedFamORAssem      =   0x00000007,     
+
+        // Use this mask to retrieve class layout information
+        LayoutMask            =   0x00000018,
+        // Class fields are auto-laid out
+        AutoLayout            =   0x00000000,     
+        // Class fields are laid out sequentially
+        SequentialLayout      =   0x00000008,     
+        // Layout is supplied explicitly
+        ExplicitLayout        =   0x00000010,     
+
+        // Use this mask to retrieve class semantics information.
+        ClassSemanticsMask    =   0x00000060,
+        // Type is a class.
+        Class                 =   0x00000000,     
+        // Type is an interface.
+        Interface             =   0x00000020,     
+
+        // Special semantics in addition to class semantics.
+
+        // Class is abstract
+        Abstract              =   0x00000080,     
+        // Class is concrete and may not be extended
+        Sealed                =   0x00000100,     
+        // Class name is special. Name describes how.
+        SpecialName           =   0x00000400,
+
+        // Class / interface is imported
+        Import                =   0x00001000,     
+        // The class is Serializable.
+        Serializable          =   0x00002000,     
+
+        // Use tdStringFormatMask to retrieve string information for native interop
+        StringFormatMask      =   0x00030000,
+        // LPTSTR is interpreted as ANSI in this class
+        AnsiClass             =   0x00000000,     
+        // LPTSTR is interpreted as UNICODE
+        UnicodeClass          =   0x00010000,     
+        // LPTSTR is interpreted automatically
+        AutoClass             =   0x00020000,     
+        // A non-standard encoding specified by CustomFormatMask
+        CustomFormatClass     =   0x00030000,     
+
+        // Use this mask to retrieve non-standard encoding information for native interop. 
+        // The meaning of the values of these 2 bits is unspecified.
+        CustomFormatMask      =   0x00C00000,
+        // Initialize the class any time before first static field access.
+        BeforeFieldInit       =   0x00100000,     
+        // This ExportedType is a type forwarder.
+        Forwarder             =   0x00200000,     
+        // Flags reserved for runtime use.
+        ReservedMask          =   0x00040800,
+        // Runtime should check name encoding.
+        RTSpecialName         =   0x00000800,     
+        // Class has security associate with it.
+        HasSecurity           =   0x00040000,
+    };
 };
 
 struct FieldRow {
+    // 2-byte bit mask of type FieldAttributes
     uint16_t flags;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
@@ -38,7 +116,9 @@ struct FieldRow {
 
 struct MethodDefRow {
     uint32_t rva;
+    // 2-byte bit mask of type MethodImplAttributes
     uint16_t implFlags;
+    // 2-byte bit mask of type MethodAttribute
     uint16_t flags;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
@@ -47,6 +127,7 @@ struct MethodDefRow {
 
 struct ParamRow {
     uint16_t flags;
+    // 2-byte bit mask of type ParamAttributes
     uint16_t sequence;
     std::vector<uint16_t> name;
 };
@@ -102,6 +183,7 @@ struct EventMapRow {
 };
 
 struct EventRow {
+    // 2-byte bit mask of type EventAttribute
     uint16_t eventFlags;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CliMetadataTableIndex> eventType;
@@ -113,6 +195,7 @@ struct PropertyMapRow {
 };
 
 struct PropertyRow {
+    // 2-byte bit mask of type PropertyAttributes
     uint16_t flags;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
@@ -131,6 +214,7 @@ struct MethodImplRow {
 };
 
 struct ImplMapRow {
+    // 2-byte bit mask of type PInvokeAttributes
     uint16_t mappingFlags;
     std::pair<uint32_t, CliMetadataTableIndex> memberForwarded;
     std::vector<uint16_t> importName;
@@ -145,6 +229,7 @@ struct FieldRVARow {
 struct AssemblyRow {
     uint32_t hashAlgId;
     std::vector<uint16_t> version;
+    // 4-byte bit mask of type AssemblyFlags
     uint32_t flags;
     std::vector<uint8_t> publicKey;
     std::vector<uint16_t> name;
@@ -159,6 +244,7 @@ struct AssemblyOSRow {
 
 struct AssemblyRefRow {
     std::vector<uint16_t> version;
+    // 4-byte bit mask of type AssemblyFlags
     uint32_t flags;
     std::vector<uint8_t> publicKeyOrToken;
     std::vector<uint16_t> name;
@@ -179,12 +265,14 @@ struct AssemblyRefOSRow {
 };
 
 struct FileRow {
+    // 4-byte bit mask of type FileAttributes
     uint32_t flags;
     std::vector<uint16_t> name;
     std::vector<uint8_t> hashValue;
 };
 
 struct ExportedTypeRow {
+    // 4-byte bit mask of type TypeAttributes
     uint32_t flags;
     uint32_t typeDefId;
     std::vector<uint16_t> typeName;
@@ -194,6 +282,7 @@ struct ExportedTypeRow {
 
 struct ManifestResourceRow {
     uint32_t offset;
+    // 4-byte bit mask of type ManifestResourceAttributes
     uint32_t flags;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CliMetadataTableIndex> implementation;
@@ -206,6 +295,7 @@ struct NestedClassRow {
 
 struct GenericParamRow {
     uint16_t number;
+    // 2-byte bitmask of type GenericParamAttributes
     uint16_t flags;
     std::pair<uint32_t, CliMetadataTableIndex> owner;
     std::vector<uint16_t> name;

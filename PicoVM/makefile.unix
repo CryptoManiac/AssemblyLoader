@@ -4,8 +4,8 @@ CXXFLAGS=-std=c++11 -Wall -Wextra
 SOURCES=main.cxx ./CLR/AssemblyData.cxx ./CLR/CliMetadataTableIndex.cxx 
 
 picovm: main.cxx
-	mkdir build
+	-mkdir build
 	$(CXX) $(CXXFLAGS) $(SOURCES) -o build/picovm
 clean:
-	rm -f ./build/picovm
-	rm -r build
+	-rm -f ./build/picovm 2> /dev/null
+	-rm -r build 2> /dev/null
