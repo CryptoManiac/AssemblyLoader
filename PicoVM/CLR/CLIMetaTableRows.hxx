@@ -355,6 +355,7 @@ struct FieldRVARow {
 };
 
 struct AssemblyRow {
+    // 4-byte constant of type AssemblyHashAlgorithm
     uint32_t hashAlgId;
     std::vector<uint16_t> version;
     // 4-byte bit mask of type AssemblyFlags
@@ -378,6 +379,22 @@ struct AssemblyRow {
         DisableJITcompileOptimizer=   0x4000, // From "DebuggableAttribute".
         Retargetable          =   0x0100,     // The assembly can be retargeted (at runtime) to an assembly from a different publisher.
     };
+
+    enum AssemblyHashAlgorithm : uint32_t {
+		None				= 0,
+		MD2					= 0x8001,
+		MD4					= 0x8002,
+		MD5					= 0x8003,
+		SHA1				= 0x8004,
+		MAC					= 0x8005,
+		SSL3_SHAMD5			= 0x8008,
+		HMAC				= 0x8009,
+		TLS1PRF				= 0x800A,
+		HASH_REPLACE_OWF	= 0x800B,
+		SHA_256				= 0x800C,
+		SHA_384				= 0x800D,
+		SHA_512				= 0x800E,
+	};
 };
 
 struct AssemblyOSRow {
