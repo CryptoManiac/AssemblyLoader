@@ -430,6 +430,11 @@ struct FileRow {
     uint32_t flags;
     std::vector<uint16_t> name;
     std::vector<uint8_t> hashValue;
+
+    enum FileAttributes {
+        ContainsMetaData   = 0x0000, // This is not a resource file.
+        ContainsNoMetaData = 0x0001, // This is a resource file or other non-metadata-containing file.
+    };
 };
 
 struct ExportedTypeRow {
@@ -447,6 +452,12 @@ struct ManifestResourceRow {
     uint32_t flags;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CliMetadataTableIndex> implementation;
+
+    enum ManifestResourceAttributes {
+        VisibilityMask        =   0x0007,
+        Public                =   0x0001, // The Resource is exported from the Assembly.
+        Private               =   0x0002, // The Resource is private to the Assembly.
+    };
 };
 
 struct NestedClassRow {
@@ -460,6 +471,23 @@ struct GenericParamRow {
     uint16_t flags;
     std::pair<uint32_t, CliMetadataTableIndex> owner;
     std::vector<uint16_t> name;
+
+    enum GenericParamAttributes {
+        // Variance of type parameters, only applicable to generic parameters 
+        // for generic interfaces and delegates
+        gpVarianceMask          =   0x0003,
+        gpNonVariant            =   0x0000, 
+        gpCovariant             =   0x0001,
+        gpContravariant         =   0x0002,
+
+        // Special constraints, applicable to any type parameters
+        gpSpecialConstraintMask =  0x001C,
+        gpNoSpecialConstraint   =   0x0000,      
+        gpReferenceTypeConstraint = 0x0004, // type argument must be a reference type
+        gpNotNullableValueTypeConstraint = 0x0008, // type argument must be a value type but not Nullable
+        gpDefaultConstructorConstraint = 0x0010, // type argument must have a public
+                                                // default constructor
+    }
 };
 
 struct MethodSpecRow {
