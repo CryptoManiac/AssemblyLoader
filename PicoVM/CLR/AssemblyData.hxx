@@ -2,19 +2,19 @@
 #define __ASSEMBLYDATA_HXX__
 #include <cinttypes>
 #include <vector>
-#include <algorithm>
 
 #include "AssemblyReader.hxx"
 #include "Property.hxx"
 #include "CLIMetadataTableRows.hxx"
 
-class AssemblyData {
+class AssemblyData
+{
 public:
     // Image header
-	ImageFileHeader fileHeader;
+    ImageFileHeader fileHeader;
 
     // Sections header
-	std::vector<ImageSectionHeader> sections;
+    std::vector<ImageSectionHeader> sections;
 
     // CLR header
     CLIHeader cliHeader;
@@ -23,11 +23,11 @@ public:
         uint32_t cliMetadataOffset; // In memory only
 
         std::vector<uint16_t> version;
-		uint16_t streamsCount = 0;
+        uint16_t streamsCount = 0;
 
         struct CLIStream {
-			uint32_t offset = 0;
-			uint32_t size = 0;
+            uint32_t offset = 0;
+            uint32_t size = 0;
             std::vector<uint8_t> name;
         };
 
@@ -76,14 +76,14 @@ public:
         std::vector<GenericParamConstraintRow> _GenericParamConstraint;
     } cliMetaDataTables;
 
-	AssemblyData(std::string strFilePathName);
-	AssemblyData(const std::vector<uint8_t>& assembly_bytes);
-	uint32_t getDataOffset(uint32_t address) const;
+    AssemblyData(std::string strFilePathName);
+    AssemblyData(const std::vector<uint8_t>& assembly_bytes);
+    uint32_t getDataOffset(uint32_t address) const;
     void getMethodBody(uint32_t index, MethodBody& methodBody) const;
 
 private:
-	AssemblyReader reader;
-	void InitAssembly(); // called from constructor
+    AssemblyReader reader;
+    void InitAssembly(); // called from constructor
     void FillTables();
 };
 
