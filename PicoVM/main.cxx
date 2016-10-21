@@ -1,16 +1,35 @@
+#include <iostream>
+
 #include "CLR/AssemblyData.hxx"
+#include "CLR/EnumCasting.hxx"
+
+using namespace std;
 
 int main(int argc, const char *argv[]) {
 
-  if (argc > 1) {
-    AssemblyData *assembly = new AssemblyData(argv[1]);
-  } else {
-#ifdef WIN32
-    AssemblyData *assembly = new AssemblyData(R"(appcode\FibLoop.exe)");
-#else
-    AssemblyData *assembly = new AssemblyData("./appcode/FibLoop.exe");
-#endif
-  }
+    AssemblyData *assembly;
 
-  return 0;
+    if (argc > 1) {
+        assembly = new AssemblyData(argv[1]);
+    }
+    else {
+#ifdef WIN32
+        assembly = new AssemblyData(R"(appcode\FibLoop.exe)");
+#else
+        assembly = new AssemblyData("./appcode/FibLoop.exe");
+#endif
+    }
+
+    uint32_t entryPoint = assembly->cliHeader.entryPointToken;
+    cout << "entryPoint: " << hex << entryPoint << endl;
+
+    auto type = static_cast<CLIMetadataTableIndex>(entryPoint >> 24);
+    cout << "Table name: " << getTableName(type) << endl;
+
+    MethodBody body;
+    assembly->getMethodBody(entryPoint & 0xFFFFFF, body);
+    cout << "Method name: " << string(body.methodDef.name.begin(), body.methodDef.name.end()) << endl;
+    cout << "Method body size: " << dec << body.data.size() << endl;
+
+    return 0;
 }

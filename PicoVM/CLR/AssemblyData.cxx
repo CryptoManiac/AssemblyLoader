@@ -1,8 +1,6 @@
 #include <fstream>
 #include <iterator>
 #include <string>
-#include <iostream>
-#include <sstream>
 #include <algorithm>
 #include <map>
 #include <limits>
@@ -55,7 +53,7 @@ void AssemblyData::InitAssembly() {
 
     // PE standard identifier
 	auto standard = reader.read_uint16(peOffset + 24);
-	uint32_t cliHeaderRVA = 0;
+    ImageDataDirectory cliDirectory;
 
 	switch (standard) {
         // CLR has a support for two variations of PE format, PE32 and PE32+.
@@ -68,8 +66,8 @@ void AssemblyData::InitAssembly() {
 				throw runtime_error("Optional header is invalid.");
 			}
 			fileHeader = header.fileHeader;
-            // CLI header address
-            cliHeaderRVA = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)].rva;
+            // CLI directory
+            cliDirectory = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)];
 			peOffset += sizeof(ImageNTHeader32);
 		}
 		break;
@@ -81,9 +79,9 @@ void AssemblyData::InitAssembly() {
 				throw runtime_error("Optional header is invalid.");
 			}
 			fileHeader = header.fileHeader;
-            // CLI header address
-			cliHeaderRVA = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)].rva;
-			peOffset += sizeof(ImageNTHeader64);
+            // CLI directory
+            cliDirectory = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)];
+            peOffset += sizeof(ImageNTHeader64);
 		}
 		break;
 		default:
@@ -100,12 +98,12 @@ void AssemblyData::InitAssembly() {
 
     // CLI Header 
     {
-        auto cliHeaderOffset = getDataOffset(cliHeaderRVA);
+        auto cliHeaderOffset = getDataOffset(cliDirectory.rva);
         if (cliHeaderOffset == numeric_limits<uint32_t>::max()) {
             throw runtime_error("CLI header could not be found.");
         }
 
-        if (reader.read_uint32(cliHeaderOffset) != sizeof(CLIHeader)) {
+        if (cliDirectory.size != sizeof(CLIHeader) || reader.read_uint32(cliHeaderOffset) != sizeof(CLIHeader)) {
             // CLI header size must be identical to one which is defined by CLIHeader structure.
             throw runtime_error("CLI header size is invalid.");
         }
@@ -214,11 +212,9 @@ void AssemblyData::FillTables() {
         if (isSet) {
             // Load table length record for existent and valid table.
             mapTableLength[bit] = reader.read_uint32();
-            cout << getTableName(bit) << " " << dec << mapTableLength[bit] << endl;
         }
         else {
             mapTableLength[bit] = 0;
-            cout << getTableName(bit) << " " << dec << mapTableLength[bit] << endl;
         }
     }
 
