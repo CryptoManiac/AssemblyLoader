@@ -3,14 +3,18 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
+#include "crossguid/guid.hxx"
 #include "CLIMetadataTableIndex.hxx"
 
 // A one row table representing the current assembly.
 struct ModuleRow {
     uint16_t generation = 0;
     std::vector<uint16_t> name;
-    std::vector<uint8_t> guid;
+    Guid guid;
+
+    std::string toString();
 };
 
 // Each row represents an imported class, its namespace, and the assembly which contains it.
@@ -18,6 +22,8 @@ struct TypeRefRow {
     std::pair<uint32_t, CLIMetadataTableIndex> resolutionScope;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
+
+    std::string toString();
 };
 
 struct TypeDefRow {

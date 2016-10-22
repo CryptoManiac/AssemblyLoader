@@ -4,6 +4,7 @@
 #include <cstdint>
 
 #include "utf8.h"
+#include "crossguid/guid.hxx"
 #include "Property.hxx"
 #include "ImageNTHeader32.hxx"
 #include "ImageNTHeader64.hxx"
@@ -46,10 +47,10 @@ public:
     uint32_t read_utf8z(std::vector<uint16_t>& result, uint32_t offset, uint32_t limit) const;
 
     // Read unique ID
-    void read_guid(std::vector<uint8_t>& result);
+    void read_guid(Guid& result);
 
     // Read unique ID
-    void read_guid(std::vector<uint8_t>& result, uint32_t offset) const;
+    void read_guid(Guid& result, uint32_t offset) const;
 
     // Read binary data
     void read_bytes(std::vector<uint8_t>& result, uint32_t length);

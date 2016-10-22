@@ -167,7 +167,7 @@ void AssemblyData::FillTables() {
     };
 
     // Read 16 or 32 bit index, fill result by unique ID from this index.
-    auto readGuid = [&r, heapSizes, guidStreamOffset](vector<uint8_t>& result) {
+    auto readGuid = [&r, heapSizes, guidStreamOffset](Guid& result) {
         uint32_t index = (heapSizes & 0x02) != 0 ? r.read_uint32() : r.read_uint16();
         if (index != 0) {
             r.read_guid(result, guidStreamOffset + ((index - 1) << 4));
@@ -262,7 +262,7 @@ void AssemblyData::FillTables() {
         // These two reserved fields are not presented in ModuleRow structure.
         // EncId (index into GUID heap, always set to zero).
         // EncBaseId (index into GUID heap, always set to zero).
-        vector<uint8_t> tmp;
+        Guid tmp;
         readGuid(tmp); // encId 
         readGuid(tmp); // endBaseId 
     }
@@ -722,10 +722,6 @@ void AssemblyData::FillTables() {
             cliMetaDataTables._GenericParamConstraint.push_back(row);
         }
     }
-
-//  test
-//    MethodBody mb;
-//    getMethodBody(2, mb);
 }
 
 // Get physical offset from the beginning of file.
@@ -740,6 +736,7 @@ uint32_t AssemblyData::getDataOffset (uint32_t address) const {
     return std::numeric_limits<uint32_t>::max();
 }
 
+// Get physical offset of metadata stream from the beginning of file.
 uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name) const {
     for (uint32_t i = 0; i < streamsCount; ++i) {
         const auto& streamName = streams[i].name;
@@ -751,6 +748,7 @@ uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name)
     return std::numeric_limits<uint32_t>::max();
 };
 
+// Get method information 
 void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) {
     using bflags = MethodBodyFlags;
     using eflags = ExceptionFlags;

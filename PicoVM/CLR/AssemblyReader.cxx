@@ -135,18 +135,16 @@ uint32_t AssemblyReader::read_utf8z(vector<uint16_t>& result, uint32_t offset, u
     return static_cast<uint32_t>(distance(start_it, end_it));
 }
 
-void AssemblyReader::read_guid(vector<uint8_t>& result)
+void AssemblyReader::read_guid(Guid& result)
 {
-    result.clear();
-    result.assign(pc, next(pc, 16));
+    result = Guid(pc, next(pc, 16));
     pc = next(pc, 16);
 }
 
-void AssemblyReader::read_guid(vector<uint8_t>& result, uint32_t offset) const
+void AssemblyReader::read_guid(Guid& result, uint32_t offset) const
 {
     auto start_it = next(data.cbegin(), offset);
-    result.clear();
-    result.assign(start_it, next(start_it, 16));
+    result = Guid(start_it, next(start_it, 16));
 }
 
 void AssemblyReader::read_bytes(vector<uint8_t>& result, uint32_t length)

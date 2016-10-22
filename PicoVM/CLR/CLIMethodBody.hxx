@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <vector>
 #include <string>
-#include <sstream>
 
 #include "CLIMetadataTableRows.hxx"
 
@@ -23,11 +22,7 @@ struct ExceptionClause {
     uint32_t handlerLength = 0;
     uint32_t classTokenOrFilterOffset = 0;
 
-    std::string toString() const {
-        std::stringstream ss;
-        ss << "ExceptionClause(tryOffset=" << std::hex << tryOffset << " tryLength=" << std::dec << tryLength << " handlerOffset=" << std::hex << handlerOffset << " handlerLength=" << std::dec << handlerLength << " classTokenOrFilterOffset=" << std::hex << classTokenOrFilterOffset << ")";
-        return ss.str();
-    } 
+    std::string toString() const;
 };
 
 enum struct ExceptionFlags : uint8_t {
@@ -50,6 +45,8 @@ struct MethodBody {
     uint32_t maxStack = 0;
     uint32_t localVarSigTok = 0;
     bool initLocals = false;
+
+    std::string toString(bool fPrintBody=false) const;
 };
 
 #endif

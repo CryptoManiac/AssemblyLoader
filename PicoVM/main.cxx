@@ -20,6 +20,8 @@ int main(int argc, const char *argv[]) {
 #endif
     }
 
+    cout << assembly->cliMetaDataTables.module.toString() << endl;
+
     uint32_t entryPoint = assembly->cliHeader.entryPointToken;
     cout << "entryPoint: " << hex << entryPoint << endl;
 
@@ -28,12 +30,17 @@ int main(int argc, const char *argv[]) {
 
     MethodBody body;
     assembly->getMethodBody(entryPoint & 0xFFFFFF, body);
+
+    /*
     cout << "Method name: " << string(body.methodDef.name.begin(), body.methodDef.name.end()) << endl;
     cout << "Method body size: " << dec << body.data.size() << endl;
     
     for (uint32_t n = 0; n < body.exceptions.size(); ++n) {
         cout << body.exceptions[n].toString() << endl;
     }
+    */
+
+    cout << body.toString(true) << endl;
 
     return 0;
 }
