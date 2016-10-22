@@ -1,3 +1,6 @@
+#ifndef __GUID_HXX__
+#define __GUID_HXX__
+
 /*
 The MIT License (MIT)
 
@@ -21,8 +24,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-
-#pragma once
 
 #include <vector>
 #include <string>
@@ -63,7 +64,11 @@ class Guid
     bool operator==(const Guid &other) const;
     bool operator!=(const Guid &other) const;
 
-    std::string toString() const;
+    void swap(Guid& other) noexcept;
+
+    // Convert to string
+    std::string str() const;
+    const char *c_str() const;
 
   private:
 
@@ -73,3 +78,5 @@ class Guid
     // make the << operator a friend so it can access _bytes
     friend std::ostream &operator<<(std::ostream &s, const Guid &guid);
 };
+
+#endif

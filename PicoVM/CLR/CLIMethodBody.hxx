@@ -22,7 +22,7 @@ struct ExceptionClause {
     uint32_t handlerLength = 0;
     uint32_t classTokenOrFilterOffset = 0;
 
-    std::string toString() const;
+    std::string str() const;
 };
 
 enum struct ExceptionFlags : uint8_t {
@@ -46,7 +46,8 @@ struct MethodBody {
     uint32_t localVarSigTok = 0;
     bool initLocals = false;
 
-    std::string toString(bool fPrintBody=false) const;
+    std::string str(bool fPrintBody=false) const;
+    std::string str() const;
 };
 
 #endif

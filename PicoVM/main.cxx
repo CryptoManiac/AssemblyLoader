@@ -20,7 +20,7 @@ int main(int argc, const char *argv[]) {
 #endif
     }
 
-    cout << assembly->cliMetaDataTables.module.toString() << endl;
+    cout << assembly->cliMetaDataTables.module.str() << endl;
 
     uint32_t entryPoint = assembly->cliHeader.entryPointToken;
     cout << "entryPoint: " << hex << entryPoint << endl;
@@ -40,7 +40,7 @@ int main(int argc, const char *argv[]) {
     }
     */
 
-    cout << body.toString(true) << endl;
+    cout << body.str(true) << endl;
 
     return 0;
 }

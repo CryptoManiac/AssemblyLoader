@@ -54,10 +54,14 @@ ostream &operator<<(ostream &s, const Guid &guid)
     << setw(2) << (int)guid._bytes[15];
 }
 
-string Guid::toString() const {
+string Guid::str() const {
     ostringstream ss;
     ss << *this;
     return ss.str();
+}
+
+const char *Guid::c_str() const {
+  return str().c_str();
 }
 
 // create a guid from vector of bytes
@@ -143,7 +147,7 @@ Guid::Guid(const Guid &other)
 // overload assignment operator
 Guid &Guid::operator=(const Guid &other)
 {
-  _bytes = other._bytes;
+  Guid(other).swap(*this);
   return *this;
 }
 
@@ -157,4 +161,9 @@ bool Guid::operator==(const Guid &other) const
 bool Guid::operator!=(const Guid &other) const
 {
   return !((*this) == other);
+}
+
+void Guid::swap(Guid& other) noexcept
+{
+  _bytes.swap(other._bytes);
 }

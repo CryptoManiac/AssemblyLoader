@@ -14,7 +14,7 @@ struct ModuleRow {
     std::vector<uint16_t> name;
     Guid guid;
 
-    std::string toString();
+    std::string str();
 };
 
 // Each row represents an imported class, its namespace, and the assembly which contains it.
