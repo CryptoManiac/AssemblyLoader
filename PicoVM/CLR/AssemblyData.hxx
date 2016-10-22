@@ -79,7 +79,7 @@ public:
     AssemblyData(std::string strFilePathName);
     AssemblyData(const std::vector<uint8_t>& assembly_bytes);
     uint32_t getDataOffset(uint32_t address) const;
-    void getMethodBody(uint32_t index, MethodBody& methodBody) const;
+    void getMethodBody(uint32_t index, MethodBody& methodBody);
 
 private:
     AssemblyReader reader;

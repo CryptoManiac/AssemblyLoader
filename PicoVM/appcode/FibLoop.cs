@@ -27,9 +27,17 @@ class FibLoop
 
     static void Main(string[] args)
     {
-        for (long n = 0; n <= 92; ++n)
+        try
         {
-            Console.WriteLine(fib(n));
+            for (long n = 0; n <= 92; ++n)
+            {
+                Console.WriteLine(fib(n));
+            }
+        }
+        catch (System.Exception)
+        {
+            Console.WriteLine("Error");
+            throw;
         }
     }
 }

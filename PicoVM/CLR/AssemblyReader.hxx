@@ -25,6 +25,7 @@ public:
     // [] operator for better readability
     const uint8_t& operator[](uint32_t offset) const;
 
+    uint8_t  read_uint8();
     uint16_t read_uint16();
     uint16_t read_uint16(uint32_t offset) const;
     uint32_t read_uint32();
@@ -51,6 +52,7 @@ public:
     void read_guid(std::vector<uint8_t>& result, uint32_t offset) const;
 
     // Read binary data
+    void read_bytes(std::vector<uint8_t>& result, uint32_t length);
     void read_bytes(std::vector<uint8_t>& result, uint32_t offset, uint32_t length) const;
 
     // Read and decode variable length integer

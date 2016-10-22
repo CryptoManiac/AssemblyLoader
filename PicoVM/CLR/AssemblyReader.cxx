@@ -39,6 +39,10 @@ const uint8_t& AssemblyReader::operator[](uint32_t offset) const
     return data[offset];
 }
 
+uint8_t  AssemblyReader::read_uint8() {
+    return *(pc++);
+}
+
 uint16_t AssemblyReader::read_uint16()
 {
     return static_cast<uint16_t>(*(pc++)) | static_cast<uint16_t>(*(pc++)) << 8;
@@ -143,6 +147,14 @@ void AssemblyReader::read_guid(vector<uint8_t>& result, uint32_t offset) const
     auto start_it = next(data.cbegin(), offset);
     result.clear();
     result.assign(start_it, next(start_it, 16));
+}
+
+void AssemblyReader::read_bytes(vector<uint8_t>& result, uint32_t length)
+{
+    result.clear();
+    auto start_it = pc;
+    pc = next(pc, length);
+    result.assign(start_it, pc);
 }
 
 void AssemblyReader::read_bytes(vector<uint8_t>& result, uint32_t offset, uint32_t length) const

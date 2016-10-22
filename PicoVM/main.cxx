@@ -30,6 +30,10 @@ int main(int argc, const char *argv[]) {
     assembly->getMethodBody(entryPoint & 0xFFFFFF, body);
     cout << "Method name: " << string(body.methodDef.name.begin(), body.methodDef.name.end()) << endl;
     cout << "Method body size: " << dec << body.data.size() << endl;
+    
+    for (uint32_t n = 0; n < body.exceptions.size(); ++n) {
+        cout << body.exceptions[n].toString() << endl;
+    }
 
     return 0;
 }

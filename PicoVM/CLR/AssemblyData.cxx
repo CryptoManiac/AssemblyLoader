@@ -751,62 +751,58 @@ uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name)
     return std::numeric_limits<uint32_t>::max();
 };
 
-void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) const {
+void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) {
     using bflags = MethodBodyFlags;
     using eflags = ExceptionFlags;
 
     methodBody.methodDef = cliMetaDataTables._MethodDef[index - 1];
     auto offset = getDataOffset(methodBody.methodDef.rva);
     auto format = bflags(reader[offset] & 0x03);
+    reader.seek(offset);
 
     if (format == bflags::TinyFormat) {
         methodBody.maxStack = 8;
-        auto length = reader[offset++] >> 2;
-        reader.read_bytes(methodBody.data, offset, length);
+        auto length = reader.read_uint8() >> 2;
+        reader.read_bytes(methodBody.data, length);
     } else if (format == bflags::FatFormat) {
-        auto flags = reader.read_uint16(offset);
+        auto flags = reader.read_uint16();
         auto headerSize = (flags >> 12) * 4;
-        auto maxStack = reader.read_uint16(offset + 2);
-        auto codeSize = reader.read_uint32(offset + 4);
-        auto localVarSigTok = reader.read_uint16(offset + 8);
-        
-        offset += headerSize;
+        auto maxStack = reader.read_uint16();
+        auto codeSize = reader.read_uint32();
+        auto localVarSigTok = reader.read_uint32();
+
         methodBody.maxStack = maxStack;
         methodBody.localVarSigTok = localVarSigTok;
-        reader.read_bytes(methodBody.data, offset, codeSize);
+        reader.read_bytes(methodBody.data, codeSize);
 
         if ((flags & _u(bflags::MoreSects)) != 0) {
-            offset += (codeSize + 3) & ~3;
-            auto sectionHeader = reader.read_uint32(offset);
+            reader.seek(reader.tell() + ((codeSize + 3) & ~3) - codeSize);
+            auto sectionHeader = reader.read_uint32();
             if ((sectionHeader & _u(eflags::MoreSects)) != 0 || (sectionHeader & _u(eflags::EHTable)) == 0) {
                 throw runtime_error("Section format is not supported");
             } else if ((sectionHeader  & _u(eflags::FatFormat)) != 0) {
-                auto count = (sectionHeader >> 8) & 0xFFFFFF / 24;
-                offset += 4;
+                auto count = ((sectionHeader >> 8) - 4) / 24;
                 for (uint32_t i = 0; i < count; i++) {
                     ExceptionClause clause;
-                    clause.flags = reader.read_uint32(offset);
-                    clause.tryOffset = reader.read_uint32(offset + 4);
-                    clause.tryLength = reader.read_uint32(offset + 8);
-                    clause.handlerOffset = reader.read_uint32(offset + 12);
-                    clause.handlerLength = reader.read_uint32(offset + 16);
-                    clause.classTokenOrFilterOffset = reader.read_uint32(offset + 20);
+                    clause.flags = reader.read_uint32();
+                    clause.tryOffset = reader.read_uint32();
+                    clause.tryLength = reader.read_uint32();
+                    clause.handlerOffset = reader.read_uint32();
+                    clause.handlerLength = reader.read_uint32();
+                    clause.classTokenOrFilterOffset = reader.read_uint32();
                     methodBody.exceptions.push_back(clause);
-                    offset += 24;
                 }
             } else {
-                auto count = (sectionHeader >> 8) & 0xFF / 12;
-                offset += 4;
+                auto count = (((sectionHeader >> 8) & 0xFF) - 4) / 12;
                 for (uint32_t i = 0; i < count; i++) {
                     ExceptionClause clause;
-                    clause.flags = reader.read_uint16(offset);
-                    clause.tryOffset = reader.read_uint16(offset + 2);
-                    clause.tryLength = reader[offset + 4];
-                    clause.handlerOffset = reader.read_uint16(offset + 5);
-                    clause.handlerLength = reader[offset + 7];
-                    clause.classTokenOrFilterOffset = reader.read_uint32(offset + 8);
+                    clause.flags = reader.read_uint16();
+                    clause.tryOffset = reader.read_uint16();
+                    clause.tryLength = reader.read_uint8();
+                    clause.handlerOffset = reader.read_uint16();
+                    clause.handlerLength = reader.read_uint8();
+                    clause.classTokenOrFilterOffset = reader.read_uint32();
                     methodBody.exceptions.push_back(clause);
-                    offset += 12;
                 }
             }
         }
