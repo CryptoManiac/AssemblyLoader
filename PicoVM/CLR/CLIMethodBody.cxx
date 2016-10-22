@@ -14,7 +14,7 @@ std::string MethodBody::toString(bool fPrintBody) const {
     stringstream ss;
     ss << "MethodBody(" << endl
        << " maxStack=" << dec << maxStack << endl
-       << " localVarSigTok=" << dec << localVarSigTok << endl
+       << " localVarSigTok=" << hex << localVarSigTok << endl
        << " initLocals=" << dec << initLocals << endl;
 
     if (exceptions.size() != 0) {
