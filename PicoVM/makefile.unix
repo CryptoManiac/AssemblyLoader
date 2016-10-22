@@ -1,16 +1,22 @@
-CXX=g++
-#CXX=clang++
+ifeq (${USE_CLANG}, 1)
+    CXX=clang++
+else
+    CXX=g++
+endif
+
 CXXFLAGS=-std=c++11 -Wall -Wextra
 
-OBJECTS= \
-         main.o \
-         ./CLR/AssemblyData.o \
-         ./CLR/CLIMetadataTableIndex.o \
-         ./CLR/AssemblyReader.o
+EXEC=picovm
+SOURCES= \
+         main.cxx \
+         CLR/AssemblyData.cxx \
+         CLR/CLIMetadataTableIndex.cxx \
+         CLR/AssemblyReader.cxx
+OBJECTS=$(SOURCES:.cxx=.o)
 
-all: picovm
+all: $(EXEC)
 
-picovm: $(OBJECTS)
+$(EXEC): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 %.o: %.cxx
