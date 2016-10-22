@@ -1,4 +1,4 @@
-#include "CliMetadataTableIndex.hxx"
+#include "CLIMetadataTableIndex.hxx"
 #include <vector>
 #include <algorithm>
 #include <map>
