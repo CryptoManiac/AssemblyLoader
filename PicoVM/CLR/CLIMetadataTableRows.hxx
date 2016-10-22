@@ -19,7 +19,7 @@ struct ModuleRow {
 
 // Each row represents an imported class, its namespace, and the assembly which contains it.
 struct TypeRefRow {
-    std::pair<uint32_t, CLIMetadataTableIndex> resolutionScope;
+    std::pair<uint32_t, CLIMetadataTableItem> resolutionScope;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
 };
@@ -29,7 +29,7 @@ struct TypeDefRow {
     uint32_t flags = 0;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
-    std::pair<uint32_t, CLIMetadataTableIndex> extendsType;
+    std::pair<uint32_t, CLIMetadataTableItem> extendsType;
 
     uint32_t fieldList = 0;
     uint32_t methodList = 0;
@@ -205,35 +205,35 @@ struct ParamRow {
 
 struct InterfaceImplRow {
     uint32_t classRef = 0;
-    std::pair<uint32_t, CLIMetadataTableIndex> interfaceRef;
+    std::pair<uint32_t, CLIMetadataTableItem> interfaceRef;
 };
 
 struct MemberRefRow {
-    std::pair<uint32_t, CLIMetadataTableIndex> classRef;
+    std::pair<uint32_t, CLIMetadataTableItem> classRef;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
 };
 
 struct ConstantRow {
     uint16_t type = 0;
-    std::pair<uint32_t, CLIMetadataTableIndex> parent;
+    std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> value;
 };
 
 struct CustomAttributeRow {
-    std::pair<uint32_t, CLIMetadataTableIndex> parent;
-    std::pair<uint32_t, CLIMetadataTableIndex> type;
+    std::pair<uint32_t, CLIMetadataTableItem> parent;
+    std::pair<uint32_t, CLIMetadataTableItem> type;
     std::vector<uint8_t> value;
 };
 
 struct FieldMarshalRow {
-    std::pair<uint32_t, CLIMetadataTableIndex> parent;
+    std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> nativeType;
 };
 
 struct DeclSecurityRow {
     uint16_t action = 0;
-    std::pair<uint32_t, CLIMetadataTableIndex> parent;
+    std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> permissionSet;
 };
 
@@ -257,7 +257,7 @@ struct EventRow {
     // 2-byte bit mask of type EventAttribute
     uint16_t eventFlags = 0;
     std::vector<uint16_t> name;
-    std::pair<uint32_t, CLIMetadataTableIndex> eventType;
+    std::pair<uint32_t, CLIMetadataTableItem> eventType;
 
     enum struct EventAttribute : uint16_t {
         evSpecialName           =   0x0200, // Event is special. Name describes how.     
@@ -292,7 +292,7 @@ struct MethodSemanticsRow {
     // 2-byte bit mask of type MethodSemanticsAttributes
     uint16_t semantics = 0;
     uint32_t method = 0;
-    std::pair<uint32_t, CLIMetadataTableIndex> association;
+    std::pair<uint32_t, CLIMetadataTableItem> association;
 
     enum struct MethodSemanticsAttributes : uint16_t {
         Setter    =   0x0001,     // Setter for property
@@ -306,14 +306,14 @@ struct MethodSemanticsRow {
 
 struct MethodImplRow {
     uint32_t classRef = 0;
-    std::pair<uint32_t, CLIMetadataTableIndex> methodBody;
-    std::pair<uint32_t, CLIMetadataTableIndex> methodDeclaration;
+    std::pair<uint32_t, CLIMetadataTableItem> methodBody;
+    std::pair<uint32_t, CLIMetadataTableItem> methodDeclaration;
 };
 
 struct ImplMapRow {
     // 2-byte bit mask of type PInvokeAttributes
     uint16_t mappingFlags = 0;
-    std::pair<uint32_t, CLIMetadataTableIndex> memberForwarded;
+    std::pair<uint32_t, CLIMetadataTableItem> memberForwarded;
     std::vector<uint16_t> importName;
     uint32_t importScope = 0;
 
@@ -447,7 +447,7 @@ struct ExportedTypeRow {
     uint32_t typeDefId = 0;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
-    std::pair<uint32_t, CLIMetadataTableIndex> implementation;
+    std::pair<uint32_t, CLIMetadataTableItem> implementation;
 };
 
 struct ManifestResourceRow {
@@ -455,7 +455,7 @@ struct ManifestResourceRow {
     // 4-byte bit mask of type ManifestResourceAttributes
     uint32_t flags = 0;
     std::vector<uint16_t> name;
-    std::pair<uint32_t, CLIMetadataTableIndex> implementation;
+    std::pair<uint32_t, CLIMetadataTableItem> implementation;
 
     enum struct ManifestResourceAttributes {
         VisibilityMask        =   0x0007,
@@ -473,7 +473,7 @@ struct GenericParamRow {
     uint16_t number = 0;
     // 2-byte bitmask of type GenericParamAttributes
     uint16_t flags = 0;
-    std::pair<uint32_t, CLIMetadataTableIndex> owner;
+    std::pair<uint32_t, CLIMetadataTableItem> owner;
     std::vector<uint16_t> name;
 
     enum struct GenericParamAttributes {
@@ -495,13 +495,13 @@ struct GenericParamRow {
 };
 
 struct MethodSpecRow {
-    std::pair<uint32_t, CLIMetadataTableIndex> method;
+    std::pair<uint32_t, CLIMetadataTableItem> method;
     std::vector<uint32_t> instantiation;
 };
 
 struct GenericParamConstraintRow {
     uint32_t owner = 0;
-    std::pair<uint32_t, CLIMetadataTableIndex> constraint;
+    std::pair<uint32_t, CLIMetadataTableItem> constraint;
 };
 
 #endif

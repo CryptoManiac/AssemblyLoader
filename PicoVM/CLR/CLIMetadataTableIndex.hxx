@@ -1,8 +1,9 @@
 #ifndef CLIMETA_HXX
 #define CLIMETA_HXX
 #include <string>
+#include <map>
 
-enum struct CLIMetadataTableIndex : uint8_t {
+enum struct CLIMetadataTableItem : uint8_t {
     Module = 0x00,              TypeRef = 0x01,             TypeDef = 0x02,
     Field = 0x04,               MethodDef = 0x06,           Param = 0x08,
     InterfaceImpl = 0x09,       MemberRef = 0x0A,           Constant = 0x0B,
@@ -18,8 +19,50 @@ enum struct CLIMetadataTableIndex : uint8_t {
     MethodSpec = 0x2B,          GenericParamConstraint = 0x2C, Unknown = 0xFF
 };
 
+const std::map<CLIMetadataTableItem, std::string> cliMetadataTableNames = {
+        { CLIMetadataTableItem::Module, "Module"},
+        { CLIMetadataTableItem::TypeRef, "TypeRef"},
+        { CLIMetadataTableItem::TypeDef, "TypeDef"},
+        { CLIMetadataTableItem::Field, "Field"},
+        { CLIMetadataTableItem::MethodDef, "MethodDef"},
+        { CLIMetadataTableItem::Param, "Param"},
+        { CLIMetadataTableItem::InterfaceImpl, "InterfaceImpl"},
+        { CLIMetadataTableItem::MemberRef, "MemberRef"},
+        { CLIMetadataTableItem::Constant, "Constant"},
+        { CLIMetadataTableItem::CustomAttribute, "CustomAttribute"},
+        { CLIMetadataTableItem::FieldMarshal, "FieldMarshal"},
+        { CLIMetadataTableItem::DeclSecurity, "DeclSecurity"},
+        { CLIMetadataTableItem::ClassLayout, "ClassLayout"},
+        { CLIMetadataTableItem::FieldLayout, "FieldLayout"},
+        { CLIMetadataTableItem::StandAloneSig, "StandAloneSig"},
+        { CLIMetadataTableItem::EventMap, "EventMap"},
+        { CLIMetadataTableItem::Event, "Event"},
+        { CLIMetadataTableItem::PropertyMap, "PropertyMap"},
+        { CLIMetadataTableItem::Property, "Property"},
+        { CLIMetadataTableItem::MethodSemantics, "MethodSemantics"},
+        { CLIMetadataTableItem::MethodImpl, "MethodImpl"},
+        { CLIMetadataTableItem::ModuleRef, "ModuleRef"},
+        { CLIMetadataTableItem::TypeSpec, "TypeSpec"},
+        { CLIMetadataTableItem::ImplMap, "ImplMap"},
+        { CLIMetadataTableItem::FieldRVA, "FieldRVA"},
+        { CLIMetadataTableItem::Assembly, "Assembly"},
+        { CLIMetadataTableItem::AssemblyProcessor, "AssemblyProcessor"},
+        { CLIMetadataTableItem::AssemblyOS, "AssemblyOS"},
+        { CLIMetadataTableItem::AssemblyRef, "AssemblyRef"},
+        { CLIMetadataTableItem::AssemblyRefProcessor, "AssemblyRefProcessor"},
+        { CLIMetadataTableItem::AssemblyRefOS, "AssemblyRefOS"},
+        { CLIMetadataTableItem::File, "File"},
+        { CLIMetadataTableItem::ExportedType, "ExportedType"},
+        { CLIMetadataTableItem::ManifestResource, "ManifestResource"},
+        { CLIMetadataTableItem::NestedClass, "NestedClass"},
+        { CLIMetadataTableItem::GenericParam, "GenericParam"},
+        { CLIMetadataTableItem::MethodSpec, "MethodSpec"},
+        { CLIMetadataTableItem::GenericParamConstraint, "GenericParamConstraint" },
+        { CLIMetadataTableItem::Unknown, "Unknown"}
+};
+
 // Beware, brain-compiled code ahead! 
-CLIMetadataTableIndex& operator++(CLIMetadataTableIndex& value);
-std::string getTableName(const CLIMetadataTableIndex& value);
+CLIMetadataTableItem& operator++(CLIMetadataTableItem& value);
+std::string getTableName(const CLIMetadataTableItem& value);
 
 #endif
