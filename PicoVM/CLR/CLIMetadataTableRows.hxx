@@ -22,8 +22,6 @@ struct TypeRefRow {
     std::pair<uint32_t, CLIMetadataTableIndex> resolutionScope;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
-
-    std::string toString();
 };
 
 struct TypeDefRow {

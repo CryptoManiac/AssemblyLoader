@@ -16,6 +16,3 @@ std::string ModuleRow::toString() {
        return ss.str();
 }
 
-std::string TypeRefRow::toString() {
-    
-}
