@@ -5,20 +5,20 @@
 
 enum struct CLIElementType : uint8_t {
     ELEMENT_TYPE_END=0x00, // Marks end of a list
-    ELEMENT_TYPE_VOID=0x01,
-    ELEMENT_TYPE_BOOLEAN=0x02,
-    ELEMENT_TYPE_CHAR=0x03,
-    ELEMENT_TYPE_I1=0x04,
-    ELEMENT_TYPE_U1=0x05,
-    ELEMENT_TYPE_I2=0x06,
-    ELEMENT_TYPE_U2=0x07,
-    ELEMENT_TYPE_I4=0x08,
-    ELEMENT_TYPE_U4=0x09,
-    ELEMENT_TYPE_I8=0x0a,
-    ELEMENT_TYPE_U8=0x0b,
-    ELEMENT_TYPE_R4=0x0c,
-    ELEMENT_TYPE_R8=0x0d,
-    ELEMENT_TYPE_STRING=0x0e,
+    ELEMENT_TYPE_VOID=0x01, // System.Void
+    ELEMENT_TYPE_BOOLEAN=0x02, // System.Boolean
+    ELEMENT_TYPE_CHAR=0x03, // System.Char
+    ELEMENT_TYPE_I1=0x04, // System.Sbyte
+    ELEMENT_TYPE_U1=0x05, // System.Byte
+    ELEMENT_TYPE_I2=0x06, // System.Int16
+    ELEMENT_TYPE_U2=0x07, // System.UInt16
+    ELEMENT_TYPE_I4=0x08, // System.Int32
+    ELEMENT_TYPE_U4=0x09, // System.UInt32
+    ELEMENT_TYPE_I8=0x0a, // System.Int64
+    ELEMENT_TYPE_U8=0x0b, // System.UInt64
+    ELEMENT_TYPE_R4=0x0c, // System.Float
+    ELEMENT_TYPE_R8=0x0d, // System/Double
+    ELEMENT_TYPE_STRING=0x0e, // System.String
     ELEMENT_TYPE_PTR=0x0f, // Followed by type
     ELEMENT_TYPE_BYREF=0x10, // Followed by type
     ELEMENT_TYPE_VALUETYPE=0x11, // Followed by TypeDef or TypeRef token
@@ -26,7 +26,7 @@ enum struct CLIElementType : uint8_t {
     ELEMENT_TYPE_VAR=0x13, // Generic parameter in a generic type definition, represented as number (compressed unsigned integer)
     ELEMENT_TYPE_ARRAY=0x14, // type rank boundsCount bound1 ... loCount lo1 ...
     ELEMENT_TYPE_GENERICINST=0x15, // Generic type instantiation. Followed by type type-arg-count type-1 ... type-n
-    ELEMENT_TYPE_TYPEDBYREF=0x16, 
+    ELEMENT_TYPE_TYPEDBYREF=0x16, // System.TypedReference
     ELEMENT_TYPE_I=0x18, // System.IntPtr
     ELEMENT_TYPE_U=0x19, // System.UIntPtr
     ELEMENT_TYPE_FNPTR=0x1b, // Followed by full method signature
