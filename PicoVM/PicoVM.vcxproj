@@ -149,6 +149,10 @@
     <ClCompile Include="CLR\AssemblyData.cxx" />
     <ClCompile Include="CLR\CLIMetadataTableIndex.cxx" />
     <ClCompile Include="CLR\AssemblyReader.cxx" />
+    <ClCompile Include="CLR\CLIMetadataTableRows.cxx" />
+    <ClCompile Include="CLR\CLIMethodBody.cxx" />
+    <ClCompile Include="CLR\crossguid\guid.cxx" />
+    <ClCompile Include="CLR\HexStr.cxx" />
     <ClCompile Include="main.cxx" />
   </ItemGroup>
   <ItemGroup>
