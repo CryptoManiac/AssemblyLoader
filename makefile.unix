@@ -8,10 +8,10 @@ CXXFLAGS=-std=c++11 -Wall -Wextra
 
 EXEC=picovm
 SOURCES= \
-         main.cxx \
-         CLR/AssemblyData.cxx \
-         CLR/CLIMetadataTableIndex.cxx \
-         CLR/AssemblyReader.cxx
+         PicoVM/main.cxx \
+         PicoVM/CLR/AssemblyData.cxx \
+         PicoVM/CLR/CLIMetadataTableIndex.cxx \
+         PicoVM/CLR/AssemblyReader.cxx
 OBJECTS=$(SOURCES:.cxx=.o)
 
 all: $(EXEC)
@@ -24,5 +24,5 @@ $(EXEC): $(OBJECTS)
 
 clean:
 	-rm -f picovm
-	-rm -f *.o
-	-rm -f CLR/*.o
+	-rm -f PicoVM/*.o
+	-rm -f PicoVM/CLR/*.o
