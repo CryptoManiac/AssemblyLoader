@@ -58,11 +58,8 @@ const std::map<CLIMetadataTableItem, std::string> cliMetadataTableNames = {
         { CLIMetadataTableItem::GenericParam, "GenericParam"},
         { CLIMetadataTableItem::MethodSpec, "MethodSpec"},
         { CLIMetadataTableItem::GenericParamConstraint, "GenericParamConstraint" },
-        { CLIMetadataTableItem::Unknown, "Unknown"}
 };
 
-// Beware, brain-compiled code ahead! 
-CLIMetadataTableItem& operator++(CLIMetadataTableItem& value);
 std::string getTableName(const CLIMetadataTableItem& value);
 
 #endif

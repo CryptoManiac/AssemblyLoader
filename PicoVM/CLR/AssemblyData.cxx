@@ -154,8 +154,17 @@ void AssemblyData::FillTables() {
     const auto guidStreamOffset = cliMetadata.getStreamOffset({ '#', 'G', 'U', 'I', 'D' });
     const auto blobStreamOffset = cliMetadata.getStreamOffset({ '#', 'B', 'l', 'o', 'b' });
 
+    // Encodes how wide indexes into the various heaps are. Default width is 16 bit, indexes can be either 16 or 32 bit long.
+    //
+    // 0x01 Size of #String stream is 32 bit.
+    // 0x02 Size of #GUID stream is 32 bit.
+    // 0x04 Size of #Blob stream is 32 bit.
     const auto heapSizes = reader[metaHeaderOffset + 6];
+
+    // A 64-bit number that has a bit set for each table that is present in the assembly.
     const auto valid = reader.read_uint64(metaHeaderOffset + 8);
+    // Similarly, tells which tables are sorted. However, I'd say that it doesn't make sanse for me.
+    // http://stackoverflow.com/questions/3472752/what-is-a-sorted-table-in-net-metadata 
     const auto sorted = reader.read_uint64(metaHeaderOffset + 16);
 
     auto& r = reader; // reader can't be captured directly, so make a local reference
@@ -207,9 +216,9 @@ void AssemblyData::FillTables() {
 
     map<CLIMetadataTableItem, uint32_t> mapTableLength;
 
-    for (CLIMetadataTableItem bit = CLIMetadataTableItem::Module; bit <= CLIMetadataTableItem::GenericParamConstraint; ++bit) {
-        bool isSet = ((valid >> _u(bit)) & 1) != 0;
-        if (isSet) {
+    for(auto it = cliMetadataTableNames.begin(); it != cliMetadataTableNames.end(); ++it) {
+        auto bit = (*it).first;
+        if (((valid >> _u(bit)) & 1) != 0) {
             // Load table length record for existent and valid table.
             mapTableLength[bit] = reader.read_uint32();
         }
