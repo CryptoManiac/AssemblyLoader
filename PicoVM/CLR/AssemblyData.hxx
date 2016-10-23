@@ -39,9 +39,9 @@ public:
         ModuleRow module;
         std::vector<TypeRefRow> _TypeRef;
         std::vector<TypeDefRow> _TypeDef;
-        std::vector<FieldRow> _Field;
+        std::vector<FieldDefRow> _FieldDef;
         std::vector<MethodDefRow> _MethodDef;
-        std::vector<ParamRow> _Param;
+        std::vector<ParamDefRow> _ParamDef;
         std::vector<InterfaceImplRow> _InterfaceImpl;
         std::vector<MemberRefRow> _MemberRef;
         std::vector<ConstantRow> _Constant;

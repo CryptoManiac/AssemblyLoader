@@ -79,7 +79,7 @@ struct TypeDefRow {
     };
 };
 
-struct FieldRow {
+struct FieldDefRow {
     // 2-byte bit mask of type FieldAttributes
     uint16_t flags = 0;
     std::vector<uint16_t> name;
@@ -184,7 +184,7 @@ struct MethodDefRow {
     };
 };
 
-struct ParamRow {
+struct ParamDefRow {
     uint16_t flags = 0;
     // 2-byte bit mask of type ParamAttributes
     uint16_t sequence;

@@ -4,7 +4,7 @@ else
     CXX=g++
 endif
 
-CXXFLAGS=-std=c++11 -Wall -Wextra -DGUID_LIBUUID
+CXXFLAGS=-std=c++11 -Wall -Wextra
 
 EXEC=picovm
 SOURCES= \
