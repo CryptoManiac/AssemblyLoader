@@ -233,7 +233,7 @@ void AssemblyData::FillTables() {
         return mapTableLength[tableIndex] >= 0xffff ? r.read_uint32() : r.read_uint16();
     };
 
-    // Decode 
+    // Decode polymorphic index
     auto readRowIndexChoice = [&r, &mapTableLength](const vector<CLIMetadataTableItem>& tables)->pair<uint32_t, CLIMetadataTableItem> {
         uint32_t max = 0;
 

@@ -120,7 +120,7 @@ const std::vector<CLIMetadataTableItem> hasCustomAttribute = {
         CLIMetadataTableItem::TypeRef, CLIMetadataTableItem::TypeDef, 
         CLIMetadataTableItem::ParamDef, CLIMetadataTableItem::InterfaceImpl, 
         CLIMetadataTableItem::MemberRef, CLIMetadataTableItem::Module, 
-        CLIMetadataTableItem::Unknown /* FIXME: ??? was Permission */, CLIMetadataTableItem::Property, 
+        CLIMetadataTableItem::DeclSecurity, CLIMetadataTableItem::Property, 
         CLIMetadataTableItem::Event, CLIMetadataTableItem::StandAloneSig, 
         CLIMetadataTableItem::ModuleRef, CLIMetadataTableItem::TypeSpec, 
         CLIMetadataTableItem::Assembly, CLIMetadataTableItem::AssemblyRef, 
