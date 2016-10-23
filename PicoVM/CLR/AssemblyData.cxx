@@ -150,7 +150,6 @@ void AssemblyData::InitAssembly() {
 void AssemblyData::FillTables() {
     const auto metaHeaderOffset = cliMetadata.getStreamOffset({ '#', '~' });
     const auto stringStreamOffset = cliMetadata.getStreamOffset({ '#', 'S', 't', 'r', 'i', 'n', 'g', 's' });
-    const auto usStreamOffset = cliMetadata.getStreamOffset({ '#', 'U', 'S' });
     const auto guidStreamOffset = cliMetadata.getStreamOffset({ '#', 'G', 'U', 'I', 'D' });
     const auto blobStreamOffset = cliMetadata.getStreamOffset({ '#', 'B', 'l', 'o', 'b' });
 
