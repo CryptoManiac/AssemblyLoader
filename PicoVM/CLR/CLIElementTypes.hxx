@@ -37,8 +37,10 @@ enum struct CLIElementType : uint8_t {
     ELEMENT_TYPE_CMOD_OPT=0x20, // Optional modifier : followed by a TypeDef or TypeRef token
     ELEMENT_TYPE_INTERNAL=0x21, // Implemented within the CLI
     ELEMENT_TYPE_MODIFIER=0x40, // Or’d with following element types
-    ELEMENT_TYPE_SENTINEL=0x41, // Sentinel for vararg method signature
-    ELEMENT_TYPE_PINNED=0x45, // Denotes a local variable that points at a pinned object
+    ELEMENT_TYPE_SENTINEL=0x01|ELEMENT_TYPE_MODIFIER, // Sentinel for vararg method signature
+    ELEMENT_TYPE_PINNED=0x05|ELEMENT_TYPE_MODIFIER, // Denotes a local variable that points at a pinned object
+    ELEMENT_TYPE_R4_HFA= 0x06|ELEMENT_TYPE_MODIFIER, // used only internally for R4 HFA types
+    ELEMENT_TYPE_R8_HFA= 0x07|ELEMENT_TYPE_MODIFIER, // used only internally for R8 HFA types
     ELEMENT_TYPE_SYSTEM_TYPE=0x50, // Indicates an argument of type System.Type.
     ELEMENT_TYPE_BOXED_OBJECT=0x51, // Used in custom attributes to specify a boxed object 
     ELEMENT_TYPE_RESERVED=0x52, // Reserved
