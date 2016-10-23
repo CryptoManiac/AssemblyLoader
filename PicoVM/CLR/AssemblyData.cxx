@@ -260,80 +260,42 @@ void AssemblyData::FillTables() {
     if (mapTableLength[CLIMetadataTableItem::Module] != 1) {
          throw runtime_error("Module table most contain one and only one row.");
     }
-    // Locad module information.
+    // Load module information.
     cliMetaDataTables.module = ModuleRow(mr);
 
     // TypeRef
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::TypeRef]; ++n) {
-        TypeRefRow row;
-
-        // ResolutionScope coded index
-        row.resolutionScope = readRowIndexChoice(resolutionScope);
-
-        // Type name and namespace
-        readString(row.typeName);
-        readString(row.typeNamespace);
+        TypeRefRow row(mr);
         cliMetaDataTables._TypeRef.push_back(row);
     }
 
     // TypeDef
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::TypeDef]; ++n) {
-        TypeDefRow row;
-        // 4-byte bit mask of type TypeAttributes
-        row.flags = reader.read_uint32();
-        // Type name and namespace
-        readString(row.typeName);
-        readString(row.typeNamespace);
-        // TypeDefOrRef coded index into TypeDef, TypeRef or TypeSpec
-        row.extendsType = readRowIndexChoice(typeDefOrRef);
-        // Index into FieldDef table
-        row.fieldList = readRowIndex(CLIMetadataTableItem::FieldDef);
-        // Index into MethodDef table
-        row.methodList = readRowIndex(CLIMetadataTableItem::MethodDef);
+        TypeDefRow row(mr);
         cliMetaDataTables._TypeDef.push_back(row);
     }
 
     // FieldDef
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::FieldDef]; ++n) {
-        FieldDefRow row;
-        // 2-byte bit mask of type FieldAttributes
-        row.flags = reader.read_uint16();
-        readString(row.name);
-        readSignature(row.signature);
+        FieldDefRow row(mr);
         cliMetaDataTables._FieldDef.push_back(row);
     }
 
     // MethodDef
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MethodDef]; ++n) {
-        MethodDefRow row;
-        row.rva = reader.read_uint32();
-        // 2-byte bit mask of type MethodImplAttributes
-        row.implFlags = reader.read_uint16();
-        row.flags = reader.read_uint16();
-        readString(row.name);
-        readSignature(row.signature);
-        // Index into the ParamDef table
-        row.paramList = readRowIndex(CLIMetadataTableItem::ParamDef);
+        MethodDefRow row(mr);
         cliMetaDataTables._MethodDef.push_back(row);
     }
 
     // ParamDef
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ParamDef]; ++n) {
-        ParamDefRow row;
-        // 2-byte bit mask of type ParamAttributes
-        row.flags = reader.read_uint16();
-        row.sequence = reader.read_uint16();
-        readString(row.name);
+        ParamDefRow row(mr);
         cliMetaDataTables._ParamDef.push_back(row);
     }
 
     // InterfaceImpl
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::InterfaceImpl]; ++n) {
-        InterfaceImplRow row;
-        // Index into the TypeDef table
-        row.classRef = readRowIndex(CLIMetadataTableItem::TypeDef);
-        // TypeDefOrRef index into TypeDef, TypeRef or TypeSpec
-        row.interfaceRef = readRowIndexChoice(typeDefOrRef);
+        InterfaceImplRow row(mr);
         cliMetaDataTables._InterfaceImpl.push_back(row);
     }
 

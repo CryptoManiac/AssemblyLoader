@@ -69,7 +69,7 @@ std::string getTableName(const CLIMetadataTableItem& value);
 // ModuleRef    1
 // AssemblyRef  2
 // TypeRef      3
-const std::vector<CLIMetadataTableItem> resolutionScope = { CLIMetadataTableItem::Module, CLIMetadataTableItem::ModuleRef, CLIMetadataTableItem::AssemblyRef, CLIMetadataTableItem::TypeRef };
+const std::vector<CLIMetadataTableItem> resolutionScopeIndex = { CLIMetadataTableItem::Module, CLIMetadataTableItem::ModuleRef, CLIMetadataTableItem::AssemblyRef, CLIMetadataTableItem::TypeRef };
 
 // TypeDefOrRef: 2 bits to encode tag
 //

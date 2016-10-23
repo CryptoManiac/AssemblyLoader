@@ -104,14 +104,62 @@ string ModuleRow::str() {
        return ss.str();
 }
 
-// TODO: replace stubs with real constructors :D
+TypeRefRow::TypeRefRow(MetadataRowsReader& mr) {
+    // ResolutionScope coded index
+    resolutionScope = mr.readRowIndexChoice(resolutionScopeIndex);
 
-TypeRefRow::TypeRefRow(MetadataRowsReader& mr) { /* stub */ }
-TypeDefRow::TypeDefRow(MetadataRowsReader& mr) { /* stub */ }
-FieldDefRow::FieldDefRow(MetadataRowsReader& mr) { /* stub */ }
-MethodDefRow::MethodDefRow(MetadataRowsReader& mr) { /* stub */ }
-ParamDefRow::ParamDefRow(MetadataRowsReader& mr) { /* stub */ }
-InterfaceImplRow::InterfaceImplRow(MetadataRowsReader& mr) { /* stub */ }
+    // Type name and namespace
+    mr.readString(typeName);
+    mr.readString(typeNamespace);
+}
+
+TypeDefRow::TypeDefRow(MetadataRowsReader& mr) {
+    // 4-byte bit mask of type TypeAttributes
+    flags = mr.reader.read_uint32();
+    // Type name and namespace
+    mr.readString(typeName);
+    mr.readString(typeNamespace);
+    // TypeDefOrRef coded index into TypeDef, TypeRef or TypeSpec
+    extendsType = mr.readRowIndexChoice(typeDefOrRef);
+    // Index into FieldDef table
+    fieldList = mr.readRowIndex(CLIMetadataTableItem::FieldDef);
+    // Index into MethodDef table
+    methodList = mr.readRowIndex(CLIMetadataTableItem::MethodDef);    
+}
+
+FieldDefRow::FieldDefRow(MetadataRowsReader& mr) {
+    // 2-byte bit mask of type FieldAttributes
+    flags = mr.reader.read_uint16();
+    mr.readString(name);
+    mr.readSignature(signature);
+}
+
+MethodDefRow::MethodDefRow(MetadataRowsReader& mr) {
+    rva = mr.reader.read_uint32();
+    // 2-byte bit mask of type MethodImplAttributes
+    implFlags = mr.reader.read_uint16();
+    flags = mr.reader.read_uint16();
+    mr.readString(name);
+    mr.readSignature(signature);
+    // Index into the ParamDef table
+    paramList = mr.readRowIndex(CLIMetadataTableItem::ParamDef);
+}
+
+ParamDefRow::ParamDefRow(MetadataRowsReader& mr) {
+    // 2-byte bit mask of type ParamAttributes
+    flags = mr.reader.read_uint16();
+    sequence = mr.reader.read_uint16();
+    mr.readString(name);
+}
+
+InterfaceImplRow::InterfaceImplRow(MetadataRowsReader& mr) {
+    // Index into the TypeDef table
+    classRef = mr.readRowIndex(CLIMetadataTableItem::TypeDef);
+    // TypeDefOrRef index into TypeDef, TypeRef or TypeSpec
+    interfaceRef = mr.readRowIndexChoice(typeDefOrRef);
+}
+
+// TODO: replace stubs with real constructors :D
 MemberRefRow::MemberRefRow(MetadataRowsReader& mr) { /* stub */ }
 ConstantRow::ConstantRow(MetadataRowsReader& mr) { /* stub */ }
 CustomAttributeRow::CustomAttributeRow(MetadataRowsReader& mr) { /* stub */ }
