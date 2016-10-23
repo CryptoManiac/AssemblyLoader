@@ -216,8 +216,8 @@ void AssemblyData::FillTables() {
 
     map<CLIMetadataTableItem, uint32_t> mapTableLength;
 
-    for(auto it = cliMetadataTableNames.begin(); it != cliMetadataTableNames.end(); ++it) {
-        auto bit = (*it).first;
+    for(const auto &item : cliMetadataTableNames) {
+        auto bit = item.first;
         if (((valid >> _u(bit)) & 1) != 0) {
             // Load table length record for existent and valid table.
             mapTableLength[bit] = reader.read_uint32();
@@ -677,9 +677,9 @@ void AssemblyData::FillTables() {
 
 // Get physical offset from the beginning of file.
 uint32_t AssemblyData::getDataOffset (uint32_t address) const {
-    for (uint32_t n = 0; n < fileHeader.sectionsCount; ++n) {
-        if (sections[n].virtualAddress <= address && address < sections[n].virtualAddress + sections[n].virtualSize) {
-            return sections[n].pointerToRawData + (address - sections[n].virtualAddress);
+    for (const auto &section : sections) {
+        if (section.virtualAddress <= address && address < section.virtualAddress + section.virtualSize) {
+            return section.pointerToRawData + (address - section.virtualAddress);
         }
     }
 
@@ -689,10 +689,10 @@ uint32_t AssemblyData::getDataOffset (uint32_t address) const {
 
 // Get physical offset of metadata stream from the beginning of file.
 uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name) const {
-    for (uint32_t i = 0; i < streamsCount; ++i) {
-        const auto& streamName = streams[i].name;
+    for (const auto& stream : streams) {
+        const auto& streamName = stream.name;
         if (streamName.size() == name.size() && equal(begin(streamName), end(streamName), begin(name))) {
-            return cliMetadataOffset + streams[i].offset;
+            return cliMetadataOffset + stream.offset;
         }
     }
 
@@ -715,7 +715,6 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) {
         reader.read_bytes(methodBody.data, length);
     } else if (format == bflags::FatFormat) {
         auto flags = reader.read_uint16();
-        auto headerSize = (flags >> 12) * 4;
         auto maxStack = reader.read_uint16();
         auto codeSize = reader.read_uint32();
         auto localVarSigTok = reader.read_uint32();

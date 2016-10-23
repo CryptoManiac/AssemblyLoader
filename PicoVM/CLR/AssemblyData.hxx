@@ -10,9 +10,6 @@
 class AssemblyData
 {
 public:
-    // Image header
-    ImageFileHeader fileHeader;
-
     // Sections header
     std::vector<ImageSectionHeader> sections;
 
@@ -82,6 +79,9 @@ public:
     void getMethodBody(uint32_t index, MethodBody& methodBody);
 
 private:
+    // Image header
+    ImageFileHeader fileHeader;
+
     AssemblyReader reader;
     void InitAssembly(); // called from constructor
     void FillTables();
