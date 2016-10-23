@@ -301,67 +301,43 @@ void AssemblyData::FillTables() {
 
     // MemberRef
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MemberRef]; ++n) {
-        MemberRefRow row;
-        // MemberRefParent index into the TypeRef, ModuleRef, MethodDef, TypeSpec, or TypeDef tables
-        row.classRef = readRowIndexChoice(memberRefParent);
-        readString(row.name);
-        readSignature(row.signature);
+        MemberRefRow row(mr);
         cliMetaDataTables._MemberRef.push_back(row);
     }
 
     // Constant
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::Constant]; ++n) {
-        ConstantRow row;
-        row.type = reader.read_uint16();
-        // HasConstant index into the ParamDef or FieldDef or Property table
-        row.parent = readRowIndexChoice(hasConstant);
-        readBlob(row.value);
+        ConstantRow row(mr);
         cliMetaDataTables._Constant.push_back(row);
     }
 
     // CustomAttribute
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::CustomAttribute]; ++n) {
-        CustomAttributeRow row;
-        // HasCustomAttribute index
-        row.parent = readRowIndexChoice(hasCustomAttribute);
-        // CustomAttributeType index
-        row.type = readRowIndexChoice(customAttributeType);
-        readBlob(row.value);
+        CustomAttributeRow row(mr);
         cliMetaDataTables._CustomAttribute.push_back(row);
     }
 
     // FieldMarshal
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::FieldMarshal]; ++n) {
-        FieldMarshalRow row;
-        // HasFieldMarshal index
-        row.parent = readRowIndexChoice(hasFieldMarshall);
-        readBlob(row.nativeType);
+        FieldMarshalRow row(mr);
         cliMetaDataTables._FieldMarshal.push_back(row);
     }
 
     // DeclSecurity    
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::DeclSecurity]; ++n) {
-        DeclSecurityRow row;
-        row.action = reader.read_uint16();
-        row.parent = readRowIndexChoice(hasDeclSecurity);
-        readBlob(row.permissionSet);
+        DeclSecurityRow row(mr);
         cliMetaDataTables._DeclSecurity.push_back(row);
     }
 
     // ClassLayout
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ClassLayout]; ++n) {
-        ClassLayoutRow row;
-        row.packingSize = reader.read_uint16();
-        row.classSize = reader.read_uint32();
-        row.parent = readRowIndex(CLIMetadataTableItem::TypeDef);
+        ClassLayoutRow row(mr);
         cliMetaDataTables._ClassLayout.push_back(row);
     }
 
     // FieldLayout
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::FieldLayout]; ++n) {
-        FieldLayoutRow row;
-        row.offset = reader.read_uint32();
-        row.parent = readRowIndex(CLIMetadataTableItem::FieldDef);
+        FieldLayoutRow row(mr);
         cliMetaDataTables._FieldLayout.push_back(row);
     }
 
@@ -375,28 +351,19 @@ void AssemblyData::FillTables() {
 
     // EventMap
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::EventMap]; ++n) {
-        EventMapRow row;
-        row.parent = readRowIndex(CLIMetadataTableItem::TypeDef);
-        row.eventList = readRowIndex(CLIMetadataTableItem::Event);
+        EventMapRow row(mr);
         cliMetaDataTables._EventMap.push_back(row);
     }
 
     // Event
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::Event]; ++n) {
-        EventRow row;
-        // 2-byte bit mask of type EventAttribute
-        row.eventFlags = reader.read_uint16();
-        readString(row.name);
-        // TypeDefOrRef index
-        row.eventType = readRowIndexChoice(typeDefOrRef);
+        EventRow row(mr);
         cliMetaDataTables._Event.push_back(row);
     }
 
     // PropertyMap
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::PropertyMap]; ++n) {
-        PropertyMapRow row;
-        row.parent = readRowIndex(CLIMetadataTableItem::TypeDef);
-        row.propertyList = readRowIndex(CLIMetadataTableItem::Property);
+        PropertyMapRow row(mr);
         cliMetaDataTables._PropertyMap.push_back(row);
     }
 

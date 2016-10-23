@@ -159,17 +159,71 @@ InterfaceImplRow::InterfaceImplRow(MetadataRowsReader& mr) {
     interfaceRef = mr.readRowIndexChoice(typeDefOrRef);
 }
 
+MemberRefRow::MemberRefRow(MetadataRowsReader& mr) {
+    // MemberRefParent index into the TypeRef, ModuleRef, MethodDef, TypeSpec, or TypeDef tables
+    classRef = mr.readRowIndexChoice(memberRefParent);
+    mr.readString(name);
+    mr.readSignature(signature);
+}
+
+ConstantRow::ConstantRow(MetadataRowsReader& mr) {
+    type = mr.reader.read_uint16();
+    // HasConstant index into the ParamDef or FieldDef or Property table
+    parent = mr.readRowIndexChoice(hasConstant);
+    mr.readBlob(value);
+}
+
+CustomAttributeRow::CustomAttributeRow(MetadataRowsReader& mr) {
+    // HasCustomAttribute index
+    parent = mr.readRowIndexChoice(hasCustomAttribute);
+    // CustomAttributeType index
+    type = mr.readRowIndexChoice(customAttributeType);
+    mr.readBlob(value);
+}
+
+FieldMarshalRow::FieldMarshalRow(MetadataRowsReader& mr) {
+    // HasFieldMarshal index
+    parent = mr.readRowIndexChoice(hasFieldMarshall);
+    mr.readBlob(nativeType);
+}
+
+DeclSecurityRow::DeclSecurityRow(MetadataRowsReader& mr) {
+    action = mr.reader.read_uint16();
+    parent = mr.readRowIndexChoice(hasDeclSecurity);
+    mr.readBlob(permissionSet);
+}
+
+ClassLayoutRow::ClassLayoutRow(MetadataRowsReader& mr) {
+    packingSize = mr.reader.read_uint16();
+    classSize = mr.reader.read_uint32();
+    parent = mr.readRowIndex(CLIMetadataTableItem::TypeDef);
+}
+
+FieldLayoutRow::FieldLayoutRow(MetadataRowsReader& mr) {
+    offset = mr.reader.read_uint32();
+    parent = mr.readRowIndex(CLIMetadataTableItem::FieldDef);
+}
+
+EventMapRow::EventMapRow(MetadataRowsReader& mr) {
+    parent = mr.readRowIndex(CLIMetadataTableItem::TypeDef);
+    eventList = mr.readRowIndex(CLIMetadataTableItem::Event);
+}
+
+EventRow::EventRow(MetadataRowsReader& mr) {
+    // 2-byte bit mask of type EventAttribute
+    eventFlags = mr.reader.read_uint16();
+    mr.readString(name);
+    // TypeDefOrRef index
+    eventType = mr.readRowIndexChoice(typeDefOrRef);
+}
+
+PropertyMapRow::PropertyMapRow(MetadataRowsReader& mr) {
+    parent = mr.readRowIndex(CLIMetadataTableItem::TypeDef);
+    propertyList = mr.readRowIndex(CLIMetadataTableItem::Property);
+}
+
+
 // TODO: replace stubs with real constructors :D
-MemberRefRow::MemberRefRow(MetadataRowsReader& mr) { /* stub */ }
-ConstantRow::ConstantRow(MetadataRowsReader& mr) { /* stub */ }
-CustomAttributeRow::CustomAttributeRow(MetadataRowsReader& mr) { /* stub */ }
-FieldMarshalRow::FieldMarshalRow(MetadataRowsReader& mr) { /* stub */ }
-DeclSecurityRow::DeclSecurityRow(MetadataRowsReader& mr) { /* stub */ }
-ClassLayoutRow::ClassLayoutRow(MetadataRowsReader& mr) { /* stub */ }
-FieldLayoutRow::FieldLayoutRow(MetadataRowsReader& mr) { /* stub */ }
-EventMapRow::EventMapRow(MetadataRowsReader& mr) { /* stub */ }
-EventRow::EventRow(MetadataRowsReader& mr) { /* stub */ }
-PropertyMapRow::PropertyMapRow(MetadataRowsReader& mr) { /* stub */ }
 PropertyRow::PropertyRow(MetadataRowsReader& mr) { /* stub */ }
 MethodSemanticsRow::MethodSemanticsRow(MetadataRowsReader& mr) { /* stub */ }
 MethodImplRow::MethodImplRow(MetadataRowsReader& mr) { /* stub */ }
