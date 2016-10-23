@@ -6,6 +6,7 @@
 #include "AssemblyReader.hxx"
 #include "Property.hxx"
 #include "CLIMetadataTableRows.hxx"
+#include "CLIMethodBody.hxx"
 
 class AssemblyData
 {

@@ -254,28 +254,14 @@ void AssemblyData::FillTables() {
         return{ index, tables[index & (bit - 1)] };
     };
 
-    {
-        // Module table
-        if (mapTableLength[CLIMetadataTableItem::Module] != 1) {
-            throw runtime_error("Module table most contain one and only one row.");
-        }
+    MetadataRowsReader mr(reader, mapTableLength, heapSizes, stringStreamOffset, guidStreamOffset, blobStreamOffset);
 
-        // Module generation, currently it is set to zero.
-        cliMetaDataTables.module.generation = r.read_uint16();
-
-        // Module name.
-        readString(cliMetaDataTables.module.name);
-
-        // Unique identifier which is used to distinguish between two versions of the same module.
-        readGuid(cliMetaDataTables.module.guid);
-
-        // These two reserved fields are not presented in ModuleRow structure.
-        // EncId (index into GUID heap, always set to zero).
-        // EncBaseId (index into GUID heap, always set to zero).
-        Guid tmp;
-        readGuid(tmp); // encId 
-        readGuid(tmp); // endBaseId 
+    // Verify Module table
+    if (mapTableLength[CLIMetadataTableItem::Module] != 1) {
+         throw runtime_error("Module table most contain one and only one row.");
     }
+    // Locad module information.
+    cliMetaDataTables.module = ModuleRow(mr);
 
     // TypeRef
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::TypeRef]; ++n) {

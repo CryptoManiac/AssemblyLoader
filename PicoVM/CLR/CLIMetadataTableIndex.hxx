@@ -177,4 +177,6 @@ const std::vector<CLIMetadataTableItem> implementation = { CLIMetadataTableItem:
 // MethodDef      1
 const std::vector<CLIMetadataTableItem> typeOrMethodDef = { CLIMetadataTableItem::TypeDef, CLIMetadataTableItem::MethodDef };
 
+
+
 #endif

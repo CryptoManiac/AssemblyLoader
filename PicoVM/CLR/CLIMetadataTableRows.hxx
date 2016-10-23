@@ -3,10 +3,41 @@
 
 #include <cstdint>
 #include <vector>
+#include <map>
 #include <string>
 
 #include "crossguid/guid.hxx"
 #include "CLIMetadataTableIndex.hxx"
+#include "AssemblyReader.hxx"
+
+struct MetadataRowsReader {
+    AssemblyReader& reader;
+    std::map<CLIMetadataTableItem, uint32_t>& mapTableLength;
+
+    bool stringsIsLong=false;
+    bool guidIsLong=false;
+    bool blobIsLong=false;
+    
+    uint32_t stringStreamOffset=0;
+    uint32_t guidStreamOffset=0;
+    uint32_t blobStreamOffset=0;
+
+    MetadataRowsReader() = delete;
+    MetadataRowsReader(AssemblyReader& reader, std::map<CLIMetadataTableItem, uint32_t>& mapTableLength, uint8_t heapSizes, uint32_t stringStreamOffset, uint32_t  guidStreamOffset, uint32_t blobStreamOffset) : 
+        reader(reader), mapTableLength(mapTableLength), stringStreamOffset(stringStreamOffset), guidStreamOffset(guidStreamOffset), blobStreamOffset(blobStreamOffset) {
+            stringsIsLong = (heapSizes & 0x01) != 0;
+            guidIsLong = (heapSizes & 0x02) != 0;
+            blobIsLong = (heapSizes & 0x04) != 0;
+        }
+    
+    void readGuid(Guid& result);
+    void readBlob(std::vector<uint8_t>& result);
+    void readString(std::vector<uint16_t>& result);
+    void readSignature(std::vector<uint32_t>& result);
+
+    uint32_t readRowIndex(CLIMetadataTableItem tableIndex);
+    std::pair<uint32_t, CLIMetadataTableItem> readRowIndexChoice(const std::vector<CLIMetadataTableItem>& tables);
+};
 
 // A one row table representing the current assembly.
 struct ModuleRow {
@@ -14,6 +45,8 @@ struct ModuleRow {
     std::vector<uint16_t> name;
     Guid guid;
 
+    ModuleRow() = default;
+    ModuleRow(MetadataRowsReader& mr);
     std::string str();
 };
 
@@ -22,6 +55,9 @@ struct TypeRefRow {
     std::pair<uint32_t, CLIMetadataTableItem> resolutionScope;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
+
+    TypeRefRow() = default;
+    TypeRefRow(MetadataRowsReader& mr);
 };
 
 struct TypeDefRow {
@@ -33,6 +69,9 @@ struct TypeDefRow {
 
     uint32_t fieldList = 0;
     uint32_t methodList = 0;
+
+    TypeDefRow() = default;
+    TypeDefRow(MetadataRowsReader& mr);
 
     enum struct TypeAttributes : uint32_t {
         // Use this mask to retrieve the type visibility information.
@@ -85,6 +124,9 @@ struct FieldDefRow {
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
 
+    FieldDefRow() = default;
+    FieldDefRow(MetadataRowsReader& mr);
+
     enum struct FieldAttributes : uint16_t {
         // Use this mask to retrieve accessibility information.
         FieldAccessMask           =   0x0007,
@@ -122,6 +164,9 @@ struct MethodDefRow {
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
     uint32_t paramList = 0;
+
+    MethodDefRow() = default;
+    MethodDefRow(MetadataRowsReader& mr);
 
     enum struct MethodAttribute : uint16_t {
         // Use this mask to retrieve accessibility information.
@@ -190,6 +235,9 @@ struct ParamDefRow {
     uint16_t sequence;
     std::vector<uint16_t> name;
 
+    ParamDefRow() = default;
+    ParamDefRow(MetadataRowsReader& mr);
+
     enum struct ParamAttributes : uint16_t {
         In                        =   0x0001,     // Param is [In]
         Out                       =   0x0002,     // Param is [out]
@@ -206,51 +254,78 @@ struct ParamDefRow {
 struct InterfaceImplRow {
     uint32_t classRef = 0;
     std::pair<uint32_t, CLIMetadataTableItem> interfaceRef;
+
+    InterfaceImplRow() = default;
+    InterfaceImplRow(MetadataRowsReader& mr);
 };
 
 struct MemberRefRow {
     std::pair<uint32_t, CLIMetadataTableItem> classRef;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
+
+    MemberRefRow() = default;
+    MemberRefRow(MetadataRowsReader& mr);
 };
 
 struct ConstantRow {
     uint16_t type = 0;
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> value;
+
+    ConstantRow() = default;
+    ConstantRow(MetadataRowsReader& mr);
 };
 
 struct CustomAttributeRow {
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::pair<uint32_t, CLIMetadataTableItem> type;
     std::vector<uint8_t> value;
+
+    CustomAttributeRow() = default;
+    CustomAttributeRow(MetadataRowsReader& mr);
 };
 
 struct FieldMarshalRow {
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> nativeType;
+
+    FieldMarshalRow() = default;
+    FieldMarshalRow(MetadataRowsReader& mr);
 };
 
 struct DeclSecurityRow {
     uint16_t action = 0;
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> permissionSet;
+
+    DeclSecurityRow() = default;
+    DeclSecurityRow(MetadataRowsReader& mr);
 };
 
 struct ClassLayoutRow {
     uint16_t packingSize = 0;
     uint32_t classSize = 0;
     uint32_t parent = 0;
+
+    ClassLayoutRow() = default;
+    ClassLayoutRow(MetadataRowsReader& mr);
 };
 
 struct FieldLayoutRow {
     uint32_t offset = 0;
     uint32_t parent = 0;
+
+    FieldLayoutRow() = default;
+    FieldLayoutRow(MetadataRowsReader& mr);
 };
 
 struct EventMapRow {
     uint32_t parent = 0;
     uint32_t eventList = 0;
+
+    EventMapRow() = default;
+    EventMapRow(MetadataRowsReader& mr);
 };
 
 struct EventRow {
@@ -258,6 +333,9 @@ struct EventRow {
     uint16_t eventFlags = 0;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CLIMetadataTableItem> eventType;
+
+    EventRow() = default;
+    EventRow(MetadataRowsReader& mr);
 
     enum struct EventAttribute : uint16_t {
         evSpecialName           =   0x0200, // Event is special. Name describes how.     
@@ -270,6 +348,9 @@ struct EventRow {
 struct PropertyMapRow {
     uint32_t parent;
     uint32_t propertyList;
+
+    PropertyMapRow() = default;
+    PropertyMapRow(MetadataRowsReader& mr);
 };
 
 struct PropertyRow {
@@ -277,6 +358,9 @@ struct PropertyRow {
     uint16_t flags = 0;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
+
+    PropertyRow() = default;
+    PropertyRow(MetadataRowsReader& mr);
 
     enum struct PropertyAttributes : uint16_t {
         SpecialName           =   0x0200, // Property is special. Name describes how.
@@ -294,6 +378,9 @@ struct MethodSemanticsRow {
     uint32_t method = 0;
     std::pair<uint32_t, CLIMetadataTableItem> association;
 
+    MethodSemanticsRow() = default;
+    MethodSemanticsRow(MetadataRowsReader& mr);
+
     enum struct MethodSemanticsAttributes : uint16_t {
         Setter    =   0x0001,     // Setter for property
         Getter    =   0x0002,     // Getter for property
@@ -308,6 +395,9 @@ struct MethodImplRow {
     uint32_t classRef = 0;
     std::pair<uint32_t, CLIMetadataTableItem> methodBody;
     std::pair<uint32_t, CLIMetadataTableItem> methodDeclaration;
+
+    MethodImplRow() = default;
+    MethodImplRow(MetadataRowsReader& mr);
 };
 
 struct ImplMapRow {
@@ -316,6 +406,9 @@ struct ImplMapRow {
     std::pair<uint32_t, CLIMetadataTableItem> memberForwarded;
     std::vector<uint16_t> importName;
     uint32_t importScope = 0;
+
+    ImplMapRow() = default;
+    ImplMapRow(MetadataRowsReader& mr);
 
     enum struct PInvokeAttributes : uint16_t {
         NoMangle          = 0x0001,   
@@ -356,6 +449,9 @@ struct ImplMapRow {
 struct FieldRVARow {
     uint32_t rva = 0;
     uint32_t field = 0;
+
+    FieldRVARow() = default;
+    FieldRVARow(MetadataRowsReader& mr);
 };
 
 struct AssemblyRow {
@@ -367,6 +463,9 @@ struct AssemblyRow {
     std::vector<uint8_t> publicKey;
     std::vector<uint16_t> name;
     std::vector<uint16_t> culture;
+
+    AssemblyRow() = default;
+    AssemblyRow(MetadataRowsReader& mr);
 
     enum struct AssemblyFlags : uint16_t {
         PublicKey             =   0x0001,     // The assembly ref holds the full (unhashed) public key.
@@ -405,6 +504,9 @@ struct AssemblyOSRow {
     uint32_t osPlatformID = 0;
     uint32_t osMajorVersion = 0;
     uint32_t osMinorVersion = 0;
+
+    AssemblyOSRow() = default;
+    AssemblyOSRow(MetadataRowsReader& mr);
 };
 
 struct AssemblyRefRow {
@@ -415,11 +517,17 @@ struct AssemblyRefRow {
     std::vector<uint16_t> name;
     std::vector<uint16_t> culture;
     std::vector<uint8_t> hashValue;
+
+    AssemblyRefRow() = default;
+    AssemblyRefRow(MetadataRowsReader& mr);
 };
 
 struct AssemblyRefProcessorRow {
     uint32_t processor = 0;
     uint32_t assemblyRef = 0;
+
+    AssemblyRefProcessorRow() = default;
+    AssemblyRefProcessorRow(MetadataRowsReader& mr);
 };
 
 struct AssemblyRefOSRow {
@@ -427,6 +535,9 @@ struct AssemblyRefOSRow {
     uint32_t osMajorVersion = 0;
     uint32_t osMinorVersion = 0;
     uint32_t assemblyRef = 0;
+
+    AssemblyRefOSRow() = default;
+    AssemblyRefOSRow(MetadataRowsReader& mr);
 };
 
 struct FileRow {
@@ -434,6 +545,9 @@ struct FileRow {
     uint32_t flags = 0;
     std::vector<uint16_t> name;
     std::vector<uint8_t> hashValue;
+
+    FileRow() = default;
+    FileRow(MetadataRowsReader& mr);
 
     enum struct FileAttributes {
         ContainsMetaData   = 0x0000, // This is not a resource file.
@@ -448,6 +562,9 @@ struct ExportedTypeRow {
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
     std::pair<uint32_t, CLIMetadataTableItem> implementation;
+
+    ExportedTypeRow() = default;
+    ExportedTypeRow(MetadataRowsReader& mr);
 };
 
 struct ManifestResourceRow {
@@ -456,6 +573,9 @@ struct ManifestResourceRow {
     uint32_t flags = 0;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CLIMetadataTableItem> implementation;
+
+    ManifestResourceRow() = default;
+    ManifestResourceRow(MetadataRowsReader& mr);
 
     enum struct ManifestResourceAttributes {
         VisibilityMask        =   0x0007,
@@ -467,6 +587,9 @@ struct ManifestResourceRow {
 struct NestedClassRow {
     uint32_t nestedClass = 0;
     uint32_t enclosingClass = 0;
+
+    NestedClassRow() = default;
+    NestedClassRow(MetadataRowsReader& mr);
 };
 
 struct GenericParamRow {
@@ -475,6 +598,9 @@ struct GenericParamRow {
     uint16_t flags = 0;
     std::pair<uint32_t, CLIMetadataTableItem> owner;
     std::vector<uint16_t> name;
+
+    GenericParamRow() = default;
+    GenericParamRow(MetadataRowsReader& mr);
 
     enum struct GenericParamAttributes {
         // Variance of type parameters, only applicable to generic parameters 
@@ -497,11 +623,17 @@ struct GenericParamRow {
 struct MethodSpecRow {
     std::pair<uint32_t, CLIMetadataTableItem> method;
     std::vector<uint32_t> instantiation;
+
+    MethodSpecRow() = default;
+    MethodSpecRow(MetadataRowsReader& mr);
 };
 
 struct GenericParamConstraintRow {
     uint32_t owner = 0;
     std::pair<uint32_t, CLIMetadataTableItem> constraint;
+
+    GenericParamConstraintRow() = default;
+    GenericParamConstraintRow(MetadataRowsReader& mr);
 };
 
 #endif
