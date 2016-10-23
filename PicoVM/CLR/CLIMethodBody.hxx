@@ -41,9 +41,9 @@ enum struct ExceptionClauseFlags : uint16_t {
 struct MethodBody {
     MethodDefRow methodDef;
     std::vector<uint8_t> data;
+    std::vector<uint32_t> localVarSigs;
     std::vector<ExceptionClause> exceptions;
     uint32_t maxStack = 0;
-    uint32_t localVarSigTok = 0;
     bool initLocals = false;
 
     std::string str(bool fPrintBody=false) const;

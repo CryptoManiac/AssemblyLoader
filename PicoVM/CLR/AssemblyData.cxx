@@ -710,25 +710,62 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) {
     reader.seek(offset);
 
     if (format == bflags::TinyFormat) {
+        // "For a method to have its IL instructions formatted in a tiny format, the following must be true:
+        // * No local variables exist.
+        // * No exceptions exist.
+        // * No extra data sections exist.
+        // * The operand stack cannot be longer than eight entries.
+        // * The method is less than 64 bytes.
+        // If these conditions are true, then a method can be coded tiny. The other 6 bits of the first byte contain the size of the method. IL instructions start with the next byte."
+        // 
+        // - p.125 of ".NET Common Language Runtime Unleashed" by Kevin Burton
+        //
         methodBody.maxStack = 8;
         auto length = reader.read_uint8() >> 2;
         reader.read_bytes(methodBody.data, length);
     } else if (format == bflags::FatFormat) {
+        // "If any of the conditions specified for a tiny format are not true, then the method uses a
+        // fat format. The fat format header has the following structure:
+        // typedef struct IMAGE_COR_ILMETHOD_FAT
+        // {
+        //      unsigned Flags : 12;
+        //      unsigned Size : 4;
+        //      unsigned MaxStack : 16;
+        //      DWORD CodeSize;
+        //      mdSignature LocalVarSigTok;
+        // } IMAGE_COR_ILMETHOD_FAT;
+        // Other than indicating that this is a fat format, two additional flags exist: one flag indi-
+        // cates that the local variables should be initialized, and another indicates that additional
+        // sections of code follow the instruction block."
+        // 
+        // - p.125 of ".NET Common Language Runtime Unleashed" by Kevin Burton
+        //
         auto flags = reader.read_uint16();
         auto maxStack = reader.read_uint16();
         auto codeSize = reader.read_uint32();
         auto localVarSigTok = reader.read_uint32();
 
+        // Check if there are local variable signatures present.
+        if (localVarSigTok != 0) {
+            auto localTable = static_cast<CLIMetadataTableItem>(localVarSigTok >> 24);
+            if (localTable != CLIMetadataTableItem::StandAloneSig) {
+                throw runtime_error("Invalid localVarSigTok value.");
+            }
+
+            methodBody.localVarSigs = cliMetaDataTables._StandAloneSig[(localVarSigTok & 0x00FFFFFF) - 1];
+        }
+
         methodBody.maxStack = maxStack;
-        methodBody.localVarSigTok = localVarSigTok;
         reader.read_bytes(methodBody.data, codeSize);
 
         if ((flags & _u(bflags::MoreSects)) != 0) {
             reader.seek(reader.tell() + ((codeSize + 3) & ~3) - codeSize);
             auto sectionHeader = reader.read_uint32();
             if ((sectionHeader & _u(eflags::MoreSects)) != 0 || (sectionHeader & _u(eflags::EHTable)) == 0) {
+                // Formally, section could be used for any kind of purposes. However, currently it's not used for anything except storing the information about exception blocks.
                 throw runtime_error("Section format is not supported");
             } else if ((sectionHeader  & _u(eflags::FatFormat)) != 0) {
+                // Fat section: 32-bit block and handler offsets, 32-bit block and handler length fields.
                 auto count = ((sectionHeader >> 8) - 4) / 24;
                 for (uint32_t i = 0; i < count; i++) {
                     ExceptionClause clause;
@@ -741,6 +778,7 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) {
                     methodBody.exceptions.push_back(clause);
                 }
             } else {
+                // Tiny section: 16-bit block and handler offsets, 8-bit block and handler length fields.
                 auto count = (((sectionHeader >> 8) & 0xFF) - 4) / 12;
                 for (uint32_t i = 0; i < count; i++) {
                     ExceptionClause clause;

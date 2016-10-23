@@ -1,6 +1,7 @@
 #include "CLIMethodBody.hxx"
 #include "HexStr.hxx"
 #include <sstream>
+#include <iomanip>
 
 using namespace std;
 
@@ -14,14 +15,21 @@ std::string MethodBody::str(bool fPrintBody) const {
     stringstream ss;
     ss << "MethodBody(" << endl
        << " name=" << string(methodDef.name.begin(), methodDef.name.end()) << endl
-       << " maxStack=" << dec << maxStack << endl
-       << " localVarSigTok=" << hex << localVarSigTok << endl
-       << " initLocals=" << dec << initLocals << endl;
+       << " maxStack=" << dec << maxStack << endl;
+
+    if (localVarSigs.size() > 0) {
+        ss << " localVarSigs=(" << hex << setfill('0') << endl;
+        for (const auto signature : localVarSigs) {
+            ss << "  " << setw(2) << signature << endl;
+        }
+        ss << " )" << endl;
+    }
+    ss << " initLocals=" << dec << initLocals << endl;
 
     if (exceptions.size() != 0) {
         ss << " Exceptions(" << endl;
-        for(uint32_t n = 0; n < exceptions.size(); ++n) {
-            ss << "   " << exceptions[n].str() << endl;
+        for(const auto& exception : exceptions) {
+            ss << "   " << exception.str() << endl;
         }
         ss << " )" << endl;
     }
