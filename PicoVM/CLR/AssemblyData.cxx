@@ -684,7 +684,7 @@ uint32_t AssemblyData::getDataOffset (uint32_t address) const {
     }
 
     // It looks like we weren't able to find anything
-    return std::numeric_limits<uint32_t>::max();
+    return numeric_limits<uint32_t>::max();
 }
 
 // Get physical offset of metadata stream from the beginning of file.
@@ -696,7 +696,7 @@ uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name)
         }
     }
 
-    return std::numeric_limits<uint32_t>::max();
+    return numeric_limits<uint32_t>::max();
 };
 
 // Get method information 

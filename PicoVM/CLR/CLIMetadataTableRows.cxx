@@ -5,7 +5,7 @@
 
 using namespace std;
 
-std::string ModuleRow::str() {
+string ModuleRow::str() {
     ostringstream ss;
     ss << "Module(" << endl
        << " generation=" << dec << generation << endl
