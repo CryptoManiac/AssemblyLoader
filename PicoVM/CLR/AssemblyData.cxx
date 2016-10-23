@@ -162,9 +162,6 @@ void AssemblyData::FillTables() {
 
     // A 64-bit number that has a bit set for each table that is present in the assembly.
     const auto valid = reader.read_uint64(metaHeaderOffset + 8);
-    // Similarly, tells which tables are sorted. However, I'd say that it doesn't make sanse for me.
-    // http://stackoverflow.com/questions/3472752/what-is-a-sorted-table-in-net-metadata 
-    const auto sorted = reader.read_uint64(metaHeaderOffset + 16);
 
     auto metaDataOffset = metaHeaderOffset + 24;
     reader.seek(metaDataOffset);
@@ -182,6 +179,7 @@ void AssemblyData::FillTables() {
         }
     }
 
+    // Reader helper class. Basically it's a wrapper around AssemblyReader, which provides a set of methods used by row constructors.
     MetadataRowsReader mr(reader, mapTableLength, heapSizes, stringStreamOffset, guidStreamOffset, blobStreamOffset);
 
     // Verify Module table
