@@ -11,7 +11,7 @@ string ExceptionClause::str() const {
     return ss.str();
 }
 
-std::string MethodBody::str(bool fPrintBody) const {
+string MethodBody::str(bool fPrintBody) const {
     stringstream ss;
     ss << "MethodBody(" << endl
        << " name=" << string(methodDef.name.begin(), methodDef.name.end()) << endl
@@ -47,6 +47,6 @@ std::string MethodBody::str(bool fPrintBody) const {
     return ss.str();
 }
 
-std::string MethodBody::str() const {
+string MethodBody::str() const {
     return str(false);
 }
