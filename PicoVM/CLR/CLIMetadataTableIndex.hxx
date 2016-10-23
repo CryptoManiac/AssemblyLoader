@@ -162,21 +162,20 @@ const std::vector<CLIMetadataTableItem> methodDefOrRef = { CLIMetadataTableItem:
 // 
 // FieldDef        0
 // MethodDef       1
-const std::vector<CLIMetadataTableItem> memberForwarded = { CLIMetadataTableItem::FieldDef, CLIMetadataTableItem::MethodDef };
+const std::vector<CLIMetadataTableItem> memberForwardedIndex = { CLIMetadataTableItem::FieldDef, CLIMetadataTableItem::MethodDef };
 
 // Implementation: 2 bits to encode tag
 // 
 // File            0
 // AssemblyRef     1
 // ExportedType    2
-const std::vector<CLIMetadataTableItem> implementation = { CLIMetadataTableItem::File, CLIMetadataTableItem::AssemblyRef, CLIMetadataTableItem::ExportedType };
+const std::vector<CLIMetadataTableItem> implementationIndex = { CLIMetadataTableItem::File, CLIMetadataTableItem::AssemblyRef, CLIMetadataTableItem::ExportedType };
 
 // TypeOrMethodDef : 2 bits to encode value
 //
 // TypeDef        0
 // MethodDef      1
 const std::vector<CLIMetadataTableItem> typeOrMethodDef = { CLIMetadataTableItem::TypeDef, CLIMetadataTableItem::MethodDef };
-
 
 
 #endif

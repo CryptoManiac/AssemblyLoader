@@ -222,22 +222,152 @@ PropertyMapRow::PropertyMapRow(MetadataRowsReader& mr) {
     propertyList = mr.readRowIndex(CLIMetadataTableItem::Property);
 }
 
+PropertyRow::PropertyRow(MetadataRowsReader& mr) {
+    // 2-byte bit mask of type PropertyAttributes
+    flags = mr.reader.read_uint16();
+    mr.readString(name);
+    // A signature from the Blob heap
+    mr.readSignature(signature);
+}
 
-// TODO: replace stubs with real constructors :D
-PropertyRow::PropertyRow(MetadataRowsReader& mr) { /* stub */ }
-MethodSemanticsRow::MethodSemanticsRow(MetadataRowsReader& mr) { /* stub */ }
-MethodImplRow::MethodImplRow(MetadataRowsReader& mr) { /* stub */ }
-ImplMapRow::ImplMapRow(MetadataRowsReader& mr) { /* stub */ }
-FieldRVARow::FieldRVARow(MetadataRowsReader& mr) { /* stub */ }
-AssemblyRow::AssemblyRow(MetadataRowsReader& mr) { /* stub */ }
-AssemblyOSRow::AssemblyOSRow(MetadataRowsReader& mr) { /* stub */ }
-AssemblyRefRow::AssemblyRefRow(MetadataRowsReader& mr) { /* stub */ }
-AssemblyRefProcessorRow::AssemblyRefProcessorRow(MetadataRowsReader& mr) { /* stub */ }
-AssemblyRefOSRow::AssemblyRefOSRow(MetadataRowsReader& mr) { /* stub */ }
-FileRow::FileRow(MetadataRowsReader& mr) { /* stub */ }
-ExportedTypeRow::ExportedTypeRow(MetadataRowsReader& mr) { /* stub */ }
-ManifestResourceRow::ManifestResourceRow(MetadataRowsReader& mr) { /* stub */ }
-NestedClassRow::NestedClassRow(MetadataRowsReader& mr) { /* stub */ }
-GenericParamRow::GenericParamRow(MetadataRowsReader& mr) { /* stub */ }
-MethodSpecRow::MethodSpecRow(MetadataRowsReader& mr) { /* stub */ }
-GenericParamConstraintRow::GenericParamConstraintRow(MetadataRowsReader& mr) { /* stub */ }
+MethodSemanticsRow::MethodSemanticsRow(MetadataRowsReader& mr) {
+    // 2-byte bit mask of type MethodSemanticsAttributes
+    semantics = mr.reader.read_uint16();
+    // Index into the MethodDef table
+    method = mr.readRowIndex(CLIMetadataTableItem::MethodDef);
+    // HasSemantics index into the Event or Property table
+    association = mr.readRowIndexChoice(hasSemantics);
+}
+
+MethodImplRow::MethodImplRow(MetadataRowsReader& mr) {
+    // Index into TypeDef table
+    classRef = mr.readRowIndex(CLIMetadataTableItem::TypeDef);
+    // Index into MethodDef or MemberRef table
+    methodBody = mr.readRowIndexChoice(methodDefOrRef);
+    methodDeclaration = mr.readRowIndexChoice(methodDefOrRef);
+}
+
+ImplMapRow::ImplMapRow(MetadataRowsReader& mr) {
+    // 2-byte bit mask of type PInvokeAttributes
+    mappingFlags = mr.reader.read_uint16();
+    // MemberForwarded  index into the FieldDef or MethodDef table
+    memberForwarded = mr.readRowIndexChoice(memberForwardedIndex);
+    mr.readString(importName);
+    importScope = mr.readRowIndex(CLIMetadataTableItem::ModuleRef);
+}
+
+FieldRVARow::FieldRVARow(MetadataRowsReader& mr) {
+    // The RVA in this table gives the location of the initial value for a Field.
+    rva = mr.reader.read_uint32();
+    // Index into FieldDef table
+    field = mr.readRowIndex(CLIMetadataTableItem::FieldDef);
+}
+
+AssemblyRow::AssemblyRow(MetadataRowsReader& mr) {
+    version.clear();
+    // 4-byte constant of type AssemblyHashAlgorithm
+    hashAlgId = mr.reader.read_uint32();
+    // MajorVersion
+    version.push_back(mr.reader.read_uint16());
+    // MinorVersion
+    version.push_back(mr.reader.read_uint16());
+    // BuildNumber
+    version.push_back(mr.reader.read_uint16());
+    // RevisionNumber 
+    version.push_back(mr.reader.read_uint16());
+    // 4-byte bit mask of type AssemblyFlags
+    flags = mr.reader.read_uint32();
+
+    mr.readBlob(publicKey);
+    mr.readString(name);
+    mr.readString(culture);
+}
+
+AssemblyOSRow::AssemblyOSRow(MetadataRowsReader& mr) {
+    osPlatformID = mr.reader.read_uint32();
+    osMajorVersion = mr.reader.read_uint32();
+    osMinorVersion = mr.reader.read_uint32();
+}
+
+AssemblyRefRow::AssemblyRefRow(MetadataRowsReader& mr) {
+    version.clear();
+
+    // MajorVersion
+    version.push_back(mr.reader.read_uint16());
+    // MinorVersion
+    version.push_back(mr.reader.read_uint16());
+    // BuildNumber
+    version.push_back(mr.reader.read_uint16());
+    // RevisionNumber
+    version.push_back(mr.reader.read_uint16());
+    // 4-byte bit mask of type AssemblyFlags
+    flags = mr.reader.read_uint32();
+
+    mr.readBlob(publicKeyOrToken);
+    mr.readString(name);
+    mr.readString(culture);
+    mr.readBlob(hashValue);
+}
+
+AssemblyRefProcessorRow::AssemblyRefProcessorRow(MetadataRowsReader& mr) {
+    processor = mr.reader.read_uint32();
+    assemblyRef = mr.readRowIndex(CLIMetadataTableItem::AssemblyRef);
+}
+
+AssemblyRefOSRow::AssemblyRefOSRow(MetadataRowsReader& mr) {
+    osPlatformID = mr.reader.read_uint32();
+    osMajorVersion = mr.reader.read_uint32();
+    osMinorVersion = mr.reader.read_uint32();
+    assemblyRef = mr.readRowIndex(CLIMetadataTableItem::AssemblyRef);
+}
+
+FileRow::FileRow(MetadataRowsReader& mr) {
+    // 4-byte bit mask of type FileAttributes
+    flags = mr.reader.read_uint32();
+    mr.readString(name);
+    mr.readBlob(hashValue);
+}
+
+ExportedTypeRow::ExportedTypeRow(MetadataRowsReader& mr) {
+    // 4-byte bit mask of type TypeAttributes
+    flags = mr.reader.read_uint32();
+    // 4-byte index into a TypeDef table of another module in this Assembly
+    typeDefId = mr.reader.read_uint32();
+    mr.readString(typeName);
+    mr.readString(typeNamespace);
+    implementation = mr.readRowIndexChoice(implementationIndex);
+}
+
+ManifestResourceRow::ManifestResourceRow(MetadataRowsReader& mr) {
+    offset = mr.reader.read_uint32();
+    // 4-byte bit mask of type ManifestResourceAttributes
+    flags = mr.reader.read_uint32();
+    mr.readString(name);
+    implementation = mr.readRowIndexChoice(implementationIndex);
+}
+
+NestedClassRow::NestedClassRow(MetadataRowsReader& mr) {
+    nestedClass = mr.readRowIndex(CLIMetadataTableItem::TypeDef);
+    enclosingClass = mr.readRowIndex(CLIMetadataTableItem::TypeDef);
+}
+
+GenericParamRow::GenericParamRow(MetadataRowsReader& mr) {
+    // 2-byte index of the generic parameter
+    number = mr.reader.read_uint16();
+    // 2-byte bitmask of type GenericParamAttributes
+    flags = mr.reader.read_uint16();
+    // TypeOrMethodDef index into the TypeDef or MethodDef table
+    owner = mr.readRowIndexChoice(typeOrMethodDef);
+    mr.readString(name);
+}
+
+MethodSpecRow::MethodSpecRow(MetadataRowsReader& mr) {
+    method = mr.readRowIndexChoice(methodDefOrRef);
+    mr.readSignature(instantiation);
+}
+
+GenericParamConstraintRow::GenericParamConstraintRow(MetadataRowsReader& mr) {
+    // Index into the GenericParam table
+    owner = mr.readRowIndex(CLIMetadataTableItem::GenericParam);
+    constraint = mr.readRowIndexChoice(typeDefOrRef);
+}

@@ -167,50 +167,6 @@ void AssemblyData::FillTables() {
     // http://stackoverflow.com/questions/3472752/what-is-a-sorted-table-in-net-metadata 
     const auto sorted = reader.read_uint64(metaHeaderOffset + 16);
 
-    auto& r = reader; // reader can't be captured directly, so make a local reference
-    
-    // Read 16 or 32 bit index and get the utf8 string at this index.
-    auto readString = [&r, heapSizes, stringStreamOffset](vector<uint16_t>& result) {
-        uint32_t offset = (heapSizes & 0x01) != 0 ? r.read_uint32() : r.read_uint16();
-        r.read_utf8z(result, stringStreamOffset + offset, 0xffff);
-    };
-
-    // Read 16 or 32 bit index, fill result by unique ID from this index.
-    auto readGuid = [&r, heapSizes, guidStreamOffset](Guid& result) {
-        uint32_t index = (heapSizes & 0x02) != 0 ? r.read_uint32() : r.read_uint16();
-        if (index != 0) {
-            r.read_guid(result, guidStreamOffset + ((index - 1) << 4));
-        }
-        // If index is zero then do nothing.
-    };
-
-    // Read 16 or 32 bit index, and fill the vector by binary data at this index.
-    auto readBlob = [&r, heapSizes, blobStreamOffset](vector<uint8_t>& result) {
-        uint32_t index = (heapSizes & 0x04) != 0 ? r.read_uint32() : r.read_uint16();
-        auto offset = blobStreamOffset + index;
-        uint32_t length;
-        // Get length of the following data stream
-        auto read = r.read_varsize(length, offset);
-        // Read binary data into vector
-        r.read_bytes(result, offset + read, length);
-    };
-
-    // Pop 16 or 32 bit index, read binary data and parse it as a signature.
-    auto readSignature = [&r, &readBlob](vector<uint32_t>& result) {
-        vector<uint8_t> buffer;
-        readBlob(buffer);
-
-        // Signature is presented by a set of variable length 
-        //   integers, we're simply reading these numbers consequently.
-        uint32_t offset = 0;
-        while (offset < buffer.size()) {
-            uint32_t value;
-            uint32_t read = AssemblyReader::read_varsize(value, buffer, offset);
-            result.push_back(value);
-            offset += read;
-        }
-    };
-
     auto metaDataOffset = metaHeaderOffset + 24;
     reader.seek(metaDataOffset);
 
@@ -226,33 +182,6 @@ void AssemblyData::FillTables() {
             mapTableLength[bit] = 0;
         }
     }
-
-    // Read row index.
-    auto readRowIndex = [&r, &mapTableLength](CLIMetadataTableItem tableIndex)->uint32_t {
-        // Using 32 bit addresses if table has more than 0xffff rows.
-        return mapTableLength[tableIndex] >= 0xffff ? r.read_uint32() : r.read_uint16();
-    };
-
-    // Decode polymorphic index
-    auto readRowIndexChoice = [&r, &mapTableLength](const vector<CLIMetadataTableItem>& tables)->pair<uint32_t, CLIMetadataTableItem> {
-        uint32_t max = 0;
-
-        for (const auto& tableID : tables) {
-            if (tableID != CLIMetadataTableItem::Unknown && mapTableLength.find(tableID) != mapTableLength.end() && max < mapTableLength[tableID]) {
-                max = mapTableLength[tableID];
-            }
-        }
-
-        uint32_t shift = 0, bit = 1;
-        while (tables.size() > bit) {
-            bit <<= 1;
-            ++shift;
-        }
-
-        uint32_t index = (max << shift) >= 0xffff ? r.read_uint32() : r.read_uint16();
-
-        return{ index, tables[index & (bit - 1)] };
-    };
 
     MetadataRowsReader mr(reader, mapTableLength, heapSizes, stringStreamOffset, guidStreamOffset, blobStreamOffset);
 
@@ -345,7 +274,7 @@ void AssemblyData::FillTables() {
     // Each row represents a signature that isn't referenced by any other table. 
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::StandAloneSig]; ++n) {
         vector<uint32_t> signature;
-        readSignature(signature);
+        mr.readSignature(signature);
         cliMetaDataTables._StandAloneSig.push_back(signature);
     }
 
@@ -369,95 +298,51 @@ void AssemblyData::FillTables() {
 
     // Property
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::Property]; ++n) {
-        PropertyRow row;
-        // 2-byte bit mask of type PropertyAttributes
-        row.flags = reader.read_uint16();
-        readString(row.name);
-        // A signature from the Blob heap
-        readSignature(row.signature);
+        PropertyRow row(mr);
         cliMetaDataTables._Property.push_back(row);
     }
 
     // MethodSemantics 
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MethodSemantics]; ++n) {
-        MethodSemanticsRow row;
-        // 2-byte bit mask of type MethodSemanticsAttributes
-        row.semantics = reader.read_uint16();
-        // Index into the MethodDef table
-        row.method = readRowIndex(CLIMetadataTableItem::MethodDef);
-        // HasSemantics index into the Event or Property table
-        row.association = readRowIndexChoice(hasSemantics);
+        MethodSemanticsRow row(mr);
         cliMetaDataTables._MethodSemantics.push_back(row);
     }
 
     // MethodImpl
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MethodImpl]; ++n) {
-        MethodImplRow row;
-        // Index into TypeDef table
-        row.classRef = readRowIndex(CLIMetadataTableItem::TypeDef);
-        // Index into MethodDef or MemberRef table
-        row.methodBody = readRowIndexChoice(methodDefOrRef);
-        row.methodDeclaration = readRowIndexChoice(methodDefOrRef);
+        MethodImplRow row(mr);
         cliMetaDataTables._MethodImpl.push_back(row);
     }
 
     // ModuleRef
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ModuleRef]; ++n) {
         vector<uint16_t> name;
-        readString(name);
+        mr.readString(name);
         cliMetaDataTables._ModuleRef.push_back(name);
     }
 
     // TypeSpec
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::TypeSpec]; ++n) {
         vector<uint32_t> signature;
-        readSignature(signature);
+        mr.readSignature(signature);
         cliMetaDataTables._TypeSpec.push_back(signature);
     }
 
     // ImplMap
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ImplMap]; ++n) {
-        ImplMapRow row;
-        // 2-byte bit mask of type PInvokeAttributes
-        row.mappingFlags = reader.read_uint16();
-        // MemberForwarded  index into the FieldDef or MethodDef table
-        row.memberForwarded = readRowIndexChoice(memberForwarded);
-        readString(row.importName);
-        row.importScope = readRowIndex(CLIMetadataTableItem::ModuleRef);
+        ImplMapRow row(mr);
         cliMetaDataTables._ImplMap.push_back(row);
     }
 
     // FieldRVA
-    // The RVA in this table gives the location of the initial value for a Field.
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::FieldRVA]; ++n) {
-        FieldRVARow row;
-        row.rva = reader.read_uint32();
-        // Index into FieldDef table
-        row.field = readRowIndex(CLIMetadataTableItem::FieldDef);
+        FieldRVARow row(mr);
         cliMetaDataTables._FieldRVA.push_back(row);
     }
 
     // Assembly
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::Assembly]; ++n) {
-        AssemblyRow row;
-        row.version.clear();
-
-        // 4-byte constant of type AssemblyHashAlgorithm
-        row.hashAlgId = reader.read_uint32();
-        // MajorVersion
-        row.version.push_back(reader.read_uint16());
-        // MinorVersion
-        row.version.push_back(reader.read_uint16());
-        // BuildNumber
-        row.version.push_back(reader.read_uint16());
-        // RevisionNumber 
-        row.version.push_back(reader.read_uint16());
-        // 4-byte bit mask of type AssemblyFlags
-        row.flags = reader.read_uint32();
-
-        readBlob(row.publicKey);
-        readString(row.name);
-        readString(row.culture);
+        AssemblyRow row(mr);
         cliMetaDataTables._Assembly.push_back(row);
     }
 
@@ -468,124 +353,67 @@ void AssemblyData::FillTables() {
 
     // AssemblyOS
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::AssemblyOS]; ++n) {
-        AssemblyOSRow row = {};
-        row.osPlatformID = reader.read_uint32();
-        row.osMajorVersion = reader.read_uint32();
-        row.osMinorVersion = reader.read_uint32();
+        AssemblyOSRow row(mr);
         cliMetaDataTables._AssemblyOS.push_back(row);
     };
 
     // AssemblyRef
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::AssemblyRef]; ++n) {
-        AssemblyRefRow row;
-        row.version.clear();
-
-        // MajorVersion
-        row.version.push_back(reader.read_uint16());
-        // MinorVersion
-        row.version.push_back(reader.read_uint16());
-        // BuildNumber
-        row.version.push_back(reader.read_uint16());
-        // RevisionNumber
-        row.version.push_back(reader.read_uint16());
-        // 4-byte bit mask of type AssemblyFlags
-        row.flags = reader.read_uint32();
-
-        readBlob(row.publicKeyOrToken);
-        readString(row.name);
-        readString(row.culture);
-        readBlob(row.hashValue);
+        AssemblyRefRow row(mr);
         cliMetaDataTables._AssemblyRef.push_back(row);
     }
 
     // AssemblyRefProcessor
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::AssemblyRefProcessor]; ++n) {
-        AssemblyRefProcessorRow row;
-        row.processor = reader.read_uint32();
-        row.assemblyRef = readRowIndex(CLIMetadataTableItem::AssemblyRef);
+        AssemblyRefProcessorRow row(mr);
         cliMetaDataTables._AssemblyRefProcessor.push_back(row);
     }
 
     // AssemblyRefOS
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::AssemblyRefOS]; ++n) {
-        AssemblyRefOSRow row;
-        row.osPlatformID = reader.read_uint32();
-        row.osMajorVersion = reader.read_uint32();
-        row.osMinorVersion = reader.read_uint32();
-        row.assemblyRef = readRowIndex(CLIMetadataTableItem::AssemblyRef);
+        AssemblyRefOSRow row(mr);
         cliMetaDataTables._AssemblyRefOS.push_back(row);
     }
 
     // File
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::File]; ++n) {
-        FileRow row;
-        // 4-byte bit mask of type FileAttributes
-        row.flags = reader.read_uint32();
-        readString(row.name);
-        readBlob(row.hashValue);
+        FileRow row(mr);
         cliMetaDataTables._File.push_back(row);
     }
 
     // ExportedType 
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ExportedType]; ++n) {
-        ExportedTypeRow row;
-        // 4-byte bit mask of type TypeAttributes
-        row.flags = reader.read_uint32();
-        // 4-byte index into a TypeDef table of another module in this Assembly
-        row.typeDefId = reader.read_uint32();
-        readString(row.typeName);
-        readString(row.typeNamespace);
-        row.implementation = readRowIndexChoice(implementation);
+        ExportedTypeRow row(mr);
         cliMetaDataTables._ExportedType.push_back(row);
     }
 
     // ManifestResource
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ManifestResource]; ++n) {
-        ManifestResourceRow row;
-        row.offset = reader.read_uint32();
-        // 4-byte bit mask of type ManifestResourceAttributes
-        row.flags = reader.read_uint32();
-        readString(row.name);
-        row.implementation = readRowIndexChoice(implementation);
+        ManifestResourceRow row(mr);
         cliMetaDataTables._ManifestResource.push_back(row);
     }
 
     // NestedClass
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::NestedClass]; ++n) {
-        NestedClassRow row;
-        row.nestedClass = readRowIndex(CLIMetadataTableItem::TypeDef);
-        row.enclosingClass = readRowIndex(CLIMetadataTableItem::TypeDef);
+        NestedClassRow row(mr);
         cliMetaDataTables._NestedClass.push_back(row);
     }
 
     // GenericParam
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::GenericParam]; ++n) {
-        GenericParamRow row;
-        // 2-byte index of the generic parameter
-        row.number = reader.read_uint16();
-        // 2-byte bitmask of type GenericParamAttributes
-        row.flags = reader.read_uint16();
-        // TypeOrMethodDef index into the TypeDef or MethodDef table
-        row.owner = readRowIndexChoice(typeOrMethodDef);
-        readString(row.name);
+        GenericParamRow row(mr);
         cliMetaDataTables._GenericParam.push_back(row);
     }
 
     // MethodSpec
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MethodSpec]; ++n) {
-        MethodSpecRow row;
-        row.method = readRowIndexChoice(methodDefOrRef);
-        // ^ MethodDefOrRef
-        readSignature(row.instantiation);
+        MethodSpecRow row(mr);
         cliMetaDataTables._MethodSpec.push_back(row);
     }
 
     // GenericParamConstraint
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::GenericParamConstraint]; ++n) {
-        GenericParamConstraintRow row;
-        // Index into the GenericParam table
-        row.owner = readRowIndex(CLIMetadataTableItem::GenericParam);
-        row.constraint = readRowIndexChoice(typeDefOrRef);
+        GenericParamConstraintRow row(mr);
         cliMetaDataTables._GenericParamConstraint.push_back(row);
     }
 }
