@@ -232,7 +232,7 @@ struct MethodDefRow {
 struct ParamDefRow {
     uint16_t flags = 0;
     // 2-byte bit mask of type ParamAttributes
-    uint16_t sequence;
+    uint16_t sequence = 0;
     std::vector<uint16_t> name;
 
     ParamDefRow() = default;
@@ -346,8 +346,8 @@ struct EventRow {
 };
 
 struct PropertyMapRow {
-    uint32_t parent;
-    uint32_t propertyList;
+    uint32_t parent = 0;
+    uint32_t propertyList = 0;
 
     PropertyMapRow() = default;
     PropertyMapRow(MetadataRowsReader& mr);
