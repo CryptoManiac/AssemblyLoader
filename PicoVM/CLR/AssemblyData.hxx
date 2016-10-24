@@ -76,8 +76,8 @@ private:
     void InitAssembly(); // called from constructor
 
     template<typename T1>
-    void FillTable(MetadataRowsReader& mr, std::vector<T1>& table, CLIMetadataTableItem tableID) {
-        for (uint32_t n = 0; n < mr.mapTableLength[tableID]; ++n) {
+    void FillTable(MetadataRowsReader& mr, std::vector<T1>& table) {
+        for (uint32_t n = 0; n < mr.mapTableLength[T1::tableID]; ++n) {
             T1 row(mr);
             table.push_back(row);
         }

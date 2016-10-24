@@ -45,6 +45,8 @@ struct ModuleRow {
     std::vector<uint16_t> name;
     Guid guid;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Module;
+
     ModuleRow() = default;
     ModuleRow(MetadataRowsReader& mr);
     std::string str();
@@ -55,6 +57,8 @@ struct TypeRefRow {
     std::pair<uint32_t, CLIMetadataTableItem> resolutionScope;
     std::vector<uint16_t> typeName;
     std::vector<uint16_t> typeNamespace;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::TypeRef;
 
     TypeRefRow() = default;
     TypeRefRow(MetadataRowsReader& mr);
@@ -69,6 +73,8 @@ struct TypeDefRow {
 
     uint32_t fieldList = 0;
     uint32_t methodList = 0;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::TypeDef;
 
     TypeDefRow() = default;
     TypeDefRow(MetadataRowsReader& mr);
@@ -124,6 +130,8 @@ struct FieldDefRow {
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::FieldDef;
+
     FieldDefRow() = default;
     FieldDefRow(MetadataRowsReader& mr);
 
@@ -164,6 +172,8 @@ struct MethodDefRow {
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
     uint32_t paramList = 0;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MethodDef;
 
     MethodDefRow() = default;
     MethodDefRow(MetadataRowsReader& mr);
@@ -235,6 +245,8 @@ struct ParamDefRow {
     uint16_t sequence = 0;
     std::vector<uint16_t> name;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ParamDef;
+
     ParamDefRow() = default;
     ParamDefRow(MetadataRowsReader& mr);
 
@@ -255,6 +267,8 @@ struct InterfaceImplRow {
     uint32_t classRef = 0;
     std::pair<uint32_t, CLIMetadataTableItem> interfaceRef;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::InterfaceImpl;
+
     InterfaceImplRow() = default;
     InterfaceImplRow(MetadataRowsReader& mr);
 };
@@ -263,6 +277,8 @@ struct MemberRefRow {
     std::pair<uint32_t, CLIMetadataTableItem> classRef;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MemberRef;
 
     MemberRefRow() = default;
     MemberRefRow(MetadataRowsReader& mr);
@@ -273,6 +289,8 @@ struct ConstantRow {
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> value;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Constant;
+
     ConstantRow() = default;
     ConstantRow(MetadataRowsReader& mr);
 };
@@ -282,6 +300,8 @@ struct CustomAttributeRow {
     std::pair<uint32_t, CLIMetadataTableItem> type;
     std::vector<uint8_t> value;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::CustomAttribute;
+
     CustomAttributeRow() = default;
     CustomAttributeRow(MetadataRowsReader& mr);
 };
@@ -289,6 +309,8 @@ struct CustomAttributeRow {
 struct FieldMarshalRow {
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> nativeType;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::FieldMarshal;
 
     FieldMarshalRow() = default;
     FieldMarshalRow(MetadataRowsReader& mr);
@@ -299,6 +321,8 @@ struct DeclSecurityRow {
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> permissionSet;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::DeclSecurity;
+
     DeclSecurityRow() = default;
     DeclSecurityRow(MetadataRowsReader& mr);
 };
@@ -308,6 +332,8 @@ struct ClassLayoutRow {
     uint32_t classSize = 0;
     uint32_t parent = 0;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ClassLayout;
+
     ClassLayoutRow() = default;
     ClassLayoutRow(MetadataRowsReader& mr);
 };
@@ -316,6 +342,8 @@ struct FieldLayoutRow {
     uint32_t offset = 0;
     uint32_t parent = 0;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::FieldLayout;
+
     FieldLayoutRow() = default;
     FieldLayoutRow(MetadataRowsReader& mr);
 };
@@ -323,6 +351,8 @@ struct FieldLayoutRow {
 struct EventMapRow {
     uint32_t parent = 0;
     uint32_t eventList = 0;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::EventMap;
 
     EventMapRow() = default;
     EventMapRow(MetadataRowsReader& mr);
@@ -333,6 +363,8 @@ struct EventRow {
     uint16_t eventFlags = 0;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CLIMetadataTableItem> eventType;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Event;
 
     EventRow() = default;
     EventRow(MetadataRowsReader& mr);
@@ -349,6 +381,8 @@ struct PropertyMapRow {
     uint32_t parent = 0;
     uint32_t propertyList = 0;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::PropertyMap;
+
     PropertyMapRow() = default;
     PropertyMapRow(MetadataRowsReader& mr);
 };
@@ -358,6 +392,8 @@ struct PropertyRow {
     uint16_t flags = 0;
     std::vector<uint16_t> name;
     std::vector<uint32_t> signature;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Property;
 
     PropertyRow() = default;
     PropertyRow(MetadataRowsReader& mr);
@@ -378,6 +414,8 @@ struct MethodSemanticsRow {
     uint32_t method = 0;
     std::pair<uint32_t, CLIMetadataTableItem> association;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MethodSemantics;
+
     MethodSemanticsRow() = default;
     MethodSemanticsRow(MetadataRowsReader& mr);
 
@@ -396,6 +434,8 @@ struct MethodImplRow {
     std::pair<uint32_t, CLIMetadataTableItem> methodBody;
     std::pair<uint32_t, CLIMetadataTableItem> methodDeclaration;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MethodImpl;
+
     MethodImplRow() = default;
     MethodImplRow(MetadataRowsReader& mr);
 };
@@ -406,6 +446,8 @@ struct ImplMapRow {
     std::pair<uint32_t, CLIMetadataTableItem> memberForwarded;
     std::vector<uint16_t> importName;
     uint32_t importScope = 0;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ImplMap;
 
     ImplMapRow() = default;
     ImplMapRow(MetadataRowsReader& mr);
@@ -450,6 +492,8 @@ struct FieldRVARow {
     uint32_t rva = 0;
     uint32_t field = 0;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::FieldRVA;
+
     FieldRVARow() = default;
     FieldRVARow(MetadataRowsReader& mr);
 };
@@ -463,6 +507,8 @@ struct AssemblyRow {
     std::vector<uint8_t> publicKey;
     std::vector<uint16_t> name;
     std::vector<uint16_t> culture;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Assembly;
 
     AssemblyRow() = default;
     AssemblyRow(MetadataRowsReader& mr);
@@ -505,6 +551,8 @@ struct AssemblyOSRow {
     uint32_t osMajorVersion = 0;
     uint32_t osMinorVersion = 0;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::AssemblyOS;
+
     AssemblyOSRow() = default;
     AssemblyOSRow(MetadataRowsReader& mr);
 };
@@ -518,6 +566,8 @@ struct AssemblyRefRow {
     std::vector<uint16_t> culture;
     std::vector<uint8_t> hashValue;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::AssemblyRef;
+
     AssemblyRefRow() = default;
     AssemblyRefRow(MetadataRowsReader& mr);
 };
@@ -525,6 +575,8 @@ struct AssemblyRefRow {
 struct AssemblyRefProcessorRow {
     uint32_t processor = 0;
     uint32_t assemblyRef = 0;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::AssemblyRefProcessor;
 
     AssemblyRefProcessorRow() = default;
     AssemblyRefProcessorRow(MetadataRowsReader& mr);
@@ -536,6 +588,8 @@ struct AssemblyRefOSRow {
     uint32_t osMinorVersion = 0;
     uint32_t assemblyRef = 0;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::AssemblyRefOS;
+
     AssemblyRefOSRow() = default;
     AssemblyRefOSRow(MetadataRowsReader& mr);
 };
@@ -545,6 +599,8 @@ struct FileRow {
     uint32_t flags = 0;
     std::vector<uint16_t> name;
     std::vector<uint8_t> hashValue;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::File;
 
     FileRow() = default;
     FileRow(MetadataRowsReader& mr);
@@ -563,6 +619,8 @@ struct ExportedTypeRow {
     std::vector<uint16_t> typeNamespace;
     std::pair<uint32_t, CLIMetadataTableItem> implementation;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ExportedType;
+
     ExportedTypeRow() = default;
     ExportedTypeRow(MetadataRowsReader& mr);
 };
@@ -573,6 +631,8 @@ struct ManifestResourceRow {
     uint32_t flags = 0;
     std::vector<uint16_t> name;
     std::pair<uint32_t, CLIMetadataTableItem> implementation;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ManifestResource;
 
     ManifestResourceRow() = default;
     ManifestResourceRow(MetadataRowsReader& mr);
@@ -588,6 +648,8 @@ struct NestedClassRow {
     uint32_t nestedClass = 0;
     uint32_t enclosingClass = 0;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::NestedClass;
+
     NestedClassRow() = default;
     NestedClassRow(MetadataRowsReader& mr);
 };
@@ -598,6 +660,8 @@ struct GenericParamRow {
     uint16_t flags = 0;
     std::pair<uint32_t, CLIMetadataTableItem> owner;
     std::vector<uint16_t> name;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::GenericParam;
 
     GenericParamRow() = default;
     GenericParamRow(MetadataRowsReader& mr);
@@ -624,6 +688,8 @@ struct MethodSpecRow {
     std::pair<uint32_t, CLIMetadataTableItem> method;
     std::vector<uint32_t> instantiation;
 
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MethodSpec;
+
     MethodSpecRow() = default;
     MethodSpecRow(MetadataRowsReader& mr);
 };
@@ -631,6 +697,8 @@ struct MethodSpecRow {
 struct GenericParamConstraintRow {
     uint32_t owner = 0;
     std::pair<uint32_t, CLIMetadataTableItem> constraint;
+
+    static const CLIMetadataTableItem tableID = CLIMetadataTableItem::GenericParamConstraint;
 
     GenericParamConstraintRow() = default;
     GenericParamConstraintRow(MetadataRowsReader& mr);

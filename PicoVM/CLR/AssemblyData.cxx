@@ -161,43 +161,43 @@ void AssemblyData::FillTables()
     cliMetaDataTables.module = ModuleRow(mr);
 
     // TypeRef
-    FillTable<TypeRefRow>(mr, cliMetaDataTables._TypeRef, CLIMetadataTableItem::TypeRef);
+    FillTable<TypeRefRow>(mr, cliMetaDataTables._TypeRef);
 
     // TypeDef
-    FillTable<TypeDefRow>(mr, cliMetaDataTables._TypeDef, CLIMetadataTableItem::TypeDef);
+    FillTable<TypeDefRow>(mr, cliMetaDataTables._TypeDef);
 
     // FieldDef
-    FillTable<FieldDefRow>(mr, cliMetaDataTables._FieldDef, CLIMetadataTableItem::FieldDef);
+    FillTable<FieldDefRow>(mr, cliMetaDataTables._FieldDef);
 
     // MethodDef
-    FillTable<MethodDefRow>(mr, cliMetaDataTables._MethodDef, CLIMetadataTableItem::MethodDef);
+    FillTable<MethodDefRow>(mr, cliMetaDataTables._MethodDef);
 
     // ParamDef
-    FillTable<ParamDefRow>(mr, cliMetaDataTables._ParamDef, CLIMetadataTableItem::ParamDef);
+    FillTable<ParamDefRow>(mr, cliMetaDataTables._ParamDef);
 
     // InterfaceImpl
-    FillTable<InterfaceImplRow>(mr, cliMetaDataTables._InterfaceImpl, CLIMetadataTableItem::InterfaceImpl);
+    FillTable<InterfaceImplRow>(mr, cliMetaDataTables._InterfaceImpl);
 
     // MemberRef
-    FillTable<MemberRefRow>(mr, cliMetaDataTables._MemberRef, CLIMetadataTableItem::MemberRef);
+    FillTable<MemberRefRow>(mr, cliMetaDataTables._MemberRef);
 
     // Constant
-    FillTable<ConstantRow>(mr, cliMetaDataTables._Constant, CLIMetadataTableItem::Constant);
+    FillTable<ConstantRow>(mr, cliMetaDataTables._Constant);
 
     // CustomAttribute
-    FillTable<CustomAttributeRow>(mr, cliMetaDataTables._CustomAttribute, CLIMetadataTableItem::CustomAttribute);
+    FillTable<CustomAttributeRow>(mr, cliMetaDataTables._CustomAttribute);
 
     // FieldMarshal
-    FillTable<FieldMarshalRow>(mr, cliMetaDataTables._FieldMarshal, CLIMetadataTableItem::FieldMarshal);
+    FillTable<FieldMarshalRow>(mr, cliMetaDataTables._FieldMarshal);
 
     // DeclSecurity
-    FillTable<DeclSecurityRow>(mr, cliMetaDataTables._DeclSecurity, CLIMetadataTableItem::DeclSecurity);
+    FillTable<DeclSecurityRow>(mr, cliMetaDataTables._DeclSecurity);
 
     // ClassLayout
-    FillTable<ClassLayoutRow>(mr, cliMetaDataTables._ClassLayout, CLIMetadataTableItem::ClassLayout);
+    FillTable<ClassLayoutRow>(mr, cliMetaDataTables._ClassLayout);
 
     // FieldLayout
-    FillTable<FieldLayoutRow>(mr, cliMetaDataTables._FieldLayout, CLIMetadataTableItem::FieldLayout);
+    FillTable<FieldLayoutRow>(mr, cliMetaDataTables._FieldLayout);
 
     // StandAloneSig
     // Each row represents a signature that isn't referenced by any other table.
@@ -208,22 +208,22 @@ void AssemblyData::FillTables()
     }
 
     // EventMap
-    FillTable<EventMapRow>(mr, cliMetaDataTables._EventMap, CLIMetadataTableItem::EventMap);
+    FillTable<EventMapRow>(mr, cliMetaDataTables._EventMap);
 
     // Event
-    FillTable<EventRow>(mr, cliMetaDataTables._Event, CLIMetadataTableItem::Event);
+    FillTable<EventRow>(mr, cliMetaDataTables._Event);
 
     // PropertyMap
-    FillTable<PropertyMapRow>(mr, cliMetaDataTables._PropertyMap, CLIMetadataTableItem::PropertyMap);
+    FillTable<PropertyMapRow>(mr, cliMetaDataTables._PropertyMap);
 
     // Property
-    FillTable<PropertyRow>(mr, cliMetaDataTables._Property, CLIMetadataTableItem::Property);
+    FillTable<PropertyRow>(mr, cliMetaDataTables._Property);
 
     // MethodSemantics
-    FillTable<MethodSemanticsRow>(mr, cliMetaDataTables._MethodSemantics, CLIMetadataTableItem::MethodSemantics);
+    FillTable<MethodSemanticsRow>(mr, cliMetaDataTables._MethodSemantics);
 
     // MethodImpl
-    FillTable<MethodImplRow>(mr, cliMetaDataTables._MethodImpl, CLIMetadataTableItem::MethodImpl);
+    FillTable<MethodImplRow>(mr, cliMetaDataTables._MethodImpl);
 
     // ModuleRef
     for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::ModuleRef]; ++n) {
@@ -240,13 +240,13 @@ void AssemblyData::FillTables()
     }
 
     // ImplMap
-    FillTable<ImplMapRow>(mr, cliMetaDataTables._ImplMap, CLIMetadataTableItem::ImplMap);
+    FillTable<ImplMapRow>(mr, cliMetaDataTables._ImplMap);
 
     // FieldRVA
-    FillTable<FieldRVARow>(mr, cliMetaDataTables._FieldRVA, CLIMetadataTableItem::FieldRVA);
+    FillTable<FieldRVARow>(mr, cliMetaDataTables._FieldRVA);
 
     // Assembly
-    FillTable<AssemblyRow>(mr, cliMetaDataTables._Assembly, CLIMetadataTableItem::Assembly);
+    FillTable<AssemblyRow>(mr, cliMetaDataTables._Assembly);
 
     // AssemblyProcessor
     for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::AssemblyProcessor]; ++n) {
@@ -254,37 +254,37 @@ void AssemblyData::FillTables()
     }
 
     // AssemblyOS
-    FillTable<AssemblyOSRow>(mr, cliMetaDataTables._AssemblyOS, CLIMetadataTableItem::AssemblyOS);
+    FillTable<AssemblyOSRow>(mr, cliMetaDataTables._AssemblyOS);
 
     // AssemblyRef
-    FillTable<AssemblyRefRow>(mr, cliMetaDataTables._AssemblyRef, CLIMetadataTableItem::AssemblyRef);
+    FillTable<AssemblyRefRow>(mr, cliMetaDataTables._AssemblyRef);
 
     // AssemblyRefProcessor
-    FillTable<AssemblyRefProcessorRow>(mr, cliMetaDataTables._AssemblyRefProcessor, CLIMetadataTableItem::AssemblyRefProcessor);
+    FillTable<AssemblyRefProcessorRow>(mr, cliMetaDataTables._AssemblyRefProcessor);
 
     // AssemblyRefOS
-    FillTable<AssemblyRefOSRow>(mr, cliMetaDataTables._AssemblyRefOS, CLIMetadataTableItem::AssemblyRefOS);
+    FillTable<AssemblyRefOSRow>(mr, cliMetaDataTables._AssemblyRefOS);
 
     // File
-    FillTable<FileRow>(mr, cliMetaDataTables._File, CLIMetadataTableItem::File);
+    FillTable<FileRow>(mr, cliMetaDataTables._File);
 
     // ExportedType
-    FillTable<ExportedTypeRow>(mr, cliMetaDataTables._ExportedType, CLIMetadataTableItem::ExportedType);
+    FillTable<ExportedTypeRow>(mr, cliMetaDataTables._ExportedType);
 
     // ManifestResource
-    FillTable<ManifestResourceRow>(mr, cliMetaDataTables._ManifestResource, CLIMetadataTableItem::ManifestResource);
+    FillTable<ManifestResourceRow>(mr, cliMetaDataTables._ManifestResource);
 
     // NestedClass
-    FillTable<NestedClassRow>(mr, cliMetaDataTables._NestedClass, CLIMetadataTableItem::NestedClass);
+    FillTable<NestedClassRow>(mr, cliMetaDataTables._NestedClass);
 
     // GenericParam
-    FillTable<GenericParamRow>(mr, cliMetaDataTables._GenericParam, CLIMetadataTableItem::GenericParam);
+    FillTable<GenericParamRow>(mr, cliMetaDataTables._GenericParam);
 
     // MethodSpec
-    FillTable<MethodSpecRow>(mr, cliMetaDataTables._MethodSpec, CLIMetadataTableItem::MethodSpec);
+    FillTable<MethodSpecRow>(mr, cliMetaDataTables._MethodSpec);
 
     // GenericParamConstraint
-    FillTable<GenericParamConstraintRow>(mr, cliMetaDataTables._GenericParamConstraint, CLIMetadataTableItem::GenericParamConstraint);
+    FillTable<GenericParamConstraintRow>(mr, cliMetaDataTables._GenericParamConstraint);
 }
 
 // Get physical offset from the beginning of file.
