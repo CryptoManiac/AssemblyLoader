@@ -7,6 +7,7 @@
 #include "Property.hxx"
 #include "CLIMetadataTableRows.hxx"
 #include "CLIMethodBody.hxx"
+#include "CLISignature.hxx"
 
 class AssemblyData
 {
