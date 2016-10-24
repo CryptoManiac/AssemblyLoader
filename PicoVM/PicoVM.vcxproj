@@ -147,10 +147,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CLR\AssemblyData.cxx" />
+    <ClCompile Include="CLR\CLIMetadata.cxx" />
     <ClCompile Include="CLR\CLIMetadataTableIndex.cxx" />
     <ClCompile Include="CLR\AssemblyReader.cxx" />
     <ClCompile Include="CLR\CLIMetadataTableRows.cxx" />
     <ClCompile Include="CLR\CLIMethodBody.cxx" />
+    <ClCompile Include="CLR\CLISignature.cxx" />
     <ClCompile Include="CLR\crossguid\guid.cxx" />
     <ClCompile Include="CLR\HexStr.cxx" />
     <ClCompile Include="main.cxx" />
@@ -159,9 +161,11 @@
     <ClInclude Include="CLR\AssemblyData.hxx" />
     <ClInclude Include="CLR\AssemblyReader.hxx" />
     <ClInclude Include="CLR\CLIHeader.hxx" />
+    <ClInclude Include="CLR\CLIMetadata.hxx" />
     <ClInclude Include="CLR\CLIMetadataTableIndex.hxx" />
     <ClInclude Include="CLR\CLIMetadataTableRows.hxx" />
     <ClInclude Include="CLR\CLIMethodBody.hxx" />
+    <ClInclude Include="CLR\CLISignature.hxx" />
     <ClInclude Include="CLR\EnumCasting.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
     <ClInclude Include="CLR\ImageDataDirectory.hxx" />
