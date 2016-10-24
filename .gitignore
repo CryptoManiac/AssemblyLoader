@@ -39,7 +39,6 @@ TestResult.xml
 [Dd]ebugPS/
 [Rr]eleasePS/
 dlldata.c
-picovm
 
 # DNX
 project.lock.json

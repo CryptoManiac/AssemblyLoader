@@ -159,6 +159,7 @@
     <ClCompile Include="main.cxx" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CLR\AppDomain.hxx" />
     <ClInclude Include="CLR\AssemblyData.hxx" />
     <ClInclude Include="CLR\AssemblyReader.hxx" />
     <ClInclude Include="CLR\CLIElementTypes.hxx" />
@@ -169,6 +170,7 @@
     <ClInclude Include="CLR\CLIMethodBody.hxx" />
     <ClInclude Include="CLR\CLISignature.hxx" />
     <ClInclude Include="CLR\EnumCasting.hxx" />
+    <ClInclude Include="CLR\ExecutionThread.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
     <ClInclude Include="CLR\ImageDataDirectory.hxx" />
     <ClInclude Include="CLR\ImageFileHeader.hxx" />

@@ -110,5 +110,11 @@
     <ClInclude Include="CLR\CLISignature.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="CLR\ExecutionThread.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CLR\AppDomain.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
