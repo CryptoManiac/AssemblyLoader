@@ -39,6 +39,12 @@
     <ClCompile Include="CLR\crossguid\guid.cxx">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="CLR\CLISignature.cxx">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="CLR\CLIMetadata.cxx">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLR\AssemblyData.hxx">
@@ -90,6 +96,12 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="CLR\EnumCasting.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CLR\CLIMetadata.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CLR\CLISignature.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
