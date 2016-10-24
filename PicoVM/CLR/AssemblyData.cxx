@@ -11,7 +11,8 @@
 
 using namespace std;
 
-AssemblyData::AssemblyData(string strFilePathName) {
+AssemblyData::AssemblyData(string strFilePathName)
+{
     ifstream AssemblyStream(strFilePathName, ios_base::in | ios_base::binary | ios_base::ate);
     if (!AssemblyStream.is_open()) {
         throw runtime_error("Unable to open assembly file");
@@ -21,73 +22,73 @@ AssemblyData::AssemblyData(string strFilePathName) {
     file_bytes.reserve(AssemblyStream.tellg());
     AssemblyStream.seekg(ios_base::beg);
     file_bytes.assign((istreambuf_iterator<char>(AssemblyStream)), istreambuf_iterator<char>());
-    
-    // Check MZ header
-	if (file_bytes[0] != 0x4d || file_bytes[1] != 0x5a) {
-		throw runtime_error("There is no MZ header");
-	}
 
-	// Create reader and continue initialization process
-	reader = AssemblyReader(file_bytes);
+    // Check MZ header
+    if (file_bytes[0] != 0x4d || file_bytes[1] != 0x5a) {
+        throw runtime_error("There is no MZ header");
+    }
+
+    // Create reader and continue initialization process
+    reader = AssemblyReader(file_bytes);
     InitAssembly();
 }
 
-AssemblyData::AssemblyData(const vector<uint8_t>& assembly_bytes) {
-	// Check MZ header
-	if (assembly_bytes[0] != 0x4d || assembly_bytes[1] != 0x5a) {
-		throw runtime_error("There is no MZ header");
-	}
+AssemblyData::AssemblyData(const vector<uint8_t>& assembly_bytes)
+{
+    // Check MZ header
+    if (assembly_bytes[0] != 0x4d || assembly_bytes[1] != 0x5a) {
+        throw runtime_error("There is no MZ header");
+    }
 
-	// Create reader and continue initialization process
-	reader = AssemblyReader(assembly_bytes);
-	InitAssembly();
+    // Create reader and continue initialization process
+    reader = AssemblyReader(assembly_bytes);
+    InitAssembly();
 }
 
-void AssemblyData::InitAssembly() {
+void AssemblyData::InitAssembly()
+{
     // PE headers
     auto peOffset = reader.read_uint32(0x3c);
-	if (reader.read_uint32(peOffset) != 0x4550) {
+    if (reader.read_uint32(peOffset) != 0x4550) {
         // PE header should begin with PE\0\0 magic value.
-		throw runtime_error("Invalid PE header");
-	}
+        throw runtime_error("Invalid PE header");
+    }
 
     // PE standard identifier
-	auto standard = reader.read_uint16(peOffset + 24);
+    auto standard = reader.read_uint16(peOffset + 24);
     ImageDataDirectory cliDirectory;
 
-	switch (standard) {
-        // CLR has a support for two variations of PE format, PE32 and PE32+.
+    switch (standard) {
+    // CLR has a support for two variations of PE format, PE32 and PE32+.
 
-		case 0x010B: {
-			// PE32 header
-			ImageNTHeader32 header;
-			reader.read_ntheader32(header, peOffset);
-			if (header.optionalHeader.nt.numberOfRvaAndSizes != ImageOptionalDirectoriesNumber32) {
-				throw runtime_error("Optional header is invalid.");
-			}
-			fileHeader = header.fileHeader;
-            // CLI directory
-            cliDirectory = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)];
-			peOffset += sizeof(ImageNTHeader32);
-		}
-		break;
-		case 0x020B: {
-			// PE32+ header
-			ImageNTHeader64 header;
-			reader.read_ntheader64(header, peOffset);
-			if (header.optionalHeader.nt.numberOfRvaAndSizes != ImageOptionalDirectoriesNumber64) {
-				throw runtime_error("Optional header is invalid.");
-			}
-			fileHeader = header.fileHeader;
-            // CLI directory
-            cliDirectory = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)];
-            peOffset += sizeof(ImageNTHeader64);
-		}
-		break;
-		default:
-			throw runtime_error("Unsupported PE format");
-	}
-	
+    case 0x010B: {
+        // PE32 header
+        ImageNTHeader32 header;
+        reader.read_ntheader32(header, peOffset);
+        if (header.optionalHeader.nt.numberOfRvaAndSizes != ImageOptionalDirectoriesNumber32) {
+            throw runtime_error("Optional header is invalid.");
+        }
+        fileHeader = header.fileHeader;
+        // CLI directory
+        cliDirectory = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)];
+        peOffset += sizeof(ImageNTHeader32);
+    } break;
+    case 0x020B: {
+        // PE32+ header
+        ImageNTHeader64 header;
+        reader.read_ntheader64(header, peOffset);
+        if (header.optionalHeader.nt.numberOfRvaAndSizes != ImageOptionalDirectoriesNumber64) {
+            throw runtime_error("Optional header is invalid.");
+        }
+        fileHeader = header.fileHeader;
+        // CLI directory
+        cliDirectory = header.optionalHeader.nt.directories[_u(ImageDirectoryType::cliHeader)];
+        peOffset += sizeof(ImageNTHeader64);
+    } break;
+    default:
+        throw runtime_error("Unsupported PE format");
+    }
+
     // Section Headers
     for (uint32_t i = 0; i < fileHeader.sectionsCount; ++i) {
         ImageSectionHeader header;
@@ -96,7 +97,7 @@ void AssemblyData::InitAssembly() {
         peOffset += sizeof(ImageSectionHeader);
     }
 
-    // CLI Header 
+    // CLI Header
     {
         auto cliHeaderOffset = getDataOffset(cliDirectory.rva);
         if (cliHeaderOffset == numeric_limits<uint32_t>::max()) {
@@ -127,7 +128,7 @@ void AssemblyData::InitAssembly() {
     auto versionLength = reader.read_uint32(cliMetadata.cliMetadataOffset + 12);
     cliMetadata.version.reserve(versionLength);
     reader.read_utf8z(cliMetadata.version, cliMetadata.cliMetadataOffset + 16, versionLength);
-    
+
     // Stream headers
     cliMetadata.streamsCount = reader.read_uint16(cliMetadata.cliMetadataOffset + versionLength + 18);
     uint32_t streamsOffset = cliMetadata.cliMetadataOffset + versionLength + 20;
@@ -147,11 +148,12 @@ void AssemblyData::InitAssembly() {
     FillTables();
 }
 
-void AssemblyData::FillTables() {
-    const auto metaHeaderOffset = cliMetadata.getStreamOffset({ '#', '~' });
-    const auto stringStreamOffset = cliMetadata.getStreamOffset({ '#', 'S', 't', 'r', 'i', 'n', 'g', 's' });
-    const auto guidStreamOffset = cliMetadata.getStreamOffset({ '#', 'G', 'U', 'I', 'D' });
-    const auto blobStreamOffset = cliMetadata.getStreamOffset({ '#', 'B', 'l', 'o', 'b' });
+void AssemblyData::FillTables()
+{
+    const auto metaHeaderOffset = cliMetadata.getStreamOffset({'#', '~'});
+    const auto stringStreamOffset = cliMetadata.getStreamOffset({'#', 'S', 't', 'r', 'i', 'n', 'g', 's'});
+    const auto guidStreamOffset = cliMetadata.getStreamOffset({'#', 'G', 'U', 'I', 'D'});
+    const auto blobStreamOffset = cliMetadata.getStreamOffset({'#', 'B', 'l', 'o', 'b'});
 
     // Encodes how wide indexes into the various heaps are. Default width is 16 bit, indexes can be either 16 or 32 bit long.
     //
@@ -168,13 +170,12 @@ void AssemblyData::FillTables() {
 
     map<CLIMetadataTableItem, uint32_t> mapTableLength;
 
-    for(const auto &item : cliMetadataTableNames) {
+    for (const auto& item : cliMetadataTableNames) {
         auto bit = item.first;
         if (((valid >> _u(bit)) & 1) != 0) {
             // Load table length record for existent and valid table.
             mapTableLength[bit] = reader.read_uint32();
-        }
-        else {
+        } else {
             mapTableLength[bit] = 0;
         }
     }
@@ -184,7 +185,7 @@ void AssemblyData::FillTables() {
 
     // Verify Module table
     if (mapTableLength[CLIMetadataTableItem::Module] != 1) {
-         throw runtime_error("Module table most contain one and only one row.");
+        throw runtime_error("Module table most contain one and only one row.");
     }
     // Load module information.
     cliMetaDataTables.module = ModuleRow(mr);
@@ -249,7 +250,7 @@ void AssemblyData::FillTables() {
         cliMetaDataTables._FieldMarshal.push_back(row);
     }
 
-    // DeclSecurity    
+    // DeclSecurity
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::DeclSecurity]; ++n) {
         DeclSecurityRow row(mr);
         cliMetaDataTables._DeclSecurity.push_back(row);
@@ -268,7 +269,7 @@ void AssemblyData::FillTables() {
     }
 
     // StandAloneSig
-    // Each row represents a signature that isn't referenced by any other table. 
+    // Each row represents a signature that isn't referenced by any other table.
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::StandAloneSig]; ++n) {
         vector<uint32_t> signature;
         mr.readSignature(signature);
@@ -299,7 +300,7 @@ void AssemblyData::FillTables() {
         cliMetaDataTables._Property.push_back(row);
     }
 
-    // MethodSemantics 
+    // MethodSemantics
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MethodSemantics]; ++n) {
         MethodSemanticsRow row(mr);
         cliMetaDataTables._MethodSemantics.push_back(row);
@@ -378,7 +379,7 @@ void AssemblyData::FillTables() {
         cliMetaDataTables._File.push_back(row);
     }
 
-    // ExportedType 
+    // ExportedType
     for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ExportedType]; ++n) {
         ExportedTypeRow row(mr);
         cliMetaDataTables._ExportedType.push_back(row);
@@ -416,8 +417,9 @@ void AssemblyData::FillTables() {
 }
 
 // Get physical offset from the beginning of file.
-uint32_t AssemblyData::getDataOffset (uint32_t address) const {
-    for (const auto &section : sections) {
+uint32_t AssemblyData::getDataOffset(uint32_t address) const
+{
+    for (const auto& section : sections) {
         if (section.virtualAddress <= address && address < section.virtualAddress + section.virtualSize) {
             return section.pointerToRawData + (address - section.virtualAddress);
         }
@@ -428,7 +430,8 @@ uint32_t AssemblyData::getDataOffset (uint32_t address) const {
 }
 
 // Get physical offset of metadata stream from the beginning of file.
-uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name) const {
+uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name) const
+{
     for (const auto& stream : streams) {
         const auto& streamName = stream.name;
         if (streamName.size() == name.size() && equal(begin(streamName), end(streamName), begin(name))) {
@@ -437,10 +440,11 @@ uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name)
     }
 
     return numeric_limits<uint32_t>::max();
-};
+}
 
-// Get method information 
-void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) {
+// Get method information
+void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody)
+{
     using bflags = MethodBodyFlags;
     using eflags = ExceptionFlags;
 
@@ -457,7 +461,7 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) {
         // * The operand stack cannot be longer than eight entries.
         // * The method is less than 64 bytes.
         // If these conditions are true, then a method can be coded tiny. The other 6 bits of the first byte contain the size of the method. IL instructions start with the next byte."
-        // 
+        //
         // - p.125 of ".NET Common Language Runtime Unleashed" by Kevin Burton
         //
         methodBody.maxStack = 8;
@@ -477,7 +481,7 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) {
         // Other than indicating that this is a fat format, two additional flags exist: one flag indi-
         // cates that the local variables should be initialized, and another indicates that additional
         // sections of code follow the instruction block."
-        // 
+        //
         // - p.125 of ".NET Common Language Runtime Unleashed" by Kevin Burton
         //
         auto flags = reader.read_uint16();
@@ -504,7 +508,7 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody) {
             if ((sectionHeader & _u(eflags::MoreSects)) != 0 || (sectionHeader & _u(eflags::EHTable)) == 0) {
                 // Formally, section could be used for any kind of purposes. However, currently it's not used for anything except storing the information about exception blocks.
                 throw runtime_error("Section format is not supported");
-            } else if ((sectionHeader  & _u(eflags::FatFormat)) != 0) {
+            } else if ((sectionHeader & _u(eflags::FatFormat)) != 0) {
                 // Fat section: 32-bit block and handler offsets, 32-bit block and handler length fields.
                 auto count = ((sectionHeader >> 8) - 4) / 24;
                 for (uint32_t i = 0; i < count; i++) {

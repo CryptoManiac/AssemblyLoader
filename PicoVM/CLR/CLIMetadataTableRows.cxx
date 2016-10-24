@@ -9,7 +9,7 @@ using namespace std;
 void MetadataRowsReader::readString(vector<uint16_t>& result) {
     uint32_t offset = stringsIsLong ? reader.read_uint32() : reader.read_uint16();
     reader.read_utf8z(result, stringStreamOffset + offset, 0xffff);
-};
+}
 
 // Read 16 or 32 bit index, fill result by unique ID from this index.
 void MetadataRowsReader::readGuid(Guid& result) {
@@ -89,8 +89,8 @@ ModuleRow::ModuleRow(MetadataRowsReader& mr) {
     // EncId (index into GUID heap, always set to zero).
     // EncBaseId (index into GUID heap, always set to zero).
     Guid tmp;
-    mr.readGuid(tmp); // encId 
-    mr.readGuid(tmp); // endBaseId 
+    mr.readGuid(tmp); // encId
+    mr.readGuid(tmp); // endBaseId
 }
 
 string ModuleRow::str() {
