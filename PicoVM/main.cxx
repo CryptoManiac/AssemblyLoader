@@ -16,7 +16,7 @@ int main(int argc, const char *argv[]) {
 #ifdef WIN32
         assembly = new AssemblyData(R"(appcode\FibLoop.exe)");
 #else
-        assembly = new AssemblyData("./appcode/FibLoop.exe");
+        assembly = new AssemblyData("./PicoVM/appcode/FibLoop.exe");
 #endif
     }
 
