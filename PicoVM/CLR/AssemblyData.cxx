@@ -201,6 +201,7 @@ void AssemblyData::FillTables()
 
     // StandAloneSig
     // Each row represents a signature that isn't referenced by any other table.
+    cliMetaDataTables._StandAloneSig.reserve(mr.mapTableLength[CLIMetadataTableItem::StandAloneSig]);
     for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::StandAloneSig]; ++n) {
         vector<uint32_t> signature;
         mr.readSignature(signature);
@@ -226,6 +227,7 @@ void AssemblyData::FillTables()
     FillTable<MethodImplRow>(mr, cliMetaDataTables._MethodImpl);
 
     // ModuleRef
+    cliMetaDataTables._ModuleRef.reserve(mr.mapTableLength[CLIMetadataTableItem::ModuleRef]);
     for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::ModuleRef]; ++n) {
         vector<uint16_t> name;
         mr.readString(name);
@@ -233,6 +235,7 @@ void AssemblyData::FillTables()
     }
 
     // TypeSpec
+    cliMetaDataTables._TypeSpec.reserve(mr.mapTableLength[CLIMetadataTableItem::TypeSpec]);
     for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::TypeSpec]; ++n) {
         vector<uint32_t> signature;
         mr.readSignature(signature);
