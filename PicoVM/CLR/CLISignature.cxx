@@ -13,6 +13,6 @@ ArrayShape::ArrayShape(vector<uint32_t>::const_iterator& it) {
 
     auto numLoBounds = *(it++);
     for (uint32_t n = 0; n < numLoBounds; ++n) {
-        hiBounds.push_back(*(it++));
+        loBounds.push_back(*(it++));
     }
 }
