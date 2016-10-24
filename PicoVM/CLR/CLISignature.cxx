@@ -16,3 +16,4 @@ ArrayShape::ArrayShape(vector<uint32_t>::const_iterator& it) {
         loBounds.push_back(*(it++));
     }
 }
+

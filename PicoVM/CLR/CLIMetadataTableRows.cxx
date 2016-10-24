@@ -1,9 +1,45 @@
 #include <sstream>
 #include <iomanip>
 
+#include "EnumCasting.hxx"
 #include "CLIMetadataTableRows.hxx"
 
 using namespace std;
+
+void MetadataRowsReader::Init(CLIMetadata& cliMetadata) {
+    const auto metaHeaderOffset = cliMetadata.getStreamOffset({'#', '~'});
+    
+    stringStreamOffset = cliMetadata.getStreamOffset({'#', 'S', 't', 'r', 'i', 'n', 'g', 's'});
+    guidStreamOffset = cliMetadata.getStreamOffset({'#', 'G', 'U', 'I', 'D'});
+    blobStreamOffset = cliMetadata.getStreamOffset({'#', 'B', 'l', 'o', 'b'});
+
+    // Encodes how wide indexes into the various heaps are. Default width is 16 bit, indexes can be either 16 or 32 bit long.
+    //
+    // 0x01 Size of #String stream is 32 bit.
+    // 0x02 Size of #GUID stream is 32 bit.
+    // 0x04 Size of #Blob stream is 32 bit.
+    const auto heapSizes = reader[metaHeaderOffset + 6];
+
+    // A 64-bit number that has a bit set for each table that is present in the assembly.
+    const auto valid = reader.read_uint64(metaHeaderOffset + 8);
+
+    metaDataOffset = metaHeaderOffset + 24;
+    reader.seek(metaDataOffset);
+
+    for (const auto& item : cliMetadataTableNames) {
+        auto bit = item.first;
+        if (((valid >> _u(bit)) & 1) != 0) {
+            // Load table length record for existent and valid table.
+            mapTableLength[bit] = reader.read_uint32();
+        } else {
+            mapTableLength[bit] = 0;
+        }
+    }
+
+    stringsIsLong = (heapSizes & 0x01) != 0;
+    guidIsLong = (heapSizes & 0x02) != 0;
+    blobIsLong = (heapSizes & 0x04) != 0;
+}
 
 // Read 16 or 32 bit index and get the utf8 string at this index.
 void MetadataRowsReader::readString(vector<uint16_t>& result) {

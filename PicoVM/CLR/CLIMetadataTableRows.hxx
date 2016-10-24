@@ -7,28 +7,25 @@
 #include <string>
 
 #include "crossguid/guid.hxx"
-#include "CLIMetadataTableIndex.hxx"
+#include "CLIMetadata.hxx"
 #include "AssemblyReader.hxx"
+#include "CLIMetadataTableIndex.hxx"
 
 struct MetadataRowsReader {
     AssemblyReader& reader;
-    std::map<CLIMetadataTableItem, uint32_t>& mapTableLength;
+    std::map<CLIMetadataTableItem, uint32_t> mapTableLength;
 
     bool stringsIsLong=false;
     bool guidIsLong=false;
     bool blobIsLong=false;
     
+    uint32_t metaDataOffset=0;
     uint32_t stringStreamOffset=0;
     uint32_t guidStreamOffset=0;
     uint32_t blobStreamOffset=0;
 
     MetadataRowsReader() = delete;
-    MetadataRowsReader(AssemblyReader& reader, std::map<CLIMetadataTableItem, uint32_t>& mapTableLength, uint8_t heapSizes, uint32_t stringStreamOffset, uint32_t  guidStreamOffset, uint32_t blobStreamOffset) : 
-        reader(reader), mapTableLength(mapTableLength), stringStreamOffset(stringStreamOffset), guidStreamOffset(guidStreamOffset), blobStreamOffset(blobStreamOffset) {
-            stringsIsLong = (heapSizes & 0x01) != 0;
-            guidIsLong = (heapSizes & 0x02) != 0;
-            blobIsLong = (heapSizes & 0x04) != 0;
-        }
+    MetadataRowsReader(AssemblyReader& reader, CLIMetadata& cliMetadata) : reader (reader) { Init(cliMetadata); };
     
     void readGuid(Guid& result);
     void readBlob(std::vector<uint8_t>& result);
@@ -37,6 +34,9 @@ struct MetadataRowsReader {
 
     uint32_t readRowIndex(CLIMetadataTableItem tableIndex);
     std::pair<uint32_t, CLIMetadataTableItem> readRowIndexChoice(const std::vector<CLIMetadataTableItem>& tables);
+
+    private:
+        void Init(CLIMetadata& cliMetadata);
 };
 
 // A one row table representing the current assembly.

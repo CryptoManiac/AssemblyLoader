@@ -133,7 +133,7 @@ void AssemblyData::InitAssembly()
     cliMetadata.streamsCount = reader.read_uint16(cliMetadata.cliMetadataOffset + versionLength + 18);
     uint32_t streamsOffset = cliMetadata.cliMetadataOffset + versionLength + 20;
     for (uint32_t i = 0; i < cliMetadata.streamsCount; ++i) {
-        CLIMetaData::CLIStream stream = {};
+        CLIMetadata::CLIStream stream = {};
         // Stream offset, relative to the beginning of metadata header
         stream.offset = reader.read_uint32(streamsOffset);
         // Stream length
@@ -150,270 +150,141 @@ void AssemblyData::InitAssembly()
 
 void AssemblyData::FillTables()
 {
-    const auto metaHeaderOffset = cliMetadata.getStreamOffset({'#', '~'});
-    const auto stringStreamOffset = cliMetadata.getStreamOffset({'#', 'S', 't', 'r', 'i', 'n', 'g', 's'});
-    const auto guidStreamOffset = cliMetadata.getStreamOffset({'#', 'G', 'U', 'I', 'D'});
-    const auto blobStreamOffset = cliMetadata.getStreamOffset({'#', 'B', 'l', 'o', 'b'});
-
-    // Encodes how wide indexes into the various heaps are. Default width is 16 bit, indexes can be either 16 or 32 bit long.
-    //
-    // 0x01 Size of #String stream is 32 bit.
-    // 0x02 Size of #GUID stream is 32 bit.
-    // 0x04 Size of #Blob stream is 32 bit.
-    const auto heapSizes = reader[metaHeaderOffset + 6];
-
-    // A 64-bit number that has a bit set for each table that is present in the assembly.
-    const auto valid = reader.read_uint64(metaHeaderOffset + 8);
-
-    auto metaDataOffset = metaHeaderOffset + 24;
-    reader.seek(metaDataOffset);
-
-    map<CLIMetadataTableItem, uint32_t> mapTableLength;
-
-    for (const auto& item : cliMetadataTableNames) {
-        auto bit = item.first;
-        if (((valid >> _u(bit)) & 1) != 0) {
-            // Load table length record for existent and valid table.
-            mapTableLength[bit] = reader.read_uint32();
-        } else {
-            mapTableLength[bit] = 0;
-        }
-    }
-
     // Reader helper class. Basically it's a wrapper around AssemblyReader, which provides a set of methods used by row constructors.
-    MetadataRowsReader mr(reader, mapTableLength, heapSizes, stringStreamOffset, guidStreamOffset, blobStreamOffset);
+    MetadataRowsReader mr(reader, cliMetadata);
 
     // Verify Module table
-    if (mapTableLength[CLIMetadataTableItem::Module] != 1) {
+    if (mr.mapTableLength[CLIMetadataTableItem::Module] != 1) {
         throw runtime_error("Module table most contain one and only one row.");
     }
     // Load module information.
     cliMetaDataTables.module = ModuleRow(mr);
 
     // TypeRef
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::TypeRef]; ++n) {
-        TypeRefRow row(mr);
-        cliMetaDataTables._TypeRef.push_back(row);
-    }
+    FillTable<TypeRefRow>(mr, cliMetaDataTables._TypeRef, CLIMetadataTableItem::TypeRef);
 
     // TypeDef
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::TypeDef]; ++n) {
-        TypeDefRow row(mr);
-        cliMetaDataTables._TypeDef.push_back(row);
-    }
+    FillTable<TypeDefRow>(mr, cliMetaDataTables._TypeDef, CLIMetadataTableItem::TypeDef);
 
     // FieldDef
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::FieldDef]; ++n) {
-        FieldDefRow row(mr);
-        cliMetaDataTables._FieldDef.push_back(row);
-    }
+    FillTable<FieldDefRow>(mr, cliMetaDataTables._FieldDef, CLIMetadataTableItem::FieldDef);
 
     // MethodDef
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MethodDef]; ++n) {
-        MethodDefRow row(mr);
-        cliMetaDataTables._MethodDef.push_back(row);
-    }
+    FillTable<MethodDefRow>(mr, cliMetaDataTables._MethodDef, CLIMetadataTableItem::MethodDef);
 
     // ParamDef
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ParamDef]; ++n) {
-        ParamDefRow row(mr);
-        cliMetaDataTables._ParamDef.push_back(row);
-    }
+    FillTable<ParamDefRow>(mr, cliMetaDataTables._ParamDef, CLIMetadataTableItem::ParamDef);
 
     // InterfaceImpl
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::InterfaceImpl]; ++n) {
-        InterfaceImplRow row(mr);
-        cliMetaDataTables._InterfaceImpl.push_back(row);
-    }
+    FillTable<InterfaceImplRow>(mr, cliMetaDataTables._InterfaceImpl, CLIMetadataTableItem::InterfaceImpl);
 
     // MemberRef
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MemberRef]; ++n) {
-        MemberRefRow row(mr);
-        cliMetaDataTables._MemberRef.push_back(row);
-    }
+    FillTable<MemberRefRow>(mr, cliMetaDataTables._MemberRef, CLIMetadataTableItem::MemberRef);
 
     // Constant
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::Constant]; ++n) {
-        ConstantRow row(mr);
-        cliMetaDataTables._Constant.push_back(row);
-    }
+    FillTable<ConstantRow>(mr, cliMetaDataTables._Constant, CLIMetadataTableItem::Constant);
 
     // CustomAttribute
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::CustomAttribute]; ++n) {
-        CustomAttributeRow row(mr);
-        cliMetaDataTables._CustomAttribute.push_back(row);
-    }
+    FillTable<CustomAttributeRow>(mr, cliMetaDataTables._CustomAttribute, CLIMetadataTableItem::CustomAttribute);
 
     // FieldMarshal
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::FieldMarshal]; ++n) {
-        FieldMarshalRow row(mr);
-        cliMetaDataTables._FieldMarshal.push_back(row);
-    }
+    FillTable<FieldMarshalRow>(mr, cliMetaDataTables._FieldMarshal, CLIMetadataTableItem::FieldMarshal);
 
     // DeclSecurity
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::DeclSecurity]; ++n) {
-        DeclSecurityRow row(mr);
-        cliMetaDataTables._DeclSecurity.push_back(row);
-    }
+    FillTable<DeclSecurityRow>(mr, cliMetaDataTables._DeclSecurity, CLIMetadataTableItem::DeclSecurity);
 
     // ClassLayout
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ClassLayout]; ++n) {
-        ClassLayoutRow row(mr);
-        cliMetaDataTables._ClassLayout.push_back(row);
-    }
+    FillTable<ClassLayoutRow>(mr, cliMetaDataTables._ClassLayout, CLIMetadataTableItem::ClassLayout);
 
     // FieldLayout
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::FieldLayout]; ++n) {
-        FieldLayoutRow row(mr);
-        cliMetaDataTables._FieldLayout.push_back(row);
-    }
+    FillTable<FieldLayoutRow>(mr, cliMetaDataTables._FieldLayout, CLIMetadataTableItem::FieldLayout);
 
     // StandAloneSig
     // Each row represents a signature that isn't referenced by any other table.
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::StandAloneSig]; ++n) {
+    for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::StandAloneSig]; ++n) {
         vector<uint32_t> signature;
         mr.readSignature(signature);
         cliMetaDataTables._StandAloneSig.push_back(signature);
     }
 
     // EventMap
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::EventMap]; ++n) {
-        EventMapRow row(mr);
-        cliMetaDataTables._EventMap.push_back(row);
-    }
+    FillTable<EventMapRow>(mr, cliMetaDataTables._EventMap, CLIMetadataTableItem::EventMap);
 
     // Event
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::Event]; ++n) {
-        EventRow row(mr);
-        cliMetaDataTables._Event.push_back(row);
-    }
+    FillTable<EventRow>(mr, cliMetaDataTables._Event, CLIMetadataTableItem::Event);
 
     // PropertyMap
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::PropertyMap]; ++n) {
-        PropertyMapRow row(mr);
-        cliMetaDataTables._PropertyMap.push_back(row);
-    }
+    FillTable<PropertyMapRow>(mr, cliMetaDataTables._PropertyMap, CLIMetadataTableItem::PropertyMap);
 
     // Property
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::Property]; ++n) {
-        PropertyRow row(mr);
-        cliMetaDataTables._Property.push_back(row);
-    }
+    FillTable<PropertyRow>(mr, cliMetaDataTables._Property, CLIMetadataTableItem::Property);
 
     // MethodSemantics
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MethodSemantics]; ++n) {
-        MethodSemanticsRow row(mr);
-        cliMetaDataTables._MethodSemantics.push_back(row);
-    }
+    FillTable<MethodSemanticsRow>(mr, cliMetaDataTables._MethodSemantics, CLIMetadataTableItem::MethodSemantics);
 
     // MethodImpl
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MethodImpl]; ++n) {
-        MethodImplRow row(mr);
-        cliMetaDataTables._MethodImpl.push_back(row);
-    }
+    FillTable<MethodImplRow>(mr, cliMetaDataTables._MethodImpl, CLIMetadataTableItem::MethodImpl);
 
     // ModuleRef
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ModuleRef]; ++n) {
+    for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::ModuleRef]; ++n) {
         vector<uint16_t> name;
         mr.readString(name);
         cliMetaDataTables._ModuleRef.push_back(name);
     }
 
     // TypeSpec
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::TypeSpec]; ++n) {
+    for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::TypeSpec]; ++n) {
         vector<uint32_t> signature;
         mr.readSignature(signature);
         cliMetaDataTables._TypeSpec.push_back(signature);
     }
 
     // ImplMap
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ImplMap]; ++n) {
-        ImplMapRow row(mr);
-        cliMetaDataTables._ImplMap.push_back(row);
-    }
+    FillTable<ImplMapRow>(mr, cliMetaDataTables._ImplMap, CLIMetadataTableItem::ImplMap);
 
     // FieldRVA
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::FieldRVA]; ++n) {
-        FieldRVARow row(mr);
-        cliMetaDataTables._FieldRVA.push_back(row);
-    }
+    FillTable<FieldRVARow>(mr, cliMetaDataTables._FieldRVA, CLIMetadataTableItem::FieldRVA);
 
     // Assembly
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::Assembly]; ++n) {
-        AssemblyRow row(mr);
-        cliMetaDataTables._Assembly.push_back(row);
-    }
+    FillTable<AssemblyRow>(mr, cliMetaDataTables._Assembly, CLIMetadataTableItem::Assembly);
 
     // AssemblyProcessor
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::AssemblyProcessor]; ++n) {
+    for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::AssemblyProcessor]; ++n) {
         cliMetaDataTables._AssemblyProcessor.push_back(reader.read_uint32());
     }
 
     // AssemblyOS
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::AssemblyOS]; ++n) {
-        AssemblyOSRow row(mr);
-        cliMetaDataTables._AssemblyOS.push_back(row);
-    };
+    FillTable<AssemblyOSRow>(mr, cliMetaDataTables._AssemblyOS, CLIMetadataTableItem::AssemblyOS);
 
     // AssemblyRef
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::AssemblyRef]; ++n) {
-        AssemblyRefRow row(mr);
-        cliMetaDataTables._AssemblyRef.push_back(row);
-    }
+    FillTable<AssemblyRefRow>(mr, cliMetaDataTables._AssemblyRef, CLIMetadataTableItem::AssemblyRef);
 
     // AssemblyRefProcessor
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::AssemblyRefProcessor]; ++n) {
-        AssemblyRefProcessorRow row(mr);
-        cliMetaDataTables._AssemblyRefProcessor.push_back(row);
-    }
+    FillTable<AssemblyRefProcessorRow>(mr, cliMetaDataTables._AssemblyRefProcessor, CLIMetadataTableItem::AssemblyRefProcessor);
 
     // AssemblyRefOS
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::AssemblyRefOS]; ++n) {
-        AssemblyRefOSRow row(mr);
-        cliMetaDataTables._AssemblyRefOS.push_back(row);
-    }
+    FillTable<AssemblyRefOSRow>(mr, cliMetaDataTables._AssemblyRefOS, CLIMetadataTableItem::AssemblyRefOS);
 
     // File
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::File]; ++n) {
-        FileRow row(mr);
-        cliMetaDataTables._File.push_back(row);
-    }
+    FillTable<FileRow>(mr, cliMetaDataTables._File, CLIMetadataTableItem::File);
 
     // ExportedType
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ExportedType]; ++n) {
-        ExportedTypeRow row(mr);
-        cliMetaDataTables._ExportedType.push_back(row);
-    }
+    FillTable<ExportedTypeRow>(mr, cliMetaDataTables._ExportedType, CLIMetadataTableItem::ExportedType);
 
     // ManifestResource
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::ManifestResource]; ++n) {
-        ManifestResourceRow row(mr);
-        cliMetaDataTables._ManifestResource.push_back(row);
-    }
+    FillTable<ManifestResourceRow>(mr, cliMetaDataTables._ManifestResource, CLIMetadataTableItem::ManifestResource);
 
     // NestedClass
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::NestedClass]; ++n) {
-        NestedClassRow row(mr);
-        cliMetaDataTables._NestedClass.push_back(row);
-    }
+    FillTable<NestedClassRow>(mr, cliMetaDataTables._NestedClass, CLIMetadataTableItem::NestedClass);
 
     // GenericParam
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::GenericParam]; ++n) {
-        GenericParamRow row(mr);
-        cliMetaDataTables._GenericParam.push_back(row);
-    }
+    FillTable<GenericParamRow>(mr, cliMetaDataTables._GenericParam, CLIMetadataTableItem::GenericParam);
 
     // MethodSpec
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::MethodSpec]; ++n) {
-        MethodSpecRow row(mr);
-        cliMetaDataTables._MethodSpec.push_back(row);
-    }
+    FillTable<MethodSpecRow>(mr, cliMetaDataTables._MethodSpec, CLIMetadataTableItem::MethodSpec);
 
     // GenericParamConstraint
-    for (uint32_t n = 0; n < mapTableLength[CLIMetadataTableItem::GenericParamConstraint]; ++n) {
-        GenericParamConstraintRow row(mr);
-        cliMetaDataTables._GenericParamConstraint.push_back(row);
-    }
+    FillTable<GenericParamConstraintRow>(mr, cliMetaDataTables._GenericParamConstraint, CLIMetadataTableItem::GenericParamConstraint);
 }
 
 // Get physical offset from the beginning of file.
@@ -426,19 +297,6 @@ uint32_t AssemblyData::getDataOffset(uint32_t address) const
     }
 
     // It looks like we weren't able to find anything
-    return numeric_limits<uint32_t>::max();
-}
-
-// Get physical offset of metadata stream from the beginning of file.
-uint32_t AssemblyData::CLIMetaData::getStreamOffset(const vector<uint8_t>& name) const
-{
-    for (const auto& stream : streams) {
-        const auto& streamName = stream.name;
-        if (streamName.size() == name.size() && equal(begin(streamName), end(streamName), begin(name))) {
-            return cliMetadataOffset + stream.offset;
-        }
-    }
-
     return numeric_limits<uint32_t>::max();
 }
 

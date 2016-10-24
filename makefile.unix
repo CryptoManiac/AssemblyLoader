@@ -10,12 +10,13 @@ EXEC=picovm
 SOURCES= \
          PicoVM/main.cxx \
          PicoVM/CLR/AssemblyData.cxx \
+         PicoVM/CLR/CLIMetadata.cxx \
          PicoVM/CLR/CLIMetadataTableIndex.cxx \
+         PicoVM/CLR/CLIMetadataTableRows.cxx \
          PicoVM/CLR/CLIElementTypes.cxx \
          PicoVM/CLR/CLISignature.cxx \
          PicoVM/CLR/AssemblyReader.cxx \
          PicoVM/CLR/CLIMethodBody.cxx \
-         PicoVM/CLR/CLIMetadataTableRows.cxx \
          PicoVM/CLR/crossguid/guid.cxx \
          PicoVM/CLR/HexStr.cxx
 OBJECTS=$(SOURCES:.cxx=.o)

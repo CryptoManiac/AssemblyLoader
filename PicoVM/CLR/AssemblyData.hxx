@@ -5,6 +5,7 @@
 
 #include "AssemblyReader.hxx"
 #include "Property.hxx"
+#include "CLIMetadata.hxx"
 #include "CLIMetadataTableRows.hxx"
 #include "CLIMethodBody.hxx"
 #include "CLISignature.hxx"
@@ -18,21 +19,8 @@ public:
     // CLR header
     CLIHeader cliHeader;
 
-    struct CLIMetaData {
-        uint32_t cliMetadataOffset; // In memory only
-
-        std::vector<uint16_t> version;
-        uint16_t streamsCount = 0;
-
-        struct CLIStream {
-            uint32_t offset = 0;
-            uint32_t size = 0;
-            std::vector<uint8_t> name;
-        };
-
-        std::vector<CLIStream> streams;
-        uint32_t getStreamOffset(const std::vector<uint8_t>& name) const;
-    } cliMetadata;
+    // CLI streams information
+    CLIMetadata cliMetadata;
 
     struct CLIMetaDataTables {
         ModuleRow module;
@@ -86,6 +74,15 @@ private:
 
     AssemblyReader reader;
     void InitAssembly(); // called from constructor
+
+    template<typename T1>
+    void FillTable(MetadataRowsReader& mr, std::vector<T1>& table, CLIMetadataTableItem tableID) {
+        for (uint32_t n = 0; n < mr.mapTableLength[tableID]; ++n) {
+            T1 row(mr);
+            table.push_back(row);
+        }
+    }
+
     void FillTables();
 };
 
