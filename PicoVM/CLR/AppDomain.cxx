@@ -1,5 +1,4 @@
 #include "AppDomain.hxx"
-#include <iostream>
 
 using namespace std;
 
@@ -45,6 +44,7 @@ void AppDomain::ExecutionThread::swap(AppDomain::ExecutionThread& other) noexcep
     swap(appDomain, other.appDomain);
     swap(state, other.state);
     callStack.swap(other.callStack);
+    evaluationStack.swap(other.evaluationStack);
 }
 
 AppDomain::CallStackItem::CallStackItem(MethodBody& methodBody, AssemblyData& callingAssembly, AssemblyData& executingAssembly)
