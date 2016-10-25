@@ -41,6 +41,26 @@ void MetadataRowsReader::Init(CLIMetadata& cliMetadata) {
     blobIsLong = (heapSizes & 0x04) != 0;
 }
 
+MetadataRowsReader& MetadataRowsReader::operator=(const MetadataRowsReader& other) {
+    MetadataRowsReader(other).swap(*this);
+    return *this;
+}
+
+void MetadataRowsReader::swap(MetadataRowsReader& other) noexcept {
+    using std::swap;
+    
+    reader.swap(other.reader);
+    mapTableLength.swap(other.mapTableLength);
+    swap(stringsIsLong, other.stringsIsLong);
+    swap(guidIsLong, other.guidIsLong);
+    swap(blobIsLong, blobIsLong);
+    swap(metaDataOffset, other.metaDataOffset);
+    swap(stringStreamOffset, other.stringStreamOffset);
+    swap(guidStreamOffset, other.guidStreamOffset);
+    swap(blobStreamOffset, other.blobStreamOffset);
+}
+
+
 // Read 16 or 32 bit index and get the utf8 string at this index.
 void MetadataRowsReader::readString(vector<uint16_t>& result) {
     uint32_t offset = stringsIsLong ? reader.read_uint32() : reader.read_uint16();

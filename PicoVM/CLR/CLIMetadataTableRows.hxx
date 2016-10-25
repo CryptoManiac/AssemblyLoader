@@ -26,6 +26,12 @@ struct MetadataRowsReader {
 
     MetadataRowsReader() = delete;
     MetadataRowsReader(AssemblyReader& reader, CLIMetadata& cliMetadata) : reader (reader) { Init(cliMetadata); };
+    MetadataRowsReader(const MetadataRowsReader& other) = default;
+    MetadataRowsReader(MetadataRowsReader&& other) = default;
+
+    MetadataRowsReader& operator=(const MetadataRowsReader& other);
+    void swap(MetadataRowsReader& other) noexcept;
+
     
     void readGuid(Guid& result);
     void readBlob(std::vector<uint8_t>& result);
