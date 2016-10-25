@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CLR\AppDomain.cxx" />
     <ClCompile Include="CLR\AssemblyData.cxx" />
     <ClCompile Include="CLR\CLIElementTypes.cxx" />
     <ClCompile Include="CLR\CLIMetadata.cxx" />
@@ -169,6 +170,7 @@
     <ClInclude Include="CLR\CLIMetadataTableRows.hxx" />
     <ClInclude Include="CLR\CLIMethodBody.hxx" />
     <ClInclude Include="CLR\CLISignature.hxx" />
+    <ClInclude Include="CLR\crossguid\guid.hxx" />
     <ClInclude Include="CLR\EnumCasting.hxx" />
     <ClInclude Include="CLR\ExecutionThread.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
