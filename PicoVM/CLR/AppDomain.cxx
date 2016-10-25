@@ -3,20 +3,19 @@
 
 using namespace std;
 
-const AppDomain::AssemblyID& AppDomain::loadAssembly(AssemblyData& assemblyData) {
-    auto assemblyID = AssemblyID(assemblyData.getGUID(), assemblyData.getName());
-    auto result = assemblies.insert(pair<AssemblyID, AssemblyData>(assemblyID, assemblyData));
+const Guid& AppDomain::loadAssembly(AssemblyData& assemblyData) {
+    auto result = assemblies.insert(pair<Guid, AssemblyData>(assemblyData.getGUID(), assemblyData));
 
     if (!result.second) {
-        cout << "Assembly " << assemblyID.first << " already loaded" << endl;  
+        cout << "Assembly " << assemblyData.getGUID() << " already loaded" << endl;  
     }
 
     // return AssemblyID
     return (*result.first).first;
 }
 
-AssemblyData& AppDomain::getAssembly(const AppDomain::AssemblyID& assemblyID) {
-    auto result = assemblies.find(assemblyID);
+AssemblyData& AppDomain::getAssembly(const Guid& guid) {
+    auto result = assemblies.find(guid);
     if (result == assemblies.end()) {
         throw runtime_error("No such assembly in this domain");
     }

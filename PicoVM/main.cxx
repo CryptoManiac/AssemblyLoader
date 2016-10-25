@@ -24,7 +24,7 @@ int main(int argc, const char *argv[]) {
 
     // Few simple tests for our AppDomain stub
     AppDomain domain;
-    const AppDomain::AssemblyID& id = domain.loadAssembly(*assembly); // loading
+    const auto& id = domain.loadAssembly(*assembly); // loading
     domain.loadAssembly(*assembly); // double-loading attempt
     delete assembly; // deleting original object
 

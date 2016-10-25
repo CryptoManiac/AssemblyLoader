@@ -8,7 +8,6 @@
 struct AppDomain {
     struct CallStackItem;
     enum struct ThreadExecutionState : uint8_t;
-    typedef std::pair<const Guid&, const std::vector<uint16_t>& > AssemblyID;
 
     struct ExecutionThread {
         AppDomain& appDomain;
@@ -18,17 +17,17 @@ struct AppDomain {
         ExecutionThread(AppDomain& appDomain) : appDomain(appDomain) {}
     };
 
-    std::map<AssemblyID, AssemblyData> assemblies;
+    std::map<Guid, AssemblyData> assemblies;
     std::vector<ExecutionThread> threads;
 
     template<typename T>
-    const AssemblyID& loadAssembly(const T& assembly) {
+    const Guid& loadAssembly(const T& assembly) {
         AssemblyData assemblyData(assembly);
         return loadAssembly(assemblyData);
     }
     
-    const AssemblyID& loadAssembly(AssemblyData& assemblyData);
-    AssemblyData& getAssembly(const AssemblyID& assemblyID);
+    const Guid& loadAssembly(AssemblyData& assemblyData);
+    AssemblyData& getAssembly(const Guid& guid);
 
     struct CallStackItem {
         const MethodBody& methodBody;
