@@ -79,7 +79,7 @@ class Guid
   private:
 
     // actual data
-    std::vector<uint8_t> _bytes;
+    std::vector<uint8_t> _bytes = {0,0,0,0, 0,0, 0,0, 0,0, 0,0,0,0,0,0};
 
     // make the << operator a friend so it can access _bytes
     friend std::ostream &operator<<(std::ostream &s, const Guid &guid);

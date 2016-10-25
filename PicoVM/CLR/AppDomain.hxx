@@ -14,7 +14,12 @@ struct AppDomain {
         std::vector<CallStackItem> callStack;
         ThreadExecutionState state = ThreadExecutionState::Undefined;
 
-        ExecutionThread(AppDomain& appDomain) : appDomain(appDomain) {}
+        ExecutionThread(AppDomain& appDomain);
+        ExecutionThread(const ExecutionThread& other) = default;
+        ExecutionThread(ExecutionThread&& other) = default;
+
+        ExecutionThread& operator=(const ExecutionThread& other);
+        void swap(ExecutionThread& other) noexcept;
     };
 
     std::map<Guid, AssemblyData> assemblies;
@@ -30,14 +35,20 @@ struct AppDomain {
     AssemblyData& getAssembly(const Guid& guid);
 
     struct CallStackItem {
-        const MethodBody& methodBody;
+        MethodBody& methodBody;
         AssemblyData& callingAssembly;
         AssemblyData& executingAssembly;
         AppDomain& appDomain;
         ExecutionThread& thread;
+        uint32_t prevStackLength = 0;
 
-        CallStackItem(const MethodBody& methodBody, AssemblyData& callingAssembly, AssemblyData& executingAssembly)
-         : methodBody(methodBody), callingAssembly(callingAssembly), executingAssembly(executingAssembly), appDomain(appDomain), thread(thread) {}
+        CallStackItem(MethodBody& methodBody, AssemblyData& callingAssembly, AssemblyData& executingAssembly);
+        CallStackItem(const CallStackItem& other) = default;
+        CallStackItem(CallStackItem&& other) = default;
+
+        CallStackItem& operator=(const CallStackItem& other);
+        void swap(CallStackItem& other) noexcept;
+
     };
 
     enum struct ThreadExecutionState : uint8_t {
