@@ -3,11 +3,12 @@
 
 #include <vector>
 #include <cstdint>
-#include "Assembly.hxx"
+#include "AssemblyData.hxx"
 
 struct AppDomain {
     struct CallStackItem;
-    enum struct ThreadExecutionState;
+    enum struct ThreadExecutionState : uint8_t;
+    typedef std::pair<const Guid&, const std::vector<uint16_t>& > AssemblyID;
 
     struct ExecutionThread {
         AppDomain& appDomain;
@@ -17,21 +18,30 @@ struct AppDomain {
         ExecutionThread(AppDomain& appDomain) : appDomain(appDomain) {}
     };
 
+    std::map<AssemblyID, AssemblyData> assemblies;
+    std::vector<ExecutionThread> threads;
+
+    template<typename T>
+    const AssemblyID& loadAssembly(const T& assembly) {
+        AssemblyData assemblyData(assembly);
+        return loadAssembly(assemblyData);
+    }
+    
+    const AssemblyID& loadAssembly(AssemblyData& assemblyData);
+    AssemblyData& getAssembly(const AssemblyID& assemblyID);
+
     struct CallStackItem {
         const MethodBody& methodBody;
-        Assembly& callingAssembly;
-        Assembly& executingAssembly;
+        AssemblyData& callingAssembly;
+        AssemblyData& executingAssembly;
         AppDomain& appDomain;
         ExecutionThread& thread;
 
-        CallStackItem(const MethodBody& methodBody, Assembly& callingAssembly, Assembly& executingAssembly)
+        CallStackItem(const MethodBody& methodBody, AssemblyData& callingAssembly, AssemblyData& executingAssembly)
          : methodBody(methodBody), callingAssembly(callingAssembly), executingAssembly(executingAssembly), appDomain(appDomain), thread(thread) {}
     };
 
-    std::vector<Assembly> assemblies;
-    std::vector<ExecutionThread> threads;
-
-    enum struct ThreadExecutionState {
+    enum struct ThreadExecutionState : uint8_t {
         FrameSetup = 0,
         MethodBodyExecution = 1,
         WaitForAssembly = 2,

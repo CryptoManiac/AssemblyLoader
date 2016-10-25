@@ -9,6 +9,7 @@ CXXFLAGS=-g -std=c++11 -Wall -Wextra
 EXEC=picovm
 SOURCES= \
          PicoVM/main.cxx \
+         PicoVM/CLR/AppDomain.cxx \
          PicoVM/CLR/AssemblyData.cxx \
          PicoVM/CLR/CLIMetadata.cxx \
          PicoVM/CLR/CLIMetadataTableIndex.cxx \

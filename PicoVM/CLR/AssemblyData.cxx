@@ -404,3 +404,11 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody)
         throw runtime_error("Invalid body format.");
     }
 }
+
+const Guid& AssemblyData::getGUID() {
+    return cliMetaDataTables.module.guid;
+}
+
+const std::vector<uint16_t>& AssemblyData::getName() {
+    return cliMetaDataTables.module.name;
+} 

@@ -163,6 +163,18 @@ bool Guid::operator!=(const Guid &other) const
   return !((*this) == other);
 }
 
+// overload comparison operator (required by std::map)
+bool Guid::operator<(const Guid &other) const
+{
+  for(uint32_t n = 0; n < 16; ++n) {
+    if (other._bytes[n] > _bytes[n]) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void Guid::swap(Guid& other) noexcept
 {
   _bytes.swap(other._bytes);

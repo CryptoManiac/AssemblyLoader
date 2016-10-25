@@ -64,6 +64,9 @@ class Guid
     bool operator==(const Guid &other) const;
     bool operator!=(const Guid &other) const;
 
+    // overload comparison operator (required by std::map)
+    bool operator<(const Guid &other) const;
+
     void swap(Guid& other) noexcept;
 
     // Convert to string

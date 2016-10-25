@@ -63,10 +63,14 @@ public:
         std::vector<GenericParamConstraintRow> _GenericParamConstraint;
     } cliMetaDataTables;
 
+    AssemblyData() = delete;
     AssemblyData(std::string strFilePathName);
     AssemblyData(const std::vector<uint8_t>& assembly_bytes);
+
     uint32_t getDataOffset(uint32_t address) const;
     void getMethodBody(uint32_t index, MethodBody& methodBody);
+    const Guid& getGUID();
+    const std::vector<uint16_t>& getName(); 
 
 private:
     // Image header
