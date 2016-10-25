@@ -102,7 +102,7 @@
       <WarningLevel>Level4</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Alex\Documents\GitHub\variant\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.\CLR;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -172,7 +172,7 @@
     <ClInclude Include="CLR\CLISignature.hxx" />
     <ClInclude Include="CLR\crossguid\guid.hxx" />
     <ClInclude Include="CLR\EnumCasting.hxx" />
-    <ClInclude Include="CLR\ExecutionThread.hxx" />
+    <ClInclude Include="CLR\EvaluationStackItem.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
     <ClInclude Include="CLR\ImageDataDirectory.hxx" />
     <ClInclude Include="CLR\ImageFileHeader.hxx" />
