@@ -133,15 +133,19 @@ Guid::Guid(const string &fromString)
 }
 
 // create empty guid
-Guid::Guid()
+Guid::Guid() : _bytes(vector<uint8_t>(16, 0))
 {
-  _bytes = vector<uint8_t>(16, 0);
 }
 
 // copy constructor
-Guid::Guid(const Guid &other)
+Guid::Guid(const Guid &other) : _bytes(other._bytes)
 {
-  _bytes = other._bytes;
+}
+
+// move constructor
+Guid::Guid(Guid &&other) noexcept : _bytes(other._bytes)
+{
+  other._bytes.clear();
 }
 
 // overload assignment operator

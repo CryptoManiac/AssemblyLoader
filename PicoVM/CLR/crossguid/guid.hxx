@@ -58,7 +58,7 @@ class Guid
     Guid(const Guid &other);
 
     // move constructor
-    Guid(Guid &&other) noexcept : _bytes(other._bytes) { other._bytes.clear(); }
+    Guid(Guid &&other) noexcept;
 
     // overload assignment operator
     Guid &operator=(const Guid &other);
