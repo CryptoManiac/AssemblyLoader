@@ -14,8 +14,14 @@
 class AssemblyReader
 {
 public:
-    AssemblyReader();
+    AssemblyReader() = default;
     AssemblyReader(const std::vector<uint8_t>& data);
+    AssemblyReader(const AssemblyReader& other) = default;
+    AssemblyReader(AssemblyReader&& other) = default;
+
+    AssemblyReader& operator=(const AssemblyReader& other);
+    void swap(AssemblyReader& other) noexcept;
+
     void seek(uint32_t offset);
     void reset();
 

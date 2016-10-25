@@ -67,6 +67,12 @@ public:
     AssemblyData(std::string strFilePathName);
     AssemblyData(const std::vector<uint8_t>& assembly_bytes);
 
+    AssemblyData(const AssemblyData& other) = default;
+    AssemblyData(AssemblyData&& other) = default;
+
+    AssemblyData& operator=(const AssemblyData& other);
+    void swap(AssemblyData& other) noexcept;
+
     uint32_t getDataOffset(uint32_t address) const;
     void getMethodBody(uint32_t index, MethodBody& methodBody);
     const Guid& getGUID();

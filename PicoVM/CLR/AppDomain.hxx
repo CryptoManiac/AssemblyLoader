@@ -34,6 +34,12 @@ struct AppDomain {
     const Guid& loadAssembly(AssemblyData& assemblyData);
     AssemblyData& getAssembly(const Guid& guid);
 
+    AppDomain() = default;
+    AppDomain(const AppDomain& other) = default;
+    AppDomain(AppDomain&& other) = default;
+    AppDomain& operator=(const AppDomain& other);
+    void swap(AppDomain& other) noexcept;
+
     struct CallStackItem {
         MethodBody& methodBody;
         AssemblyData& callingAssembly;

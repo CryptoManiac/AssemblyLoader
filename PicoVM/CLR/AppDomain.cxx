@@ -22,6 +22,17 @@ AssemblyData& AppDomain::getAssembly(const Guid& guid) {
     return (*result).second;
 }
 
+AppDomain& AppDomain::operator=(const AppDomain& other) {
+    AppDomain(other).swap(*this);
+    return *this;
+}
+
+void AppDomain::swap(AppDomain& other) noexcept {
+    using std::swap;
+    assemblies.swap(other.assemblies);
+    threads.swap(other.threads);
+}
+
 AppDomain::ExecutionThread::ExecutionThread(AppDomain& appDomain): appDomain(appDomain) {}
 
 AppDomain::ExecutionThread& AppDomain::ExecutionThread::operator=(const AppDomain::ExecutionThread& other) {

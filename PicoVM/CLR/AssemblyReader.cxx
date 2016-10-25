@@ -10,13 +10,20 @@
 
 using namespace std;
 
-AssemblyReader::AssemblyReader() : data(0)
-{
-}
-
 AssemblyReader::AssemblyReader(const vector<uint8_t>& data) : data(data)
 {
 reset();
+}
+
+AssemblyReader& AssemblyReader::operator=(const AssemblyReader& other) {
+    AssemblyReader(other).swap(*this);
+    return *this;
+}
+
+void AssemblyReader::swap(AssemblyReader& other) noexcept {
+    using std::swap;
+    data.swap(other.data);
+    swap(pc, other.pc);
 }
 
 void AssemblyReader::seek(uint32_t offset)

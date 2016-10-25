@@ -45,6 +45,22 @@ AssemblyData::AssemblyData(const vector<uint8_t>& assembly_bytes)
     InitAssembly();
 }
 
+AssemblyData& AssemblyData::operator=(const AssemblyData& other) {
+    AssemblyData(other).swap(*this);
+    return *this;
+}
+
+void AssemblyData::swap(AssemblyData& other) noexcept {
+    using std::swap;
+
+    sections.swap(other.sections);
+    swap(cliHeader, other.cliHeader);
+    swap(cliMetadata, other.cliMetadata);
+    swap(cliMetaDataTables, other.cliMetaDataTables);
+    swap(fileHeader, other.fileHeader);
+    reader.swap(other.reader);
+}
+
 void AssemblyData::InitAssembly()
 {
     // PE headers
