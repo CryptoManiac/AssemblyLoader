@@ -4,7 +4,7 @@ else
     CXX=g++
 endif
 
-CXXFLAGS=-g -std=c++11 -Wall -Wextra
+CXXFLAGS=-g -std=c++11 -Wall -Wextra -I PicoVM/CLR/
 
 EXEC=picovm
 SOURCES= \

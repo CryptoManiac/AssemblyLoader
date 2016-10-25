@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdint>
+#include "EvaluationStackItem.hxx"
 #include "AssemblyData.hxx"
 
 struct AppDomain {
@@ -12,6 +13,7 @@ struct AppDomain {
     struct ExecutionThread {
         AppDomain& appDomain;
         std::vector<CallStackItem> callStack;
+        std::deque<EvaluationStackItem> evaluationStack;
         ThreadExecutionState state = ThreadExecutionState::Undefined;
 
         ExecutionThread(AppDomain& appDomain);
