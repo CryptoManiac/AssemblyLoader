@@ -421,6 +421,15 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody)
     }
 }
 
+void AssemblyData::getEntryPoint(MethodBody& methodBody) {
+    auto entryPoint = cliHeader.entryPointToken;
+    if ((entryPoint >> 24) == _u(CLIMetadataTableItem::MethodDef)) {
+        getMethodBody(entryPoint & 0xFFFFFF, methodBody);
+    } else {
+        throw runtime_error("Invalid entry point.");
+    }
+}
+
 const Guid& AssemblyData::getGUID() {
     return cliMetaDataTables.module.guid;
 }

@@ -43,20 +43,22 @@ struct AppDomain {
     void swap(AppDomain& other) noexcept;
 
     struct CallStackItem {
-        MethodBody& methodBody;
+        uint32_t methodToken;
         AssemblyData& callingAssembly;
         AssemblyData& executingAssembly;
         AppDomain& appDomain;
         ExecutionThread& thread;
         uint32_t prevStackLength = 0;
 
-        CallStackItem(MethodBody& methodBody, AssemblyData& callingAssembly, AssemblyData& executingAssembly);
+        CallStackItem(uint32_t methodToken, AssemblyData& callingAssembly, AssemblyData& executingAssembly);
         CallStackItem(const CallStackItem& other) = default;
         CallStackItem(CallStackItem&& other) = default;
 
         CallStackItem& operator=(const CallStackItem& other);
         void swap(CallStackItem& other) noexcept;
 
+    private:
+        MethodBody methodBody;
     };
 
     enum struct ThreadExecutionState : uint8_t {

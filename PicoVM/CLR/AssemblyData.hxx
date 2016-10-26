@@ -75,6 +75,7 @@ public:
 
     uint32_t getDataOffset(uint32_t address) const;
     void getMethodBody(uint32_t index, MethodBody& methodBody);
+    void getEntryPoint(MethodBody& methodBody);
     const Guid& getGUID();
     const std::wstring& getName();
 
