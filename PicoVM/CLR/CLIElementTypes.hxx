@@ -1,5 +1,5 @@
 #ifndef __CLIElementTypeS_HXX__
-#define __CLIElementTypeS_XXX__
+#define __CLIElementTypeS_HXX__
 #include <cstdint>
 #include <map>
 
