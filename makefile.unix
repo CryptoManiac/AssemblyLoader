@@ -4,7 +4,7 @@ else
     CXX=g++
 endif
 
-CXXFLAGS=-g -std=c++11 -Wall -Wextra -I PicoVM/CLR/
+CXXFLAGS=-g -std=c++11 -Wall -Wextra
 
 EXEC=picovm
 SOURCES= \
@@ -20,6 +20,7 @@ SOURCES= \
          PicoVM/CLR/CLIMethodBody.cxx \
          PicoVM/CLR/crossguid/guid.cxx \
          PicoVM/CLR/HexStr.cxx
+INCDIRS=PicoVM/CLR/
 OBJECTS=$(SOURCES:.cxx=.o)
 
 all: $(EXEC)
@@ -28,7 +29,7 @@ $(EXEC): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 %.o: %.cxx
-	$(CXX) $(CXXFLAGS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -I $(INCDIRS) -c -o $@ $<
 
 clean:
 	-rm -f picovm

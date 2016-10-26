@@ -8,7 +8,7 @@ using namespace std;
 
 void MetadataRowsReader::Init(CLIMetadata& cliMetadata) {
     const auto metaHeaderOffset = cliMetadata.getStreamOffset({'#', '~'});
-    
+
     stringStreamOffset = cliMetadata.getStreamOffset({'#', 'S', 't', 'r', 'i', 'n', 'g', 's'});
     guidStreamOffset = cliMetadata.getStreamOffset({'#', 'G', 'U', 'I', 'D'});
     blobStreamOffset = cliMetadata.getStreamOffset({'#', 'B', 'l', 'o', 'b'});
@@ -41,6 +41,11 @@ void MetadataRowsReader::Init(CLIMetadata& cliMetadata) {
     blobIsLong = (heapSizes & 0x04) != 0;
 }
 
+MetadataRowsReader::MetadataRowsReader(AssemblyReader& reader, CLIMetadata& cliMetadata) : reader (reader)
+{
+    Init(cliMetadata);
+}
+
 MetadataRowsReader& MetadataRowsReader::operator=(const MetadataRowsReader& other) {
     MetadataRowsReader(other).swap(*this);
     return *this;
@@ -48,7 +53,7 @@ MetadataRowsReader& MetadataRowsReader::operator=(const MetadataRowsReader& othe
 
 void MetadataRowsReader::swap(MetadataRowsReader& other) noexcept {
     using std::swap;
-    
+
     reader.swap(other.reader);
     mapTableLength.swap(other.mapTableLength);
     swap(stringsIsLong, other.stringsIsLong);
@@ -180,7 +185,7 @@ TypeDefRow::TypeDefRow(MetadataRowsReader& mr) {
     // Index into FieldDef table
     fieldList = mr.readRowIndex(CLIMetadataTableItem::FieldDef);
     // Index into MethodDef table
-    methodList = mr.readRowIndex(CLIMetadataTableItem::MethodDef);    
+    methodList = mr.readRowIndex(CLIMetadataTableItem::MethodDef);
 }
 
 FieldDefRow::FieldDefRow(MetadataRowsReader& mr) {
