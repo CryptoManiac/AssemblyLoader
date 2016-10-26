@@ -4,7 +4,7 @@
 using namespace std;
 
 // Get physical offset of metadata stream from the beginning of file.
-uint32_t CLIMetadata::getStreamOffset(const vector<uint8_t>& name) const
+uint32_t CLIMetadata::getStreamOffset(const string& name) const
 {
     for (const auto& stream : streams) {
         const auto& streamName = stream.name;

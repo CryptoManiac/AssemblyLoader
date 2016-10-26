@@ -102,7 +102,7 @@ uint64_t AssemblyReader::read_uint64(uint32_t offset) const
            static_cast<uint64_t>(*(it++)) << 56;
 }
 
-uint32_t AssemblyReader::read_asciiz(vector<uint8_t>& result, uint32_t limit)
+uint32_t AssemblyReader::read_asciiz(string& result, uint32_t limit)
 {
     uint32_t offset = static_cast<uint32_t>(distance(data.begin(), pc));
     uint32_t read = read_asciiz(result, offset, limit);
@@ -110,7 +110,7 @@ uint32_t AssemblyReader::read_asciiz(vector<uint8_t>& result, uint32_t limit)
     return read;
 }
 
-uint32_t AssemblyReader::read_asciiz(vector<uint8_t>& result, uint32_t offset, uint32_t limit) const
+uint32_t AssemblyReader::read_asciiz(string& result, uint32_t offset, uint32_t limit) const
 {
     auto start_it = next(data.cbegin(), offset);
     auto end_it = find(start_it, data.cend(), 0);
@@ -122,7 +122,7 @@ uint32_t AssemblyReader::read_asciiz(vector<uint8_t>& result, uint32_t offset, u
     return static_cast<uint32_t>(distance(start_it, end_it));
 }
 
-uint32_t AssemblyReader::read_utf8z(vector<uint16_t>& result, uint32_t limit)
+uint32_t AssemblyReader::read_utf8z(wstring& result, uint32_t limit)
 {
     uint32_t offset = static_cast<uint32_t>(distance(data.begin(), pc));
     uint32_t read = read_utf8z(result, offset, limit);
@@ -130,7 +130,7 @@ uint32_t AssemblyReader::read_utf8z(vector<uint16_t>& result, uint32_t limit)
     return read;
 }
 
-uint32_t AssemblyReader::read_utf8z(vector<uint16_t>& result, uint32_t offset, uint32_t limit) const
+uint32_t AssemblyReader::read_utf8z(wstring& result, uint32_t offset, uint32_t limit) const
 {
     auto start_it = next(data.cbegin(), offset);
     auto end_it = find(start_it, data.cend(), 0);

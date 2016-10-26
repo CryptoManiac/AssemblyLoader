@@ -44,7 +44,7 @@ public:
         std::vector<PropertyRow> _Property;
         std::vector<MethodSemanticsRow> _MethodSemantics;
         std::vector<MethodImplRow> _MethodImpl;
-        std::vector<std::vector<uint16_t> > _ModuleRef;
+        std::vector<std::wstring> _ModuleRef;
         std::vector<std::vector<uint32_t> > _TypeSpec;
         std::vector<ImplMapRow> _ImplMap;
         std::vector<FieldRVARow> _FieldRVA;
@@ -76,7 +76,7 @@ public:
     uint32_t getDataOffset(uint32_t address) const;
     void getMethodBody(uint32_t index, MethodBody& methodBody);
     const Guid& getGUID();
-    const std::vector<uint16_t>& getName(); 
+    const std::wstring& getName();
 
 private:
     // Image header

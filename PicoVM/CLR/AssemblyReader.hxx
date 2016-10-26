@@ -40,16 +40,16 @@ public:
     uint64_t read_uint64(uint32_t offset) const;
 
     // Read ascii string
-    uint32_t read_asciiz(std::vector<uint8_t>& result, uint32_t limit);
+    uint32_t read_asciiz(std::string& result, uint32_t limit);
 
     // Read ascii string
-    uint32_t read_asciiz(std::vector<uint8_t>& result, uint32_t offset, uint32_t limit) const;
+    uint32_t read_asciiz(std::string& result, uint32_t offset, uint32_t limit) const;
 
     // Read utf8 string and convert it into utf16 encoding
-    uint32_t read_utf8z(std::vector<uint16_t>& result, uint32_t limit);
+    uint32_t read_utf8z(std::wstring& result, uint32_t limit);
 
     // Read utf8 string and convert it into utf16 encoding
-    uint32_t read_utf8z(std::vector<uint16_t>& result, uint32_t offset, uint32_t limit) const;
+    uint32_t read_utf8z(std::wstring& result, uint32_t offset, uint32_t limit) const;
 
     // Read unique ID
     void read_guid(Guid& result);

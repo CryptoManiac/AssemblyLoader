@@ -34,7 +34,7 @@ struct MetadataRowsReader {
     void swap(MetadataRowsReader& other) noexcept;
     void readGuid(Guid& result);
     void readBlob(std::vector<uint8_t>& result);
-    void readString(std::vector<uint16_t>& result);
+    void readString(std::wstring& result);
     void readSignature(std::vector<uint32_t>& result);
 
     uint32_t readRowIndex(CLIMetadataTableItem tableIndex);
@@ -47,7 +47,7 @@ private:
 // A one row table representing the current assembly.
 struct ModuleRow {
     uint16_t generation = 0;
-    std::vector<uint16_t> name;
+    std::wstring name;
     Guid guid;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Module;
@@ -60,8 +60,8 @@ struct ModuleRow {
 // Each row represents an imported class, its namespace, and the assembly which contains it.
 struct TypeRefRow {
     std::pair<uint32_t, CLIMetadataTableItem> resolutionScope;
-    std::vector<uint16_t> typeName;
-    std::vector<uint16_t> typeNamespace;
+    std::wstring typeName;
+    std::wstring typeNamespace;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::TypeRef;
 
@@ -72,8 +72,8 @@ struct TypeRefRow {
 struct TypeDefRow {
     // 4-byte bit mask of type TypeAttributes
     uint32_t flags = 0;
-    std::vector<uint16_t> typeName;
-    std::vector<uint16_t> typeNamespace;
+    std::wstring typeName;
+    std::wstring typeNamespace;
     std::pair<uint32_t, CLIMetadataTableItem> extendsType;
 
     uint32_t fieldList = 0;
@@ -132,7 +132,7 @@ struct TypeDefRow {
 struct FieldDefRow {
     // 2-byte bit mask of type FieldAttributes
     uint16_t flags = 0;
-    std::vector<uint16_t> name;
+    std::wstring name;
     std::vector<uint32_t> signature;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::FieldDef;
@@ -174,7 +174,7 @@ struct MethodDefRow {
     uint16_t implFlags = 0;
     // 2-byte bit mask of type MethodAttribute
     uint16_t flags = 0;
-    std::vector<uint16_t> name;
+    std::wstring name;
     std::vector<uint32_t> signature;
     uint32_t paramList = 0;
 
@@ -248,7 +248,7 @@ struct ParamDefRow {
     uint16_t flags = 0;
     // 2-byte bit mask of type ParamAttributes
     uint16_t sequence = 0;
-    std::vector<uint16_t> name;
+    std::wstring name;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ParamDef;
 
@@ -280,7 +280,7 @@ struct InterfaceImplRow {
 
 struct MemberRefRow {
     std::pair<uint32_t, CLIMetadataTableItem> classRef;
-    std::vector<uint16_t> name;
+    std::wstring name;
     std::vector<uint32_t> signature;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MemberRef;
@@ -366,7 +366,7 @@ struct EventMapRow {
 struct EventRow {
     // 2-byte bit mask of type EventAttribute
     uint16_t eventFlags = 0;
-    std::vector<uint16_t> name;
+    std::wstring name;
     std::pair<uint32_t, CLIMetadataTableItem> eventType;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Event;
@@ -395,7 +395,7 @@ struct PropertyMapRow {
 struct PropertyRow {
     // 2-byte bit mask of type PropertyAttributes
     uint16_t flags = 0;
-    std::vector<uint16_t> name;
+    std::wstring name;
     std::vector<uint32_t> signature;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Property;
@@ -449,7 +449,7 @@ struct ImplMapRow {
     // 2-byte bit mask of type PInvokeAttributes
     uint16_t mappingFlags = 0;
     std::pair<uint32_t, CLIMetadataTableItem> memberForwarded;
-    std::vector<uint16_t> importName;
+    std::wstring importName;
     uint32_t importScope = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ImplMap;
@@ -510,8 +510,8 @@ struct AssemblyRow {
     // 4-byte bit mask of type AssemblyFlags
     uint32_t flags = 0;
     std::vector<uint8_t> publicKey;
-    std::vector<uint16_t> name;
-    std::vector<uint16_t> culture;
+    std::wstring name;
+    std::wstring culture;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Assembly;
 
@@ -567,8 +567,8 @@ struct AssemblyRefRow {
     // 4-byte bit mask of type AssemblyFlags
     uint32_t flags = 0;
     std::vector<uint8_t> publicKeyOrToken;
-    std::vector<uint16_t> name;
-    std::vector<uint16_t> culture;
+    std::wstring name;
+    std::wstring culture;
     std::vector<uint8_t> hashValue;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::AssemblyRef;
@@ -602,7 +602,7 @@ struct AssemblyRefOSRow {
 struct FileRow {
     // 4-byte bit mask of type FileAttributes
     uint32_t flags = 0;
-    std::vector<uint16_t> name;
+    std::wstring name;
     std::vector<uint8_t> hashValue;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::File;
@@ -620,8 +620,8 @@ struct ExportedTypeRow {
     // 4-byte bit mask of type TypeAttributes
     uint32_t flags = 0;
     uint32_t typeDefId = 0;
-    std::vector<uint16_t> typeName;
-    std::vector<uint16_t> typeNamespace;
+    std::wstring typeName;
+    std::wstring typeNamespace;
     std::pair<uint32_t, CLIMetadataTableItem> implementation;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ExportedType;
@@ -634,7 +634,7 @@ struct ManifestResourceRow {
     uint32_t offset;
     // 4-byte bit mask of type ManifestResourceAttributes
     uint32_t flags = 0;
-    std::vector<uint16_t> name;
+    std::wstring name;
     std::pair<uint32_t, CLIMetadataTableItem> implementation;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ManifestResource;
@@ -664,7 +664,7 @@ struct GenericParamRow {
     // 2-byte bitmask of type GenericParamAttributes
     uint16_t flags = 0;
     std::pair<uint32_t, CLIMetadataTableItem> owner;
-    std::vector<uint16_t> name;
+    std::wstring name;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::GenericParam;
 
