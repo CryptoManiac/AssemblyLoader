@@ -32,6 +32,4 @@ $(EXEC): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -I $(INCDIRS) -c -o $@ $<
 
 clean:
-	-rm -f picovm
-	-rm -f PicoVM/*.o
-	-rm -f PicoVM/CLR/*.o
+	-rm -rf $(EXEC) $(OBJECTS)
