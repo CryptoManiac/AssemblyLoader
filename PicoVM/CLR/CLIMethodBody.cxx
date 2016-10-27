@@ -14,7 +14,6 @@ string ExceptionClause::str() const {
 string MethodBody::str(bool fPrintBody) const {
     stringstream ss;
     ss << "MethodBody(" << endl
-       << " name=" << string(methodDef.name.begin(), methodDef.name.end()) << endl 
        << " bodypresent=" << dec << bodypresent << endl;
 
     if (bodypresent) {

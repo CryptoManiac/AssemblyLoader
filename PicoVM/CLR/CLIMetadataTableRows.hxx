@@ -10,6 +10,7 @@
 #include "CLIMetadata.hxx"
 #include "AssemblyReader.hxx"
 #include "CLIMetadataTableIndex.hxx"
+#include "CLIMethodBody.hxx"
 
 struct MetadataRowsReader {
     AssemblyReader& reader;
@@ -178,6 +179,10 @@ struct MethodDefRow {
     std::vector<uint32_t> signature;
     uint32_t paramList = 0;
 
+    // In memory only
+    MethodBody methodBody;
+
+    // For FillTable<T>()
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MethodDef;
 
     MethodDefRow() = default;

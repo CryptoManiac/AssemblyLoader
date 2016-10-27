@@ -40,20 +40,19 @@ int main(int argc, const char *argv[]) {
         auto type = static_cast<CLIMetadataTableItem>(entryPoint >> 24);
         cout << "Table name: " << getTableName(type) << endl;
 
-        MethodBody body;
-        clrData.getMethodBody(entryPoint & 0xFFFFFF, body);
+        const MethodDefRow& methodDef = clrData.getMethodDef(entryPoint);
 
-        cout << body.str(true) << endl;
+        cout << "methodName=" << string(methodDef.name.begin(), methodDef.name.end()) << endl;
+        cout << methodDef.methodBody.str(true) << endl;
     } else {
         cout << "No entrypoint, this must be a library assembly" << endl;
         cout << "List of methods defined by this assembly:" << endl << endl;
 
         for (uint32_t n = 1; n < clrData.getMethodCount(); ++n) {
-            MethodBody body;
-            clrData.getMethodBody(n, body);
-            cout << body.str(false) << endl;
+            const MethodDefRow& methodDef = clrData.getMethodDef(n);
 
-            // cout << string(body.methodDef.name.begin(), body.methodDef.name.end()) << endl;
+            cout << "MethodName=" << string(methodDef.name.begin(), methodDef.name.end()) << endl;
+            cout << methodDef.methodBody.str(true) << endl;
         }
     }
 

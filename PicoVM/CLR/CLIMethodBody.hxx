@@ -5,8 +5,6 @@
 #include <vector>
 #include <string>
 
-#include "CLIMetadataTableRows.hxx"
-
 enum struct MethodBodyFlags : uint8_t {
     TinyFormat = 0x2, // Method header is Tiny.
     FatFormat = 0x3,  // Method header is Fat.
@@ -39,7 +37,6 @@ enum struct ExceptionClauseFlags : uint16_t {
 };
 
 struct MethodBody {
-    MethodDefRow methodDef;
     std::vector<uint8_t> data;
     std::vector<uint32_t> localVarSigs;
     std::vector<ExceptionClause> exceptions;

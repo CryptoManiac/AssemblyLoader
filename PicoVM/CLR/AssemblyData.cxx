@@ -304,6 +304,11 @@ void AssemblyData::FillTables()
 
     // GenericParamConstraint
     FillTable<GenericParamConstraintRow>(mr, cliMetaDataTables._GenericParamConstraint);
+
+    // Load method bodies.
+    for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::MethodDef]; ++n) {
+        loadMethodBody(n);
+    }
 }
 
 // Get physical offset from the beginning of file.
@@ -319,23 +324,28 @@ uint32_t AssemblyData::getDataOffset(uint32_t address) const
     return numeric_limits<uint32_t>::max();
 }
 
+const MethodDefRow& AssemblyData::getMethodDef(uint32_t token) const
+{
+    return cliMetaDataTables._MethodDef[(token & 0xFFFFFF) - 1];
+}
+
 // Get method information
-void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody)
+void AssemblyData::loadMethodBody(uint32_t index)
 {
     using bflags = MethodBodyFlags;
     using eflags = ExceptionFlags;
 
-    methodBody.methodDef = cliMetaDataTables._MethodDef[index - 1];
-    methodBody.bodypresent = true;
+    MethodDefRow& methodDef = cliMetaDataTables._MethodDef[index];
+    MethodBody& methodBody = methodDef.methodBody;
 
-    if ((methodBody.methodDef.flags & _u(MethodDefRow::MethodAttribute::PinvokeImpl)) != 0 || 
-        (methodBody.methodDef.flags & _u(MethodDefRow::MethodAttribute::UnmanagedExport)) != 0 || methodBody.methodDef.rva == 0) {
-        // There is no code to search for. Method body must be located in another file.
+    if (methodDef.rva == 0) {
+        // There is no code to search for, it looks like we have a virtual or PInvoke method here.
         methodBody.bodypresent = false;
         return;
     }
 
-    auto offset = getDataOffset(methodBody.methodDef.rva);
+    methodBody.bodypresent = true;
+    auto offset = getDataOffset(methodDef.rva);
     auto format = bflags(reader[offset] & 0x03);
     reader.seek(offset);
 
@@ -426,15 +436,6 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody)
         methodBody.initLocals = ((flags & _u(bflags::InitLocals)) != 0);
     } else {
         throw runtime_error("Invalid body format.");
-    }
-}
-
-void AssemblyData::getEntryPoint(MethodBody& methodBody) {
-    auto entryPoint = cliHeader.entryPointToken;
-    if ((entryPoint >> 24) == _u(CLIMetadataTableItem::MethodDef)) {
-        getMethodBody(entryPoint & 0xFFFFFF, methodBody);
-    } else {
-        throw runtime_error("Invalid entry point.");
     }
 }
 
