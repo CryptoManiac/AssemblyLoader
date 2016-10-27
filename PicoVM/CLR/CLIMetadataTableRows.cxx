@@ -67,7 +67,7 @@ void MetadataRowsReader::swap(MetadataRowsReader& other) noexcept {
 
 
 // Read 16 or 32 bit index and get the utf8 string at this index.
-void MetadataRowsReader::readString(wstring& result) {
+void MetadataRowsReader::readString(u16string& result) {
     uint32_t offset = stringsIsLong ? reader.read_uint32() : reader.read_uint16();
     reader.read_utf8z(result, stringStreamOffset + offset, 0xffff);
 }
