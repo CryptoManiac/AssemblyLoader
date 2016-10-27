@@ -4,7 +4,7 @@ else
     CXX=g++
 endif
 
-CXXFLAGS=-g -std=c++11 -Wall -Wextra
+CXXFLAGS=-g -std=c++11 -Wall -Wextra -pedantic
 
 EXEC=picovm
 SOURCES= \
@@ -30,6 +30,8 @@ $(EXEC): $(OBJECTS)
 
 %.o: %.cxx
 	$(CXX) $(CXXFLAGS) -I $(INCDIRS) -c -o $@ $<
+
+$(VERBOSE).SILENT: clean
 
 clean:
 	-rm -rf $(EXEC) $(OBJECTS)
