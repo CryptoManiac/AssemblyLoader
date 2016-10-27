@@ -326,6 +326,15 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody)
     using eflags = ExceptionFlags;
 
     methodBody.methodDef = cliMetaDataTables._MethodDef[index - 1];
+    methodBody.bodypresent = true;
+
+    if ((methodBody.methodDef.flags & _u(MethodDefRow::MethodAttribute::PinvokeImpl)) != 0 || 
+        (methodBody.methodDef.flags & _u(MethodDefRow::MethodAttribute::UnmanagedExport)) != 0 || methodBody.methodDef.rva == 0) {
+        // There is no code to search for. Method body must be located in another file.
+        methodBody.bodypresent = false;
+        return;
+    }
+
     auto offset = getDataOffset(methodBody.methodDef.rva);
     auto format = bflags(reader[offset] & 0x03);
     reader.seek(offset);
@@ -415,7 +424,6 @@ void AssemblyData::getMethodBody(uint32_t index, MethodBody& methodBody)
         }
 
         methodBody.initLocals = ((flags & _u(bflags::InitLocals)) != 0);
-
     } else {
         throw runtime_error("Invalid body format.");
     }
@@ -430,10 +438,18 @@ void AssemblyData::getEntryPoint(MethodBody& methodBody) {
     }
 }
 
-const Guid& AssemblyData::getGUID() {
+size_t AssemblyData::getMethodCount() const {
+    return cliMetaDataTables._MethodDef.size();
+}
+
+const Guid& AssemblyData::getGUID() const {
     return cliMetaDataTables.module.guid;
 }
 
-const std::u16string& AssemblyData::getName() {
+const vector<AssemblyRefRow>& AssemblyData::getAssemblyRef() const {
+    return cliMetaDataTables._AssemblyRef;
+}
+
+const std::u16string& AssemblyData::getName() const {
     return cliMetaDataTables.module.name;
 } 

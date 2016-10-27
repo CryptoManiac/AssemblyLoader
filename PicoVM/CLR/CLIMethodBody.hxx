@@ -45,6 +45,7 @@ struct MethodBody {
     std::vector<ExceptionClause> exceptions;
     uint32_t maxStack = 0;
     bool initLocals = false;
+    bool bodypresent = false;
 
     std::string str(bool fPrintBody=false) const;
     std::string str() const;

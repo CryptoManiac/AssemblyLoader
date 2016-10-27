@@ -14,32 +14,37 @@ string ExceptionClause::str() const {
 string MethodBody::str(bool fPrintBody) const {
     stringstream ss;
     ss << "MethodBody(" << endl
-       << " name=" << string(methodDef.name.begin(), methodDef.name.end()) << endl
-       << " maxStack=" << dec << maxStack << endl;
+       << " name=" << string(methodDef.name.begin(), methodDef.name.end()) << endl 
+       << " bodypresent=" << dec << bodypresent << endl;
 
-    if (localVarSigs.size() > 0) {
-        ss << " localVarSigs=(" << hex << setfill('0') << endl;
-        for (const auto signature : localVarSigs) {
-            ss << "  " << setw(2) << signature << endl;
+    if (bodypresent) {
+
+        ss << " maxStack=" << dec << maxStack << endl;
+
+        if (localVarSigs.size() > 0) {
+            ss << " localVarSigs=(" << hex << setfill('0') << endl;
+            for (const auto signature : localVarSigs) {
+                ss << "  " << setw(2) << signature << endl;
+            }
+            ss << " )" << endl;
         }
-        ss << " )" << endl;
-    }
-    ss << " initLocals=" << dec << initLocals << endl;
+        ss << " initLocals=" << dec << initLocals << endl;
 
-    if (exceptions.size() != 0) {
-        ss << " Exceptions(" << endl;
-        for(const auto& exception : exceptions) {
-            ss << "   " << exception.str() << endl;
+        if (exceptions.size() != 0) {
+            ss << " Exceptions(" << endl;
+            for(const auto& exception : exceptions) {
+                ss << "   " << exception.str() << endl;
+            }
+            ss << " )" << endl;
         }
-        ss << " )" << endl;
-    }
 
-    if (fPrintBody) {
-        ss << " Body(" << endl 
-           << "  " << HexStr(data.cbegin(), data.cend(), true) << endl 
-           << " )" << endl; 
-    } else {
-        ss << " bodySize=" << dec << data.size() << endl; 
+        if (fPrintBody) {
+            ss << " Body(" << endl 
+            << "  " << HexStr(data.cbegin(), data.cend(), true) << endl 
+            << " )" << endl; 
+        } else {
+            ss << " bodySize=" << dec << data.size() << endl; 
+        }
     }
 
     ss << ")";

@@ -76,8 +76,10 @@ public:
     uint32_t getDataOffset(uint32_t address) const;
     void getMethodBody(uint32_t index, MethodBody& methodBody);
     void getEntryPoint(MethodBody& methodBody);
-    const Guid& getGUID();
-    const std::u16string& getName();
+    size_t getMethodCount() const;
+    const Guid& getGUID() const;
+    const std::vector<AssemblyRefRow>& getAssemblyRef() const;
+    const std::u16string& getName() const;
 
 private:
     // Image header

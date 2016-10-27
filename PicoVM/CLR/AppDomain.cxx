@@ -47,8 +47,8 @@ void AppDomain::ExecutionThread::swap(AppDomain::ExecutionThread& other) noexcep
     evaluationStack.swap(other.evaluationStack);
 }
 
-AppDomain::CallStackItem::CallStackItem(uint32_t methodToken, AssemblyData& callingAssembly, AssemblyData& executingAssembly)
-         : methodToken(methodToken), callingAssembly(callingAssembly), executingAssembly(executingAssembly), appDomain(appDomain), thread(thread) {}
+AppDomain::CallStackItem::CallStackItem(AppDomain& appDomain, AppDomain::ExecutionThread& thread, AssemblyData& assembly, uint32_t methodToken)
+         : appDomain(appDomain), thread(thread), callingAssembly(assembly), executingAssembly(assembly), methodToken(methodToken) {}
 
 AppDomain::CallStackItem& AppDomain::CallStackItem::operator=(const AppDomain::CallStackItem& other) {
     AppDomain::CallStackItem(other).swap(*this);

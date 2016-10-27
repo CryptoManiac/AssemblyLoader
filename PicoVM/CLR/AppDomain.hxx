@@ -43,14 +43,14 @@ struct AppDomain {
     void swap(AppDomain& other) noexcept;
 
     struct CallStackItem {
-        uint32_t methodToken;
-        AssemblyData& callingAssembly;
-        AssemblyData& executingAssembly;
         AppDomain& appDomain;
         ExecutionThread& thread;
+        AssemblyData& callingAssembly;
+        AssemblyData& executingAssembly;
+        uint32_t methodToken;
         uint32_t prevStackLength = 0;
 
-        CallStackItem(uint32_t methodToken, AssemblyData& callingAssembly, AssemblyData& executingAssembly);
+        CallStackItem(AppDomain& appDomain, ExecutionThread& thread, AssemblyData& assembly, uint32_t methodToken);
         CallStackItem(const CallStackItem& other) = default;
         CallStackItem(CallStackItem&& other) = default;
 

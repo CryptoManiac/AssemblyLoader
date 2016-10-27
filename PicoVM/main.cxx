@@ -34,15 +34,28 @@ int main(int argc, const char *argv[]) {
     cout << clrData.cliMetaDataTables.module.str() << endl;
 
     uint32_t entryPoint = clrData.cliHeader.entryPointToken;
-    cout << "entryPoint: " << hex << entryPoint << endl;
+    if (entryPoint != 0) {
+        cout << "entryPoint: " << hex << entryPoint << endl;
 
-    auto type = static_cast<CLIMetadataTableItem>(entryPoint >> 24);
-    cout << "Table name: " << getTableName(type) << endl;
+        auto type = static_cast<CLIMetadataTableItem>(entryPoint >> 24);
+        cout << "Table name: " << getTableName(type) << endl;
 
-    MethodBody body;
-    clrData.getMethodBody(entryPoint & 0xFFFFFF, body);
+        MethodBody body;
+        clrData.getMethodBody(entryPoint & 0xFFFFFF, body);
 
-    cout << body.str(true) << endl;
+        cout << body.str(true) << endl;
+    } else {
+        cout << "No entrypoint, this must be a library assembly" << endl;
+        cout << "List of methods defined by this assembly:" << endl << endl;
+
+        for (uint32_t n = 1; n < clrData.getMethodCount(); ++n) {
+            MethodBody body;
+            clrData.getMethodBody(n, body);
+            cout << body.str(false) << endl;
+
+            // cout << string(body.methodDef.name.begin(), body.methodDef.name.end()) << endl;
+        }
+    }
 
     return 0;
 }
