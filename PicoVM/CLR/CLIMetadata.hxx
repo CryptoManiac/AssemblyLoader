@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <cstdint>
+#include <string>
 
 struct CLIMetadata {
     uint32_t cliMetadataOffset; // In memory only
