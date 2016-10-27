@@ -8,7 +8,7 @@
 struct CLIMetadata {
     uint32_t cliMetadataOffset; // In memory only
 
-    std::wstring version;
+    std::u16string version;
     uint16_t streamsCount = 0;
 
     struct CLIStream {

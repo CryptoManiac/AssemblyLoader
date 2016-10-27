@@ -44,7 +44,7 @@ public:
         std::vector<PropertyRow> _Property;
         std::vector<MethodSemanticsRow> _MethodSemantics;
         std::vector<MethodImplRow> _MethodImpl;
-        std::vector<std::wstring> _ModuleRef;
+        std::vector<std::u16string> _ModuleRef;
         std::vector<std::vector<uint32_t> > _TypeSpec;
         std::vector<ImplMapRow> _ImplMap;
         std::vector<FieldRVARow> _FieldRVA;
@@ -77,7 +77,7 @@ public:
     void getMethodBody(uint32_t index, MethodBody& methodBody);
     void getEntryPoint(MethodBody& methodBody);
     const Guid& getGUID();
-    const std::wstring& getName();
+    const std::u16string& getName();
 
 private:
     // Image header

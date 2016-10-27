@@ -245,7 +245,7 @@ void AssemblyData::FillTables()
     // ModuleRef
     cliMetaDataTables._ModuleRef.reserve(mr.mapTableLength[CLIMetadataTableItem::ModuleRef]);
     for (uint32_t n = 0; n < mr.mapTableLength[CLIMetadataTableItem::ModuleRef]; ++n) {
-        wstring name;
+        u16string name;
         mr.readString(name);
         cliMetaDataTables._ModuleRef.push_back(name);
     }
@@ -434,6 +434,6 @@ const Guid& AssemblyData::getGUID() {
     return cliMetaDataTables.module.guid;
 }
 
-const std::wstring& AssemblyData::getName() {
+const std::u16string& AssemblyData::getName() {
     return cliMetaDataTables.module.name;
 } 
