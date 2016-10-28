@@ -8,24 +8,25 @@
 
 struct AppDomain {
     struct CallStackItem;
-    enum struct ThreadExecutionState : uint8_t;
 
     struct ExecutionThread {
         AppDomain& appDomain;
-        std::vector<CallStackItem> callStack;
+        std::deque<CallStackItem> callStack;
         std::deque<EvaluationStackItem> evaluationStack;
-        ThreadExecutionState state = ThreadExecutionState::Undefined;
 
         ExecutionThread(AppDomain& appDomain);
         ExecutionThread(const ExecutionThread& other) = default;
         ExecutionThread(ExecutionThread&& other) = default;
+
+        void setStartupFrame(const Guid& assemblyGuid);
+        bool run();
 
         ExecutionThread& operator=(const ExecutionThread& other);
         void swap(ExecutionThread& other) noexcept;
     };
 
     std::map<Guid, AssemblyData> assemblies;
-    std::vector<ExecutionThread> threads;
+    std::deque<ExecutionThread> threads;
 
     template<typename T>
     const Guid& loadAssembly(const T& assembly) {
@@ -37,19 +38,23 @@ struct AppDomain {
     AssemblyData& getAssembly(const Guid& guid);
     AssemblyData& getAssembly(const std::u16string& name, const std::vector<uint16_t>& version);
 
+    ExecutionThread& createThread();
+
     AppDomain() = default;
     AppDomain(const AppDomain& other) = default;
     AppDomain(AppDomain&& other) = default;
     AppDomain& operator=(const AppDomain& other);
     void swap(AppDomain& other) noexcept;
 
+    enum struct ExecutionState : uint8_t;
     struct CallStackItem {
         AppDomain& appDomain;
         ExecutionThread& thread;
         AssemblyData& callingAssembly;
         AssemblyData& executingAssembly;
         uint32_t methodToken;
-        uint32_t prevStackLength = 0;
+        uint32_t prevStackSize = 0;
+        ExecutionState state = ExecutionState::Undefined;
 
         CallStackItem(AppDomain& appDomain, ExecutionThread& thread, AssemblyData& assembly, uint32_t methodToken);
         CallStackItem(const CallStackItem& other) = default;
@@ -62,7 +67,7 @@ struct AppDomain {
         MethodBody methodBody;
     };
 
-    enum struct ThreadExecutionState : uint8_t {
+    enum struct ExecutionState : uint8_t {
         FrameSetup = 0,
         MethodBodyExecution = 1,
         WaitForAssembly = 2,
