@@ -7,7 +7,39 @@
 #include "AssemblyData.hxx"
 
 struct AppDomain {
-    struct CallStackItem;
+
+    enum struct ExecutionState : uint8_t {
+        FrameSetup = 0,
+        MethodBodyExecution = 1,
+        WaitForAssembly = 2,
+        AssemblySetup = 3,
+        NativeMethodExecution = 4,
+        MethodExecution = 5,
+        Cleanup = 6,
+        Undefined = 7
+    };
+
+    struct ExecutionThread;
+
+    struct CallStackItem {
+        AppDomain& appDomain;
+        ExecutionThread& thread;
+        AssemblyData& callingAssembly;
+        AssemblyData& executingAssembly;
+        uint32_t methodToken;
+        uint32_t prevStackSize = 0;
+        ExecutionState state = ExecutionState::Undefined;
+
+        CallStackItem(AppDomain& appDomain, ExecutionThread& thread, AssemblyData& assembly, uint32_t methodToken);
+        CallStackItem(const CallStackItem& other) = default;
+        CallStackItem(CallStackItem&& other) = default;
+
+        CallStackItem& operator=(const CallStackItem& other);
+        void swap(CallStackItem& other) noexcept;
+
+    private:
+        MethodBody methodBody;
+    };
 
     struct ExecutionThread {
         AppDomain& appDomain;
@@ -46,37 +78,6 @@ struct AppDomain {
     AppDomain& operator=(const AppDomain& other);
     void swap(AppDomain& other) noexcept;
 
-    enum struct ExecutionState : uint8_t;
-    struct CallStackItem {
-        AppDomain& appDomain;
-        ExecutionThread& thread;
-        AssemblyData& callingAssembly;
-        AssemblyData& executingAssembly;
-        uint32_t methodToken;
-        uint32_t prevStackSize = 0;
-        ExecutionState state = ExecutionState::Undefined;
-
-        CallStackItem(AppDomain& appDomain, ExecutionThread& thread, AssemblyData& assembly, uint32_t methodToken);
-        CallStackItem(const CallStackItem& other) = default;
-        CallStackItem(CallStackItem&& other) = default;
-
-        CallStackItem& operator=(const CallStackItem& other);
-        void swap(CallStackItem& other) noexcept;
-
-    private:
-        MethodBody methodBody;
-    };
-
-    enum struct ExecutionState : uint8_t {
-        FrameSetup = 0,
-        MethodBodyExecution = 1,
-        WaitForAssembly = 2,
-        AssemblySetup = 3,
-        NativeMethodExecution = 4,
-        MethodExecution = 5,
-        Cleanup = 6,
-        Undefined = 7
-    };
 };
 
 #endif
