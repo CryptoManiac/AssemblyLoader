@@ -6,7 +6,7 @@ set( SRC_DIR ${PROJECT_SOURCE_DIR} )
 
 set( CMAKE_BUILD_TYPE DEBUG )
 
-set( CMAKE_CXX_FLAGS_DEBUG "-g -std=c++11 -Wall -Wextra")
+set( CMAKE_CXX_FLAGS_DEBUG "-g -Og -std=c++11 -Wall -Wextra")
 
 set( APP_NAME picovm )
 
