@@ -86,6 +86,7 @@ bool AppDomain::ExecutionThread::run() {
             case ExecutionState::NativeMethodExecution:
             case ExecutionState::MethodExecution:
             case ExecutionState::Cleanup:
+            case ExecutionState::Undefined:
             default:
                 throw runtime_error("NYI");
         }
