@@ -1,8 +1,9 @@
 #ifndef __APPDOMAIN_HXX__
 #define __APPDOMAIN_HXX__
 
-#include <vector>
 #include <cstdint>
+#include <vector>
+#include <deque>
 #include "EvaluationStackItem.hxx"
 #include "AssemblyData.hxx"
 
@@ -12,7 +13,7 @@ struct AppDomain {
         FrameSetup = 0,
         MethodBodyExecution = 1,
         WaitForAssembly = 2,
-        AssemblySetup = 3,
+        AssemblySet = 3,
         NativeMethodExecution = 4,
         MethodExecution = 5,
         Cleanup = 6,
@@ -26,9 +27,13 @@ struct AppDomain {
         ExecutionThread& thread;
         AssemblyData& callingAssembly;
         AssemblyData& executingAssembly;
-        uint32_t methodToken;
+        uint32_t methodToken = 0;
         uint32_t prevStackSize = 0;
-        ExecutionState state = ExecutionState::Undefined;
+        std::vector<EvaluationStackItem> locals;
+        std::vector<EvaluationStackItem> arguments;
+        ExecutionState state = AppDomain::ExecutionState::Undefined;
+
+        MethodBody methodBody; // TODO: replace with reference or pointer
 
         CallStackItem(AppDomain& appDomain, ExecutionThread& thread, AssemblyData& assembly, uint32_t methodToken);
         CallStackItem(const CallStackItem& other) = default;
@@ -36,9 +41,6 @@ struct AppDomain {
 
         CallStackItem& operator=(const CallStackItem& other);
         void swap(CallStackItem& other) noexcept;
-
-    private:
-        MethodBody methodBody;
     };
 
     struct ExecutionThread {
