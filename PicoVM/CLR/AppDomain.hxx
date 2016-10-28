@@ -35,6 +35,7 @@ struct AppDomain {
     
     const Guid& loadAssembly(AssemblyData& assemblyData);
     AssemblyData& getAssembly(const Guid& guid);
+    AssemblyData& getAssembly(const std::u16string& name, const std::vector<uint16_t>& version);
 
     AppDomain() = default;
     AppDomain(const AppDomain& other) = default;

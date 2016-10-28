@@ -21,6 +21,15 @@ AssemblyData& AppDomain::getAssembly(const Guid& guid) {
     return (*result).second;
 }
 
+AssemblyData& AppDomain::getAssembly(const u16string& name, const vector<uint16_t>& version) {
+    for (auto it = assemblies.begin(); it != assemblies.end(); ++it) {
+        if ((*it).second.getName() == name && (*it).second.getVersion() == version) {
+            return(*it).second; 
+        }
+    }
+    throw runtime_error("No such assembly in this domain");
+}
+
 AppDomain& AppDomain::operator=(const AppDomain& other) {
     AppDomain(other).swap(*this);
     return *this;

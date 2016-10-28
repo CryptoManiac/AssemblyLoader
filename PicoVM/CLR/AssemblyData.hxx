@@ -75,10 +75,12 @@ public:
 
     uint32_t getDataOffset(uint32_t address) const;
     size_t getMethodCount() const;
-    const Guid& getGUID() const;
-    const std::vector<AssemblyRefRow>& getAssemblyRef() const;
     const MethodDefRow& getMethodDef(uint32_t token) const;
+
+    const Guid& getGUID() const;
     const std::u16string& getName() const;
+    const std::vector<uint16_t>& getVersion() const;
+    const std::vector<AssemblyRefRow>& getAssemblyRef() const;
 
 private:
     // Image header

@@ -447,10 +447,14 @@ const Guid& AssemblyData::getGUID() const {
     return cliMetaDataTables.module.guid;
 }
 
+const u16string& AssemblyData::getName() const {
+    return cliMetaDataTables._Assembly[0].name;
+} 
+
 const vector<AssemblyRefRow>& AssemblyData::getAssemblyRef() const {
     return cliMetaDataTables._AssemblyRef;
 }
 
-const std::u16string& AssemblyData::getName() const {
-    return cliMetaDataTables.module.name;
-} 
+const vector<uint16_t>& AssemblyData::getVersion() const {
+    return cliMetaDataTables._Assembly[0].version;
+}

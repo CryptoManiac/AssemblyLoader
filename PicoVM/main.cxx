@@ -28,10 +28,15 @@ int main(int argc, const char *argv[]) {
     domain.loadAssembly(*assembly); // double-loading attempt
     delete assembly; // deleting original object
 
-    AssemblyData& clrData = domain.getAssembly(id); // getting AssemblyData reference from the AppDomain
+    AssemblyData& clrData1 = domain.getAssembly(id); // getting AssemblyData reference from our AppDomain, using GUID as a key
+    AssemblyData& clrData = domain.getAssembly(clrData1.getName(), clrData1.getVersion()); // getting AssemblyData reference from our AppDomain, using name and value pair as a key 
 
     // Print some module and entrypoint data.
     cout << clrData.cliMetaDataTables.module.str() << endl;
+    auto version = clrData.getVersion();
+    auto name = clrData.getName();
+    cout << "Name: " << string(name.begin(), name.end()) << endl; 
+    cout << "Version: " << dec << version[0] << " " << version[1] << " " << version[2] << " " << version[3] << endl; 
 
     uint32_t entryPoint = clrData.cliHeader.entryPointToken;
     if (entryPoint != 0) {
