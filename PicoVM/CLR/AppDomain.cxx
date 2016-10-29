@@ -40,7 +40,6 @@ AppDomain& AppDomain::operator=(const AppDomain& other) {
 }
 
 void AppDomain::swap(AppDomain& other) noexcept {
-    using std::swap;
     assemblies.swap(other.assemblies);
     threads.swap(other.threads);
 }
@@ -141,8 +140,7 @@ bool AppDomain::ExecutionThread::run() {
 }
 
 void AppDomain::ExecutionThread::swap(AppDomain::ExecutionThread& other) noexcept {
-    using std::swap;
-    swap(appDomain, other.appDomain);
+    ::swap(appDomain, other.appDomain);
     callStack.swap(other.callStack);
     evaluationStack.swap(other.evaluationStack);
 }
@@ -156,14 +154,12 @@ AppDomain::CallStackItem& AppDomain::CallStackItem::operator=(const AppDomain::C
 }
 
 void AppDomain::CallStackItem::swap(AppDomain::CallStackItem& other) noexcept {
-    using std::swap;
-    
-    swap(methodToken, other.methodToken);
-    swap(methodBody, other.methodBody);
-    swap(callingAssembly, other.callingAssembly);
-    swap(executingAssembly, other.executingAssembly);
-    swap(appDomain, other.appDomain);
-    swap(thread, other.thread);
-    swap(state, other.state);
-    swap(prevStackSize, other.prevStackSize);
+    ::swap(methodToken, other.methodToken);
+    ::swap(methodBody, other.methodBody);
+    ::swap(callingAssembly, other.callingAssembly);
+    ::swap(executingAssembly, other.executingAssembly);
+    ::swap(appDomain, other.appDomain);
+    ::swap(thread, other.thread);
+    ::swap(state, other.state);
+    ::swap(prevStackSize, other.prevStackSize);
 }

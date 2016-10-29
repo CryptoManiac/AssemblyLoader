@@ -51,13 +51,11 @@ AssemblyData& AssemblyData::operator=(const AssemblyData& other) {
 }
 
 void AssemblyData::swap(AssemblyData& other) noexcept {
-    using std::swap;
-
     sections.swap(other.sections);
-    swap(cliHeader, other.cliHeader);
-    swap(cliMetadata, other.cliMetadata);
-    swap(cliMetaDataTables, other.cliMetaDataTables);
-    swap(fileHeader, other.fileHeader);
+    ::swap(cliHeader, other.cliHeader);
+    ::swap(cliMetadata, other.cliMetadata);
+    ::swap(cliMetaDataTables, other.cliMetaDataTables);
+    ::swap(fileHeader, other.fileHeader);
     reader.swap(other.reader);
 }
 

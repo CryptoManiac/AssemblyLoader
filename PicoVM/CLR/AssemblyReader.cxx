@@ -21,9 +21,8 @@ AssemblyReader& AssemblyReader::operator=(const AssemblyReader& other) {
 }
 
 void AssemblyReader::swap(AssemblyReader& other) noexcept {
-    using std::swap;
     data.swap(other.data);
-    swap(pc, other.pc);
+    ::swap(pc, other.pc);
 }
 
 void AssemblyReader::seek(uint32_t offset)
