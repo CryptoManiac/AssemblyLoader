@@ -12,6 +12,7 @@ SOURCES= \
          PicoVM/CLR/AppDomain.cxx \
          PicoVM/CLR/AssemblyData.cxx \
          PicoVM/CLR/CLIMetadata.cxx \
+         PicoVM/CLR/ExecutionThread.cxx \
          PicoVM/CLR/CLIMetadataTableIndex.cxx \
          PicoVM/CLR/CLIMetadataTableRows.cxx \
          PicoVM/CLR/CLIElementTypes.cxx \
