@@ -34,12 +34,3 @@ ExecutionThread* AppDomain::createThread() {
     threads.insert(threads.begin(), thread);
     return thread.get();
 }
-
-
-/*
-
-bool AppDomain::ExecutionThread::run() {
-}
-
-
-*/
