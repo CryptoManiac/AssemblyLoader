@@ -60,14 +60,9 @@ string Guid::str() const {
     return ss.str();
 }
 
-const char *Guid::c_str() const {
-  return str().c_str();
-}
-
 // create a guid from vector of bytes
-Guid::Guid(const vector<uint8_t> &bytes)
+Guid::Guid(const vector<uint8_t> &bytes) : _bytes(bytes)
 {
-  _bytes = bytes;
 }
 
 // create a guid from array of bytes
