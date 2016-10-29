@@ -36,7 +36,6 @@ enum struct ExceptionClauseFlags : uint16_t {
     ClauseFault = 0x0004      // Fault clause(finally that is called on the exception only)
 };
 
-struct MethodDefRow;
 struct MethodBody {
     std::vector<uint8_t> data;
     std::vector<uint32_t> localVarSigs;

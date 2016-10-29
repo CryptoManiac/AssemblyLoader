@@ -1,5 +1,4 @@
 #include "CLIMethodBody.hxx"
-#include "CLIMetadataTableRows.hxx"
 #include "HexStr.hxx"
 #include <sstream>
 #include <iomanip>
