@@ -1,4 +1,5 @@
 #include "CLIMethodBody.hxx"
+#include "CLIMetadataTableRows.hxx"
 #include "HexStr.hxx"
 #include <sstream>
 #include <iomanip>
@@ -13,10 +14,8 @@ string ExceptionClause::str() const {
 
 string MethodBody::str(bool fPrintBody) const {
     stringstream ss;
-    ss << "MethodBody(" << endl
-       << " bodypresent=" << dec << bodypresent << endl;
-
-    if (bodypresent) {
+    ss << "MethodBody(" << endl;
+    if (data.size() != 0) {
 
         ss << " maxStack=" << dec << maxStack << endl;
 
@@ -68,5 +67,4 @@ void MethodBody::swap(MethodBody & other) noexcept
     ::swap(exceptions, other.exceptions);
     ::swap(maxStack, other.maxStack);
     ::swap(initLocals, other.initLocals);
-    ::swap(bodypresent, other.bodypresent);
 }

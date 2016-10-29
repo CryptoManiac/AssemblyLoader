@@ -19,14 +19,16 @@ bool ExecutionThread::run() {
             switch (frame->methodToken >> 24) {
             case 0x06: // MethodDef
             {
+                auto index = (frame->methodToken & 0xFFFFFF) - 1;
+                frame->methodDef = &clrData->cliMetaDataTables._MethodDef[index];
                 frame->executingAssembly = frame->callingAssembly;
-                frame->methodBody = clrData->getMethodBody(frame->methodToken);
                 frame->state = ExecutionState::MethodBodyExecution;
             }
             break;
             case 0x0A: // MemberRef
             {
-                auto memberRef = clrData->cliMetaDataTables._MemberRef[frame->methodToken & 0xFFFFFF];
+                auto index = (frame->methodToken & 0xFFFFFF) - 1;
+                auto memberRef = clrData->cliMetaDataTables._MemberRef[index];
                 auto signature = memberRef.signature;
 
                 switch (memberRef.classRef.second) {
@@ -65,8 +67,6 @@ bool ExecutionThread::run() {
         break;
         case ExecutionState::MethodBodyExecution:
             frame->instructionPointer = 0;
-            frame->localVarSigs = frame->methodBody.localVarSigTok;
-            frame->methodDefSig = frame->methodBody.methodDef.signature;
             frame->state = ExecutionState::MethodExecution;
             // TODO: decode methodDefSig and localVarSigs 
 
@@ -96,6 +96,7 @@ bool ExecutionThread::run() {
         default:
             throw runtime_error("NYI");
         }
+        if (callStack.size() == 0) break;
     } while (result);
 
     return result;

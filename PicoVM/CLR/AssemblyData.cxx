@@ -327,12 +327,6 @@ const MethodDefRow& AssemblyData::getMethodDef(uint32_t token) const
     return cliMetaDataTables._MethodDef[(token & 0xFFFFFF) - 1];
 }
 
-const MethodBody* AssemblyData::getMethodBody(uint32_t token) const
-{
-    auto index = (token & 0xFFFFFF) - 1;
-    if (!cliMetaDataTables._MethodDef[index].methodBody.bodypresent) return nullptr;
-    return &cliMetaDataTables._MethodDef[index].methodBody;
-}
 
 // Get method information
 void AssemblyData::loadMethodBody(uint32_t index)
@@ -345,11 +339,9 @@ void AssemblyData::loadMethodBody(uint32_t index)
 
     if (methodDef.rva == 0) {
         // There is no code to search for, it looks like we have a virtual or PInvoke method here.
-        methodBody.bodypresent = false;
         return;
     }
 
-    methodBody.bodypresent = true;
     auto offset = getDataOffset(methodDef.rva);
     auto format = bflags(reader[offset] & 0x03);
     reader.seek(offset);

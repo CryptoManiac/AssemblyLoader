@@ -20,7 +20,7 @@ enum struct ExecutionState : uint8_t {
 };
 
 struct AppDomain; // forward declaration
-struct MethodBody;
+struct MethodDefRow;
 class AssemblyData;
 struct ExecutionThread;
 
@@ -29,7 +29,7 @@ struct CallStackItem {
     ExecutionThread* thread = nullptr;
     const AssemblyData* callingAssembly = nullptr;
     const AssemblyData* executingAssembly = nullptr;
-    const MethodBody* methodBody = nullptr;
+    const MethodDefRow* methodDef = nullptr;
 
     uint32_t methodToken = 0;
     uint32_t prevStackSize = 0;
@@ -44,7 +44,7 @@ struct CallStackItem {
 };
 
 
-struct ExecutionThread : std::enable_shared_from_this<ExecutionThread> {
+struct ExecutionThread {
     const AppDomain* appDomain = nullptr;
     std::deque<CallStackItem> callStack;
     std::deque<EvaluationStackItem> evaluationStack;
