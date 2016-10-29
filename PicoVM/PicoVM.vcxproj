@@ -161,7 +161,7 @@
     <ClCompile Include="CLR\CLISignature.cxx" />
     <ClCompile Include="CLR\crossguid\guid.cxx" />
     <ClCompile Include="CLR\HexStr.cxx" />
-    <ClCompile Include="ExecutionThread.cxx" />
+    <ClCompile Include="CLR\ExecutionThread.cxx" />
     <ClCompile Include="main.cxx" />
   </ItemGroup>
   <ItemGroup>
