@@ -161,6 +161,7 @@
     <ClCompile Include="CLR\CLISignature.cxx" />
     <ClCompile Include="CLR\crossguid\guid.cxx" />
     <ClCompile Include="CLR\HexStr.cxx" />
+    <ClCompile Include="ExecutionThread.cxx" />
     <ClCompile Include="main.cxx" />
   </ItemGroup>
   <ItemGroup>
@@ -177,6 +178,7 @@
     <ClInclude Include="CLR\crossguid\guid.hxx" />
     <ClInclude Include="CLR\EnumCasting.hxx" />
     <ClInclude Include="CLR\EvaluationStackItem.hxx" />
+    <ClInclude Include="CLR\ExecutionThread.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
     <ClInclude Include="CLR\ImageDataDirectory.hxx" />
     <ClInclude Include="CLR\ImageFileHeader.hxx" />

@@ -51,6 +51,9 @@
     <ClCompile Include="CLR\AppDomain.cxx">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="ExecutionThread.cxx">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLR\AssemblyData.hxx">
@@ -120,6 +123,9 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="CLR\EvaluationStackItem.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CLR\ExecutionThread.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>

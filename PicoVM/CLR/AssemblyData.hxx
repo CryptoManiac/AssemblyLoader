@@ -76,6 +76,7 @@ public:
     uint32_t getDataOffset(uint32_t address) const;
     size_t getMethodCount() const;
     const MethodDefRow& getMethodDef(uint32_t token) const;
+    const MethodBody* getMethodBody(uint32_t token) const;
 
     const Guid& getGUID() const;
     const std::u16string& getName() const;

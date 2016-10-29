@@ -9,7 +9,7 @@ using namespace std;
 
 int main(int argc, const char *argv[]) {
 
-    AssemblyData *assembly;
+    const AssemblyData *assembly;
 
     if (argc > 1) {
         assembly = new AssemblyData(argv[1]);
@@ -26,26 +26,25 @@ int main(int argc, const char *argv[]) {
     AppDomain domain;
     const auto& id = domain.loadAssembly(*assembly); // loading
     domain.loadAssembly(*assembly); // double-loading attempt
-    delete assembly; // deleting original object
 
-    AssemblyData& clrData1 = domain.getAssembly(id); // getting AssemblyData reference from our AppDomain, using GUID as a key
-    AssemblyData& clrData = domain.getAssembly(clrData1.getName(), clrData1.getVersion()); // getting AssemblyData reference from our AppDomain, using name and value pair as a key 
+    const auto* clrData1 = domain.getAssembly(id); // getting AssemblyData reference from our AppDomain, using GUID as a key
+    const auto* clrData = domain.getAssembly(clrData1->getName(), clrData1->getVersion()); // getting AssemblyData reference from our AppDomain, using name and value pair as a key 
 
     // Print some module and entrypoint data.
-    cout << clrData.cliMetaDataTables.module.str() << endl;
-    auto version = clrData.getVersion();
-    auto name = clrData.getName();
+    cout << clrData->cliMetaDataTables.module.str() << endl;
+    auto version = clrData->getVersion();
+    auto name = clrData->getName();
     cout << "Name: " << string(name.begin(), name.end()) << endl; 
     cout << "Version: " << dec << version[0] << " " << version[1] << " " << version[2] << " " << version[3] << endl; 
 
-    uint32_t entryPoint = clrData.cliHeader.entryPointToken;
+    uint32_t entryPoint = clrData->cliHeader.entryPointToken;
     if (entryPoint != 0) {
         cout << "entryPoint: " << hex << entryPoint << endl;
 
         auto type = static_cast<CLIMetadataTableItem>(entryPoint >> 24);
         cout << "Table name: " << getTableName(type) << endl;
 
-        const MethodDefRow& methodDef = clrData.getMethodDef(entryPoint);
+        const MethodDefRow& methodDef = clrData->getMethodDef(entryPoint);
 
         cout << "methodName=" << string(methodDef.name.begin(), methodDef.name.end()) << endl;
         cout << methodDef.methodBody.str(true) << endl;
@@ -53,8 +52,8 @@ int main(int argc, const char *argv[]) {
         cout << "No entrypoint, this must be a library assembly" << endl;
         cout << "List of methods defined by this assembly:" << endl << endl;
 
-        for (uint32_t n = 1; n < clrData.getMethodCount(); ++n) {
-            const MethodDefRow& methodDef = clrData.getMethodDef(n);
+        for (uint32_t n = 1; n < clrData->getMethodCount(); ++n) {
+            const MethodDefRow& methodDef = clrData->getMethodDef(n);
 
             cout << "MethodName=" << string(methodDef.name.begin(), methodDef.name.end()) << endl;
             cout << methodDef.methodBody.str(true) << endl;

@@ -3,82 +3,28 @@
 
 #include <cstdint>
 #include <vector>
-#include <deque>
-#include "EvaluationStackItem.hxx"
+#include <map>
+#include <memory>
+#include <string>
+
 #include "AssemblyData.hxx"
+#include "ExecutionThread.hxx"
+#include "crossguid/guid.hxx"
 
 struct AppDomain {
+    std::map<Guid, std::shared_ptr<const AssemblyData> > assemblies;
+    std::vector<std::shared_ptr<ExecutionThread> > threads;
 
-    enum struct ExecutionState : uint8_t {
-        FrameSetup = 0,
-        MethodBodyExecution = 1,
-        WaitForAssembly = 2,
-        AssemblySet = 3,
-        NativeMethodExecution = 4,
-        MethodExecution = 5,
-        Cleanup = 6,
-        Undefined = 7
-    };
-
-    struct ExecutionThread;
-
-    struct CallStackItem {
-        AppDomain& appDomain;
-        ExecutionThread& thread;
-        AssemblyData& callingAssembly;
-        AssemblyData& executingAssembly;
-        uint32_t methodToken = 0;
-        uint32_t prevStackSize = 0;
-        std::vector<EvaluationStackItem> locals;
-        std::vector<EvaluationStackItem> arguments;
-        ExecutionState state = AppDomain::ExecutionState::Undefined;
-
-        MethodBody methodBody; // TODO: replace with reference or pointer
-
-        CallStackItem(AppDomain& appDomain, ExecutionThread& thread, AssemblyData& assembly, uint32_t methodToken);
-        CallStackItem(const CallStackItem& other) = default;
-        CallStackItem(CallStackItem&& other) = default;
-
-        CallStackItem& operator=(const CallStackItem& other);
-        void swap(CallStackItem& other) noexcept;
-    };
-
-    struct ExecutionThread {
-        AppDomain& appDomain;
-        std::deque<CallStackItem> callStack;
-        std::deque<EvaluationStackItem> evaluationStack;
-
-        ExecutionThread(AppDomain& appDomain);
-        ExecutionThread(const ExecutionThread& other) = default;
-        ExecutionThread(ExecutionThread&& other) = default;
-
-        void setStartupFrame(const Guid& assemblyGuid);
-        bool run();
-
-        ExecutionThread& operator=(const ExecutionThread& other);
-        void swap(ExecutionThread& other) noexcept;
-    };
-
-    std::map<Guid, AssemblyData> assemblies;
-    std::deque<ExecutionThread> threads;
+    const Guid& loadAssembly(const AssemblyData* assembly);
+    const AssemblyData* AppDomain::getAssembly(const Guid& guid) const;
+    const AssemblyData* AppDomain::getAssembly(const std::u16string& name, const std::vector<uint16_t>& version) const;
+    ExecutionThread* AppDomain::createThread();
 
     template<typename T>
     const Guid& loadAssembly(const T& assembly) {
-        AssemblyData assemblyData(assembly);
+        const auto* assemblyData = new AssemblyData(assembly);
         return loadAssembly(assemblyData);
     }
-    
-    const Guid& loadAssembly(AssemblyData& assemblyData);
-    AssemblyData& getAssembly(const Guid& guid);
-    AssemblyData& getAssembly(const std::u16string& name, const std::vector<uint16_t>& version);
-
-    ExecutionThread& createThread();
-
-    AppDomain() = default;
-    AppDomain(const AppDomain& other) = default;
-    AppDomain(AppDomain&& other) = default;
-    AppDomain& operator=(const AppDomain& other);
-    void swap(AppDomain& other) noexcept;
 
 };
 

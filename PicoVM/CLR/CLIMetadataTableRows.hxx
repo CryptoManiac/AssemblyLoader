@@ -55,7 +55,7 @@ struct ModuleRow {
 
     ModuleRow() = default;
     ModuleRow(MetadataRowsReader& mr);
-    std::string str();
+    std::string str() const;
 };
 
 // Each row represents an imported class, its namespace, and the assembly which contains it.

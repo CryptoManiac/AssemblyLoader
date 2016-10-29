@@ -152,7 +152,7 @@ ModuleRow::ModuleRow(MetadataRowsReader& mr) {
     mr.readGuid(tmp); // endBaseId
 }
 
-string ModuleRow::str() {
+string ModuleRow::str() const {
     ostringstream ss;
     ss << "Module(" << endl
        << " generation=" << dec << generation << endl
