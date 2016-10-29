@@ -22,6 +22,12 @@ int main(int argc, const char *argv[]) {
 #endif
     }
 
+    // AppDomain domain;
+    // const auto& id = domain.loadAssembly(*assembly); // loading
+    // const auto thread = domain.createThread();
+    // thread->setup(id);
+    // thread->run();
+
     // Few simple tests for our AppDomain stub
     AppDomain domain;
     const auto& id = domain.loadAssembly(*assembly); // loading
