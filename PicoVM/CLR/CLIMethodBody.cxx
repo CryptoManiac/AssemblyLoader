@@ -54,3 +54,19 @@ string MethodBody::str(bool fPrintBody) const {
 string MethodBody::str() const {
     return str(false);
 }
+
+MethodBody & MethodBody::operator=(const MethodBody & other)
+{
+    MethodBody(other).swap(*this);
+    return *this;
+}
+
+void MethodBody::swap(MethodBody & other) noexcept
+{
+    ::swap(data, other.data);
+    ::swap(localVarSigs, other.localVarSigs);
+    ::swap(exceptions, other.exceptions);
+    ::swap(maxStack, other.maxStack);
+    ::swap(initLocals, other.initLocals);
+    ::swap(bodypresent, other.bodypresent);
+}

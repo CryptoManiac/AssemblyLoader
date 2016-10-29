@@ -46,6 +46,9 @@ struct MethodBody {
 
     std::string str(bool fPrintBody=false) const;
     std::string str() const;
+
+    MethodBody& operator=(const MethodBody& other);
+    void swap(MethodBody& other) noexcept;
 };
 
 #endif
