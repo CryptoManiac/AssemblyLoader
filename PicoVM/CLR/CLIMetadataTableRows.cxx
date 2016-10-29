@@ -52,17 +52,15 @@ MetadataRowsReader& MetadataRowsReader::operator=(const MetadataRowsReader& othe
 }
 
 void MetadataRowsReader::swap(MetadataRowsReader& other) noexcept {
-    using std::swap;
-
     reader.swap(other.reader);
     mapTableLength.swap(other.mapTableLength);
-    swap(stringsIsLong, other.stringsIsLong);
-    swap(guidIsLong, other.guidIsLong);
-    swap(blobIsLong, blobIsLong);
-    swap(metaDataOffset, other.metaDataOffset);
-    swap(stringStreamOffset, other.stringStreamOffset);
-    swap(guidStreamOffset, other.guidStreamOffset);
-    swap(blobStreamOffset, other.blobStreamOffset);
+    ::swap(stringsIsLong, other.stringsIsLong);
+    ::swap(guidIsLong, other.guidIsLong);
+    ::swap(blobIsLong, blobIsLong);
+    ::swap(metaDataOffset, other.metaDataOffset);
+    ::swap(stringStreamOffset, other.stringStreamOffset);
+    ::swap(guidStreamOffset, other.guidStreamOffset);
+    ::swap(blobStreamOffset, other.blobStreamOffset);
 }
 
 
