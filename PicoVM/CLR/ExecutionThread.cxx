@@ -7,7 +7,7 @@ using namespace std;
 
 ExecutionThread::ExecutionThread(const AppDomain* appDomain) : appDomain(appDomain) {}
 
-bool ExecutionThread::tick() {
+bool ExecutionThread::run() {
     bool result = false;
     do {
         auto frame = &callStack[callStack.size() - 1];
@@ -64,6 +64,18 @@ bool ExecutionThread::tick() {
         };
         break;
         case ExecutionState::MethodBodyExecution:
+            frame->instructionPointer = 0;
+            frame->localVarSigs = frame->methodBody.localVarSigTok;
+            frame->methodDefSig = frame->methodBody.methodDef.signature;
+            frame->state = ExecutionState::MethodExecution;
+            // TODO: decode methodDefSig and localVarSigs 
+
+            if (frame->localVarSigs.size() != 0) {
+                // TODO: process local variable signatures
+            }
+
+            result = true;
+            break;
         case ExecutionState::WaitForAssembly:
             // wait for assembly... do nothing
             break;
@@ -95,10 +107,11 @@ void ExecutionThread::setup(const Guid& guid) {
     const auto* assembly = appDomain->getAssembly(guid);
     frame.callingAssembly = frame.executingAssembly = assembly;
     frame.methodToken = assembly->cliHeader.entryPointToken;
+    frame.state = ExecutionState::FrameSetup;
     callStack.push_back(frame);
 }
 
 shared_ptr<ExecutionThread> ExecutionThread::create(const AppDomain* appDomain) {
     auto thread = new ExecutionThread(appDomain);
-    return thread->shared_from_this();
+    return shared_ptr<ExecutionThread>(thread);
 }

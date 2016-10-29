@@ -33,9 +33,13 @@ struct CallStackItem {
 
     uint32_t methodToken = 0;
     uint32_t prevStackSize = 0;
-
+    uint32_t instructionPointer = 0;
+    uint32_t argumentsCount = 0;
+    
     std::vector<EvaluationStackItem> locals;
     std::vector<EvaluationStackItem> arguments;
+    std::vector<uint32_t> localVarSigs;
+    std::vector<uint32_t> methodDefSig;
     ExecutionState state = ExecutionState::Undefined;
 };
 
@@ -45,7 +49,7 @@ struct ExecutionThread : std::enable_shared_from_this<ExecutionThread> {
     std::deque<CallStackItem> callStack;
     std::deque<EvaluationStackItem> evaluationStack;
 
-    bool tick();
+    bool run();
     void setup(const Guid& guid);
     static std::shared_ptr<ExecutionThread> create(const AppDomain* appDomain);
 

@@ -31,6 +31,7 @@ public:
     // [] operator for better readability
     const uint8_t& operator[](uint32_t offset) const;
 
+    // Read unsigned integer
     uint8_t  read_uint8();
     uint16_t read_uint16();
     uint16_t read_uint16(uint32_t offset) const;
@@ -53,8 +54,6 @@ public:
 
     // Read unique ID
     void read_guid(Guid& result);
-
-    // Read unique ID
     void read_guid(Guid& result, uint32_t offset) const;
 
     // Read binary data
