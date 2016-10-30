@@ -21,9 +21,9 @@ const AssemblyData* AppDomain::getAssembly(const Guid& guid) const {
 }
 
 const AssemblyData* AppDomain::getAssembly(const u16string& name, const vector<uint16_t>& version) const {
-    for (auto it = assemblies.begin(); it != assemblies.end(); ++it) {
-        if ((*it).second->getName() == name && (*it).second->getVersion() == version) {
-            return (*it).second.get();
+    for (auto i : assemblies) {
+        if (i.second->getName() == name && i.second->getVersion() == version) {
+            return i.second.get();
         }
     }
     throw runtime_error("No such assembly in this domain");
