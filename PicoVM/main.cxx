@@ -36,9 +36,13 @@ int main(int argc, const char *argv[]) {
 */
 
     // Few simple tests for our AppDomain stub
-    AppDomain domain;
-    const auto& id = domain.loadAssembly(*assembly); // loading
-    domain.loadAssembly(*assembly); // double-loading attempt
+#ifdef WIN32
+    AppDomain domain(R"(appcode\)");
+#else
+    AppDomain domain("./PicoVM/appcode/");
+#endif
+    const auto& id = domain.loadAssembly(assembly); // loading
+    domain.loadAssembly(assembly); // double-loading attempt
 
     const auto* clrData1 = domain.getAssembly(id); // getting AssemblyData reference from our AppDomain, using GUID as a key
     const auto* clrData = domain.getAssembly(clrData1->getName(), clrData1->getVersion()); // getting AssemblyData reference from our AppDomain, using name and value pair as a key 

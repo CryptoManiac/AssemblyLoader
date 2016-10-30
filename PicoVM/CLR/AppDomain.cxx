@@ -19,15 +19,13 @@ const Guid& AppDomain::loadAssembly(const AssemblyData* assembly) {
 const Guid& AppDomain::loadAssembly(const u16string& name, const vector<uint16_t>& version) {
     ostringstream ss;
 
-    ss << assemblyPath;
-
 #ifdef WIN32
-    ss << '\\';
+    string delimiter = "\\";
 #else
-    ss << '/';
+    string delimiter = "/";
 #endif
 
-    ss << dec;
+    ss << assemblyPath << delimiter << dec;
 
     for(const auto& n : version) {
         if (&n != &version[0]) {
@@ -36,13 +34,7 @@ const Guid& AppDomain::loadAssembly(const u16string& name, const vector<uint16_t
         ss << n;
     }
 
-#ifdef WIN32
-    ss << '\\';
-#else
-    ss << '/';
-#endif
-
-    ss << string(name.begin(), name.end());
+    ss << delimiter << string(name.begin(), name.end());
     const AssemblyData* assemblyData;
     try {
         assemblyData = new AssemblyData(ss.str() + ".dll");
