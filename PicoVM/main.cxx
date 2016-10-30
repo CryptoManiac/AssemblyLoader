@@ -43,6 +43,7 @@ int main(int argc, const char *argv[]) {
 #endif
     const auto& id = domain.loadAssembly(assembly); // loading
     domain.loadAssembly(assembly); // double-loading attempt
+    delete assembly;
 
     const auto* clrData1 = domain.getAssembly(id); // getting AssemblyData reference from our AppDomain, using GUID as a key
     const auto* clrData = domain.getAssembly(clrData1->getName(), clrData1->getVersion()); // getting AssemblyData reference from our AppDomain, using name and value pair as a key 

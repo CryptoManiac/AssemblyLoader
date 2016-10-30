@@ -6,8 +6,12 @@ using namespace std;
 
 AppDomain::AppDomain(const string& searchPath) : assemblyPath(searchPath) {}
 
+const Guid& AppDomain::loadAssembly(const AssemblyData& assembly) {
+    return loadAssembly(&assembly);
+}
+
 const Guid& AppDomain::loadAssembly(const AssemblyData* assembly) {
-    shared_ptr<const AssemblyData> assemblyPtr(assembly);
+    shared_ptr<const AssemblyData> assemblyPtr(new AssemblyData(*assembly));
 
     auto result = assemblies.insert(pair<Guid, shared_ptr<const AssemblyData> >(assemblyPtr->getGUID(), assemblyPtr));
     if (!result.second) {
