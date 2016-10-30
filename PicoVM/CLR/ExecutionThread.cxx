@@ -15,7 +15,7 @@ bool ExecutionThread::run() {
         switch (frame->state) {
         case ExecutionState::FrameSetup:
         {
-            frame->prevStackSize = evaluationStack.size();
+            frame->prevStackSize = static_cast<uint32_t>(evaluationStack.size());
             switch (frame->methodToken >> 24) {
             case 0x06: // MethodDef
             {
@@ -43,7 +43,7 @@ bool ExecutionThread::run() {
                             frame->executingAssembly = appDomain->getAssembly(assemblyRef.name, assemblyRef.version);
                             frame->state = ExecutionState::AssemblySet;
                         }
-                        catch (runtime_error) {
+                        catch (runtime_error&) {
                             // TODO: load assembly
                         }
                     }
