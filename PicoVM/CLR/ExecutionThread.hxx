@@ -25,7 +25,7 @@ class AssemblyData;
 struct ExecutionThread;
 
 struct CallStackItem {
-    const AppDomain* appDomain = nullptr;
+    AppDomain* appDomain = nullptr;
     ExecutionThread* thread = nullptr;
     const AssemblyData* callingAssembly = nullptr;
     const AssemblyData* executingAssembly = nullptr;
@@ -45,16 +45,16 @@ struct CallStackItem {
 
 
 struct ExecutionThread {
-    const AppDomain* appDomain = nullptr;
+    AppDomain* appDomain = nullptr;
     std::deque<CallStackItem> callStack;
     std::deque<EvaluationStackItem> evaluationStack;
 
     bool run();
     void setup(const Guid& guid);
-    static std::shared_ptr<ExecutionThread> create(const AppDomain* appDomain);
+    static std::shared_ptr<ExecutionThread> create(AppDomain* appDomain);
 
 private:
-    ExecutionThread(const AppDomain* appDomain);
+    ExecutionThread(AppDomain* appDomain);
 };
 
 

@@ -5,7 +5,7 @@
 
 using namespace std;
 
-ExecutionThread::ExecutionThread(const AppDomain* appDomain) : appDomain(appDomain) {}
+ExecutionThread::ExecutionThread(AppDomain* appDomain) : appDomain(appDomain) {}
 
 bool ExecutionThread::run() {
     bool result = false;
@@ -44,7 +44,9 @@ bool ExecutionThread::run() {
                             frame->state = ExecutionState::AssemblySet;
                         }
                         catch (runtime_error&) {
-                            // TODO: load assembly
+                            const auto& id = appDomain->loadAssembly(assemblyRef.name, assemblyRef.version);
+                            frame->executingAssembly = appDomain->getAssembly(id);
+                            frame->state = ExecutionState::AssemblySet;
                         }
                     }
                     break;
@@ -112,7 +114,7 @@ void ExecutionThread::setup(const Guid& guid) {
     callStack.push_back(frame);
 }
 
-shared_ptr<ExecutionThread> ExecutionThread::create(const AppDomain* appDomain) {
+shared_ptr<ExecutionThread> ExecutionThread::create(AppDomain* appDomain) {
     auto thread = new ExecutionThread(appDomain);
     return shared_ptr<ExecutionThread>(thread);
 }

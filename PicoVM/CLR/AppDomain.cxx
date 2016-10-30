@@ -1,6 +1,10 @@
 #include "AppDomain.hxx"
+#include <sstream>
+#include <iomanip>
 
 using namespace std;
+
+AppDomain::AppDomain(const string& searchPath) : assemblyPath(searchPath) {}
 
 const Guid& AppDomain::loadAssembly(const AssemblyData* assembly) {
     shared_ptr<const AssemblyData> assemblyPtr(assembly);
@@ -10,6 +14,44 @@ const Guid& AppDomain::loadAssembly(const AssemblyData* assembly) {
         cout << "Assembly " << assemblyPtr->getGUID() << " already loaded" << endl;
     }
     return (*result.first).first;
+}
+
+const Guid& AppDomain::loadAssembly(const u16string& name, const vector<uint16_t>& version) {
+    ostringstream ss;
+
+    ss << assemblyPath;
+
+#ifdef WIN32
+    ss << '\\';
+#else
+    ss << '/';
+#endif
+
+    ss << dec;
+
+    for(const auto& n : version) {
+        if (&n != &version[0]) {
+            ss << ".";
+        }
+        ss << n;
+    }
+
+#ifdef WIN32
+    ss << '\\';
+#else
+    ss << '/';
+#endif
+
+    ss << string(name.begin(), name.end());
+    const AssemblyData* assemblyData;
+    try {
+        assemblyData = new AssemblyData(ss.str() + ".dll");
+    }
+    catch (runtime_error&) {
+        assemblyData = new AssemblyData(ss.str() + ".exe");
+    }
+
+    return loadAssembly(assemblyData);
 }
 
 const AssemblyData* AppDomain::getAssembly(const Guid& guid) const {

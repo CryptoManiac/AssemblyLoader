@@ -14,18 +14,15 @@
 struct AppDomain {
     std::map<Guid, std::shared_ptr<const AssemblyData> > assemblies;
     std::vector<std::shared_ptr<ExecutionThread> > threads;
+    std::string assemblyPath = "";
 
     const Guid& loadAssembly(const AssemblyData* assembly);
+    const Guid& loadAssembly(const std::u16string& name, const std::vector<uint16_t>& version);
     const AssemblyData* getAssembly(const Guid& guid) const;
     const AssemblyData* getAssembly(const std::u16string& name, const std::vector<uint16_t>& version) const;
     ExecutionThread* createThread();
 
-    template<typename T>
-    const Guid& loadAssembly(const T& assembly) {
-        const auto* assemblyData = new AssemblyData(assembly);
-        return loadAssembly(assemblyData);
-    }
-
+    AppDomain(const std::string& searchPath);
 };
 
 #endif
