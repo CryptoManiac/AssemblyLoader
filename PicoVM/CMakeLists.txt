@@ -16,7 +16,6 @@ set( HEADERS_ONLY
 
         CLIHeader
         EnumCasting
-        ExecutionThread
         EvaluationStackItem
         Formatting
         ImageDataDirectory

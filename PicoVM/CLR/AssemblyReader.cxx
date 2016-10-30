@@ -113,7 +113,7 @@ uint32_t AssemblyReader::read_asciiz(string& result, uint32_t offset, uint32_t l
 {
     auto start_it = next(data.cbegin(), offset);
     auto end_it = find(start_it, data.cend(), 0);
-    if (distance(start_it, end_it) >= limit) {
+    if (static_cast<uint32_t>(distance(start_it, end_it)) >= limit) {
         end_it = next(start_it, limit);
     }
     result.clear();
@@ -133,7 +133,7 @@ uint32_t AssemblyReader::read_utf8z(u16string& result, uint32_t offset, uint32_t
 {
     auto start_it = next(data.cbegin(), offset);
     auto end_it = find(start_it, data.cend(), 0);
-    if (distance(start_it, end_it) >= limit) {
+    if (static_cast<uint32_t>(distance(start_it, end_it)) >= limit) {
         end_it = next(start_it, limit);
     }
     result.clear();
