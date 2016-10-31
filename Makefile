@@ -1,10 +1,12 @@
 ifeq (${USE_CLANG}, 1)
     CXX=clang++
+    CLSPECIFIC=
 else
     CXX=g++
+    CLSPECIFIC=-Og
 endif
 
-CXXFLAGS=-g -std=c++11 -Wall -Wextra -pedantic
+CXXFLAGS=-g -std=c++11 -Wall -Wextra -pedantic $(CLSPECIFIC)
 
 EXEC=picovm
 SOURCES= \
