@@ -5,7 +5,7 @@
 
 using namespace std;
 
-ExecutionThread::ExecutionThread(AppDomain* appDomain) : appDomain(appDomain) {}
+ExecutionThread::ExecutionThread(AppDomain* appDomain) : domain(appDomain) {}
 
 bool ExecutionThread::run() {
     bool result = false;
@@ -40,12 +40,12 @@ bool ExecutionThread::run() {
                     {
                         auto assemblyRef = clrData->cliMetaDataTables._AssemblyRef[typeRef.resolutionScope.first];
                         try {
-                            frame->executingAssembly = appDomain->getAssembly(assemblyRef.name, assemblyRef.version);
+                            frame->executingAssembly = domain->getAssembly(assemblyRef.name, assemblyRef.version);
                             frame->state = ExecutionState::AssemblySet;
                         }
                         catch (runtime_error&) {
-                            const auto& id = appDomain->loadAssembly(assemblyRef.name, assemblyRef.version);
-                            frame->executingAssembly = appDomain->getAssembly(id);
+                            const auto& id = domain->loadAssembly(assemblyRef.name, assemblyRef.version);
+                            frame->executingAssembly = domain->getAssembly(id);
                             frame->state = ExecutionState::AssemblySet;
                         }
                     }
@@ -106,8 +106,8 @@ bool ExecutionThread::run() {
 
 void ExecutionThread::setup(const Guid& guid) {
     CallStackItem frame;
-    frame.appDomain = appDomain;
-    const auto* assembly = appDomain->getAssembly(guid);
+    frame.appDomain = domain;
+    const auto* assembly = domain->getAssembly(guid);
     frame.callingAssembly = frame.executingAssembly = assembly;
     frame.methodToken = assembly->cliHeader.entryPointToken;
     frame.state = ExecutionState::FrameSetup;

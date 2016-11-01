@@ -45,7 +45,7 @@ struct CallStackItem {
 
 
 struct ExecutionThread {
-    AppDomain* appDomain = nullptr;
+    AppDomain* domain = nullptr;
     std::deque<CallStackItem> callStack;
     std::deque<EvaluationStackItem> evaluationStack;
 

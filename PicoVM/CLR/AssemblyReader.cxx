@@ -10,7 +10,7 @@
 
 using namespace std;
 
-AssemblyReader::AssemblyReader(const vector<uint8_t>& data) : data(data)
+AssemblyReader::AssemblyReader(const vector<uint8_t>& pdata) : data(pdata)
 {
 reset();
 }
