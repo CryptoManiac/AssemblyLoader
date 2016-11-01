@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "guid.hxx"
 #include <iomanip>
+#include <sstream>
 
 
 using namespace std;

@@ -4,7 +4,6 @@
 #include <cstdint>
 #include <vector>
 #include <map>
-#include <memory>
 #include <string>
 
 #include "AssemblyData.hxx"

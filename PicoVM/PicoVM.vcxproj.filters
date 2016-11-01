@@ -51,7 +51,7 @@
     <ClCompile Include="CLR\AppDomain.cxx">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
-    <ClCompile Include="ExecutionThread.cxx">
+    <ClCompile Include="CLR\ExecutionThread.cxx">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>
@@ -126,6 +126,9 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="CLR\ExecutionThread.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CLR\HexStr.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>

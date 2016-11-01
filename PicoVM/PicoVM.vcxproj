@@ -180,6 +180,7 @@
     <ClInclude Include="CLR\EvaluationStackItem.hxx" />
     <ClInclude Include="CLR\ExecutionThread.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
+    <ClInclude Include="CLR\HexStr.hxx" />
     <ClInclude Include="CLR\ImageDataDirectory.hxx" />
     <ClInclude Include="CLR\ImageFileHeader.hxx" />
     <ClInclude Include="CLR\ImageSectionHeader.hxx" />

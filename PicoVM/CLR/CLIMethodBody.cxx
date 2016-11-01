@@ -1,7 +1,8 @@
-#include "CLIMethodBody.hxx"
-#include "HexStr.hxx"
 #include <sstream>
 #include <iomanip>
+
+#include "CLIMethodBody.hxx"
+#include "HexStr.hxx"
 
 using namespace std;
 
