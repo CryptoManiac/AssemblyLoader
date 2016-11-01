@@ -1,8 +1,5 @@
-#include <iostream>
-
 #include "CLR/AssemblyData.hxx"
 #include "CLR/EnumCasting.hxx"
-
 #include "CLR/AppDomain.hxx"
 
 using namespace std;

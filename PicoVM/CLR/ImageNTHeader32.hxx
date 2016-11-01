@@ -1,8 +1,6 @@
 #ifndef __IMAGE_NT_HEADER32__
 #define __IMAGE_NT_HEADER32__
 
-#include <vector>
-
 #include "ImageFileHeader.hxx"
 #include "ImageOptionalHeader32.hxx"
 

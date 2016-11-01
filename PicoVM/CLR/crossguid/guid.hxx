@@ -28,7 +28,6 @@ THE SOFTWARE.
 #include <vector>
 #include <string>
 #include <iostream>
-#include <sstream>
 #include <cstdint>
 
 // Class to represent a GUID/UUID. Each instance acts as a wrapper around a
@@ -74,7 +73,6 @@ class Guid
 
     // Convert to string
     std::string str() const;
-    const char *c_str() const;
 
   private:
 
