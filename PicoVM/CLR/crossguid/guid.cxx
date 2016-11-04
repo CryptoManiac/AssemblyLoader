@@ -129,7 +129,7 @@ Guid::Guid(const string &fromString)
 }
 
 // create empty guid
-Guid::Guid() : _bytes(vector<uint8_t>(16, 0))
+Guid::Guid() : _bytes({0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0})
 {
 }
 
