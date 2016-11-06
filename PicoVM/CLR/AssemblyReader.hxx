@@ -3,7 +3,6 @@
 #include <vector>
 #include <cstdint>
 
-#include "utf8.h"
 #include "crossguid/guid.hxx"
 #include "Property.hxx"
 #include "ImageNTHeader32.hxx"

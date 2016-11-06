@@ -1,14 +1,25 @@
+# Default: g++ , as option USE_CLANG=1 or USE_MINGW=1 or USE_ICPC=1
+CXX=g++
+CLSPECIFIC=-Og
+
+EXEC=picovm
+
 ifeq (${USE_CLANG}, 1)
     CXX=clang++
     CLSPECIFIC=
-else
-    CXX=g++
+endif
+ifeq (${USE_MINGW}, 1)
+    CXX=x86_64-w64-mingw32-g++ -static -DWIN32=1
     CLSPECIFIC=-Og
+    EXEC:=$(EXEC).exe
+endif
+ifeq (${USE_ICPC}, 1)
+    CXX=icpc
+    CLSPECIFIC=
 endif
 
 CXXFLAGS=-g -std=c++11 -Wall -Wextra -pedantic $(CLSPECIFIC)
 
-EXEC=picovm
 SOURCES= \
          PicoVM/main.cxx \
          PicoVM/CLR/AppDomain.cxx \
@@ -37,4 +48,4 @@ $(EXEC): $(OBJECTS)
 $(VERBOSE).SILENT: clean
 
 clean:
-	-rm -rf $(EXEC) $(OBJECTS)
+	-rm -rf $(EXEC) $(OBJECTS) $(EXEC).exe
