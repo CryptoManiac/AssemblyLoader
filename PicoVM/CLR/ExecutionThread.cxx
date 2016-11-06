@@ -2,10 +2,69 @@
 #include "AppDomain.hxx"
 #include "AssemblyData.hxx"
 #include "CLIMethodBody.hxx"
+#include <iomanip>
 
 using namespace std;
 
 ExecutionThread::ExecutionThread(AppDomain* appDomain) : domain(appDomain) {}
+
+bool ExecutionThread::evaluate() {
+    map<uint8_t, void*> opcodes = {
+        { 0x00, &&inop },
+        { 0x01, &&ibreak },
+        { 0x02, &&ildarg_0 },
+        { 0x03, &&ildarg_1 },
+        { 0x04, &&ildarg_2 },
+        { 0x05, &&ildarg_3 },
+        { 0x06, &&ildloc_0 },
+        { 0x07, &&ildloc_1 },
+        { 0x08, &&ildloc_2 },
+        { 0x09, &&ildloc_3 },
+        { 0x0A, &&istloc_0 },
+        { 0x0B, &&istloc_1 },
+        { 0x0C, &&istloc_2 },
+        { 0x0D, &&istloc_3 }
+
+        // TODO
+    };
+
+    for (const auto &i : opcodes) {
+        cout << hex << setfill('0') << setw(2) << static_cast<uint16_t>(i.first) << " " << reinterpret_cast<size_t>(i.second) << endl;
+    }
+
+    return true;
+
+    inop:
+        throw runtime_error("NYI");
+    ibreak:
+        throw runtime_error("NYI");
+    ildarg_0:
+        throw runtime_error("NYI");
+    ildarg_1:
+        throw runtime_error("NYI");
+    ildarg_2:
+        throw runtime_error("NYI");
+    ildarg_3:
+        throw runtime_error("NYI");
+
+    ildloc_0:
+        throw runtime_error("NYI");
+    ildloc_1:
+        throw runtime_error("NYI");
+    ildloc_2:
+        throw runtime_error("NYI");
+    ildloc_3:
+        throw runtime_error("NYI");
+
+    istloc_0:
+        throw runtime_error("NYI");
+    istloc_1:
+        throw runtime_error("NYI");
+    istloc_2:
+        throw runtime_error("NYI");
+    istloc_3:
+        throw runtime_error("NYI");
+}
 
 bool ExecutionThread::run() {
     bool result = false;
