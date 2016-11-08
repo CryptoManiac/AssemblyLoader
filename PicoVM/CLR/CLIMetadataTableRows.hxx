@@ -26,7 +26,7 @@ struct MetadataRowsReader {
     uint32_t blobStreamOffset = 0;
 
     MetadataRowsReader() = delete;
-    MetadataRowsReader(AssemblyReader& reader, CLIMetadata& cliMetadata);
+    MetadataRowsReader(AssemblyReader& Reader, CLIMetadata& cliMetadata);
     MetadataRowsReader(const MetadataRowsReader& other) = default;
     MetadataRowsReader(MetadataRowsReader&& other) = default;
 
