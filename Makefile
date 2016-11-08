@@ -18,24 +18,16 @@ ifeq (${USE_ICPC}, 1)
     CLSPECIFIC=
 endif
 
-CXXFLAGS=-g -std=c++11 -Wall -Wextra -pedantic $(CLSPECIFIC)
+CXXFLAGS=-g -std=c++11 -Wall -Wextra -Wshadow $(CLSPECIFIC)
 
-SOURCES= \
-         PicoVM/main.cxx \
-         PicoVM/CLR/AppDomain.cxx \
-         PicoVM/CLR/AssemblyData.cxx \
-         PicoVM/CLR/CLIMetadata.cxx \
-         PicoVM/CLR/ExecutionThread.cxx \
-         PicoVM/CLR/CLIMetadataTableIndex.cxx \
-         PicoVM/CLR/CLIMetadataTableRows.cxx \
-         PicoVM/CLR/CLIElementTypes.cxx \
-         PicoVM/CLR/CLISignature.cxx \
-         PicoVM/CLR/AssemblyReader.cxx \
-         PicoVM/CLR/CLIMethodBody.cxx \
-         PicoVM/CLR/crossguid/guid.cxx \
-         PicoVM/CLR/HexStr.cxx
+SOURCES=\
+	PicoVM/main.cxx \
+	$(wildcard PicoVM/CLR/*.cxx) \
+	PicoVM/CLR/crossguid/guid.cxx
 INCDIRS=PicoVM/CLR/
 OBJECTS=$(SOURCES:.cxx=.o)
+
+.PHONY: clean
 
 all: $(EXEC)
 
