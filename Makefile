@@ -1,6 +1,6 @@
 # Default: g++ , as option USE_CLANG=1 or USE_MINGW=1 or USE_ICPC=1
 CXX=g++
-CLSPECIFIC=-Og
+CLSPECIFIC=-Og -Winline
 
 EXEC=picovm
 
