@@ -41,7 +41,7 @@ void MetadataRowsReader::Init(CLIMetadata& cliMetadata) {
     blobIsLong = (heapSizes & 0x04) != 0;
 }
 
-MetadataRowsReader::MetadataRowsReader(AssemblyReader& reader, CLIMetadata& cliMetadata) : reader (reader)
+MetadataRowsReader::MetadataRowsReader(AssemblyReader& Reader, CLIMetadata& cliMetadata) : reader (Reader)
 {
     Init(cliMetadata);
 }
