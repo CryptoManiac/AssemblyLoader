@@ -50,7 +50,6 @@ struct ExecutionThread {
     std::deque<EvaluationStackItem> evaluationStack;
 
     bool run();
-    bool evaluate();
     void setup(const Guid& guid);
     static std::shared_ptr<ExecutionThread> create(AppDomain* appDomain);
 

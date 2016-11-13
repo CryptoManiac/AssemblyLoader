@@ -37,6 +37,7 @@ set( OUR_SRC
         AssemblyData
         AssemblyReader
         ExecutionThread
+        InstructionTree
         CLIElementTypes
         CLIMetadata
         CLIMetadataTableIndex
