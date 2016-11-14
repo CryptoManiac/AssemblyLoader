@@ -431,12 +431,13 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
     }
 }
 
-std::shared_ptr<InstructionTree> InstructionTree::MakeTree(vector<uint8_t>& methodData) {
+std::shared_ptr<InstructionTree> InstructionTree::MakeTree(const vector<uint8_t>& methodData) {
     auto treeObj = new InstructionTree();
+    vector<uint8_t> data = methodData;
 
-    for(auto it = methodData.begin(); it != methodData.end(); ++it) {
+    for(auto it = data.begin(); it != data.end(); ++it) {
         auto op = decodeOp(it);
-        treeObj->tree[distance(methodData.begin(), it)] = op;
+        treeObj->tree[distance(data.begin(), it)] = op;
     }
 
     return shared_ptr<InstructionTree>(treeObj);

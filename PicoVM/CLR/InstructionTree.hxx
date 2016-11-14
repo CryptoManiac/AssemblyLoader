@@ -190,7 +190,7 @@ struct InstructionTree {
     typedef std::map<int32_t, std::pair<Instruction, std::vector<argument> > > TreeMap;
 
     TreeMap tree;
-    static std::shared_ptr<InstructionTree> MakeTree(std::vector<uint8_t>& methodData);
+    static std::shared_ptr<InstructionTree> MakeTree(const std::vector<uint8_t>& methodData);
 };
 
 #endif

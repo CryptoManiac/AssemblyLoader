@@ -1,4 +1,5 @@
 #include "CLR/AppDomain.hxx"
+#include "CLR/InstructionTree.hxx"
 
 using namespace std;
 
@@ -61,6 +62,9 @@ int main(int argc, const char *argv[]) {
 
         cout << "methodName=" << string(methodDef.name.begin(), methodDef.name.end()) << endl;
         cout << methodDef.methodBody.str(true) << endl;
+
+        // auto tree = InstructionTree::MakeTree(methodDef.methodBody.data);
+
     } else {
         cout << "No entrypoint, this must be a library assembly" << endl;
         cout << "List of methods defined by this assembly:" << endl << endl;
