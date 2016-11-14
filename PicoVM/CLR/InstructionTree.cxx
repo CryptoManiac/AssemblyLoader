@@ -1,7 +1,10 @@
 #include "InstructionTree.hxx"
+#include "EnumCasting.hxx"
+
+using namespace std;
 
 // One-byte opcodes
-enum struct SingleByteOpcode : uint8_t {
+enum struct ShortCode : uint8_t {
     i_nop = 0x00,
     i_ldarg_0 = 0x02,
     i_ldarg_1 = 0x03,
@@ -69,7 +72,7 @@ enum struct SingleByteOpcode : uint8_t {
     i_bgt_un = 0x42,
     i_ble_un = 0x43,
     i_blt_un = 0x44,
-    i_switch_ = 0x45,
+    i_switch = 0x45,
     i_ldind_i1 = 0x46,
     i_ldind_u1 = 0x47,
     i_ldind_i2 = 0x48,
@@ -120,7 +123,7 @@ enum struct SingleByteOpcode : uint8_t {
     i_isinst = 0x75,
     i_conv_r_un = 0x76,
     i_unbox = 0x79,
-    i_throw_ = 0x7A,
+    i_throw = 0x7A,
     i_ldfld = 0x7B,
     i_ldflda = 0x7C,
     i_stfld = 0x7D,
@@ -192,7 +195,7 @@ enum struct SingleByteOpcode : uint8_t {
     i_leave_s = 0xDE,
     i_stind_i = 0xDF,
     i_conv_u = 0xE0,
-    i_multibyte = 0xFE
+    p_multibyte = 0xFE // Two-byte instruction prefix
 };
 
 // Two-byte opcodes and prefixes
@@ -216,13 +219,261 @@ enum struct TwoByteCode : uint16_t {
     p_unaligned = 0x12FE, // Prefix
     p_volatile = 0x13FE, // Prefix 
     p_tail = 0x14FE, // Prefix
-    i_Initobj = 0x15FE,
+    i_initobj = 0x15FE,
     p_constrained = 0x16FE, // Prefix 
     i_cpblk = 0x17FE,
     i_initblk = 0x18FE,
-    p_no_ = 0x19FE, // Prefix 
+    p_no = 0x19FE, // Prefix 
     i_rethrow = 0x1AFE,
     i_sizeof = 0x1CFE,
-    i_Refanytype = 0x1DFE,
+    i_refanytype = 0x1DFE,
     p_readonly = 0x1EFE, // Prefix 
 };
+
+static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& it) {
+    auto opcode = static_cast<ShortCode>(*it);
+
+    switch(opcode) {
+        case ShortCode::i_nop:
+            it++;
+            return pair<Instruction, vector<argument> >(Instruction::i_nop, {});
+        break;
+
+        case ShortCode::i_ldarg_0:
+        case ShortCode::i_ldarg_1:
+        case ShortCode::i_ldarg_2:
+        case ShortCode::i_ldarg_3:
+        {
+            ++it;
+            auto arg = _u(opcode) - _u(ShortCode::i_ldarg_0);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { arg });
+        }
+        break;
+
+        case ShortCode::i_ldloc_0:
+        case ShortCode::i_ldloc_1:
+        case ShortCode::i_ldloc_2:
+        case ShortCode::i_ldloc_3:
+        {
+            ++it;
+            auto arg = _u(opcode) - _u(ShortCode::i_ldloc_0);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { arg });
+        }
+        break;
+
+        case ShortCode::i_stloc_0:
+        case ShortCode::i_stloc_1:
+        case ShortCode::i_stloc_2:
+        case ShortCode::i_stloc_3:
+        {
+            ++it;
+            auto arg = _u(opcode) - _u(ShortCode::i_stloc_0);
+            return pair<Instruction, vector<argument> >(Instruction::i_stloc, { arg });
+        }
+        break;
+
+        case ShortCode::i_ldc_i4_m1:
+        case ShortCode::i_ldc_i4_0:
+        case ShortCode::i_ldc_i4_1:
+        case ShortCode::i_ldc_i4_2:
+        case ShortCode::i_ldc_i4_4:
+        case ShortCode::i_ldc_i4_5:
+        case ShortCode::i_ldc_i4_6:
+        case ShortCode::i_ldc_i4_7:
+        case ShortCode::i_ldc_i4_8:
+        {
+            ++it;
+            auto arg = _u(opcode) - _u(ShortCode::i_ldc_i4_0);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { arg });
+        }
+        break;
+
+        case ShortCode::i_ldarg_s:
+            it++;
+            return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { *(it++) });
+        break;
+
+        case ShortCode::i_ldarga_s:
+            it++;
+            return pair<Instruction, vector<argument> >(Instruction::i_ldarga, { *(it++) });
+        break;
+
+        case ShortCode::i_starg_s:
+            it++;
+            return pair<Instruction, vector<argument> >(Instruction::i_starg, { *(it++) });
+        break;
+
+        case ShortCode::i_ldloc_s:
+            it++;
+            return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { *(it++) });
+        break;
+
+        case ShortCode::i_ldloca_s:
+            it++;
+            return pair<Instruction, vector<argument> >(Instruction::i_ldloca, { *(it++) });
+        break;
+
+        case ShortCode::i_stloc_s:
+            it++;
+            return pair<Instruction, vector<argument> >(Instruction::i_stloc, { *(it++) });
+        break;
+
+        case ShortCode::i_ldc_i4_s:
+            it++;
+            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { *(it++) });
+        break;
+
+        // Direct conversion of parameterless instructions
+        case ShortCode::i_ldnull:
+        case ShortCode::i_dup:
+        case ShortCode::i_pop:
+        case ShortCode::i_ret:
+        case ShortCode::i_ldind_i1:
+        case ShortCode::i_ldind_u1:
+        case ShortCode::i_ldind_i2:
+        case ShortCode::i_ldind_u2:
+        case ShortCode::i_ldind_i4:
+        case ShortCode::i_ldind_u4:
+        case ShortCode::i_ldind_i8:
+        case ShortCode::i_ldind_i:
+        case ShortCode::i_ldind_r4:
+        case ShortCode::i_ldind_r8:
+        case ShortCode::i_ldind_ref:
+        case ShortCode::i_stind_ref:
+        case ShortCode::i_stind_i1:
+        case ShortCode::i_stind_i2:
+        case ShortCode::i_stind_i4:
+        case ShortCode::i_stind_i8:
+        case ShortCode::i_stind_r4:
+        case ShortCode::i_stind_r8:
+        case ShortCode::i_add:
+        case ShortCode::i_sub:
+        case ShortCode::i_mul:
+        case ShortCode::i_div:
+        case ShortCode::i_div_un:
+        case ShortCode::i_rem:
+        case ShortCode::i_rem_un:
+        case ShortCode::i_and:
+        case ShortCode::i_or:
+        case ShortCode::i_xor:
+        case ShortCode::i_shl:
+        case ShortCode::i_shr:
+        case ShortCode::i_shr_un:
+        case ShortCode::i_neg:
+        case ShortCode::i_not:
+        case ShortCode::i_ldelem_i1:
+        case ShortCode::i_ldelem_u1:
+        case ShortCode::i_ldelem_i2:
+        case ShortCode::i_ldelem_u2:
+        case ShortCode::i_ldelem_i4:
+        case ShortCode::i_ldelem_u4:
+        case ShortCode::i_ldelem_i8:
+        case ShortCode::i_ldelem_i:
+        case ShortCode::i_ldelem_r4:
+        case ShortCode::i_ldelem_r8:
+        case ShortCode::i_ldelem_ref:
+        case ShortCode::i_stelem_i:
+        case ShortCode::i_stelem_i1:
+        case ShortCode::i_stelem_i2:
+        case ShortCode::i_stelem_i4:
+        case ShortCode::i_stelem_i8:
+        case ShortCode::i_stelem_r4:
+        case ShortCode::i_stelem_r8:
+        case ShortCode::i_stelem_ref:
+        case ShortCode::i_conv_i1:
+        case ShortCode::i_conv_i2:
+        case ShortCode::i_conv_i4:
+        case ShortCode::i_conv_i8:
+        case ShortCode::i_conv_r4:
+        case ShortCode::i_conv_r8:
+        case ShortCode::i_conv_u4:
+        case ShortCode::i_conv_u8:
+        case ShortCode::i_conv_ovf_i1_un:
+        case ShortCode::i_conv_ovf_i2_un:
+        case ShortCode::i_conv_ovf_i4_un:
+        case ShortCode::i_conv_ovf_i8_un:
+        case ShortCode::i_conv_ovf_u1_un:
+        case ShortCode::i_conv_ovf_u2_un:
+        case ShortCode::i_conv_ovf_u4_un:
+        case ShortCode::i_conv_ovf_u8_un:
+        case ShortCode::i_conv_ovf_i_un:
+        case ShortCode::i_conv_ovf_u_un:
+        case ShortCode::i_conv_u2:
+        case ShortCode::i_conv_u1:
+        case ShortCode::i_conv_i:
+        case ShortCode::i_conv_ovf_i:
+        case ShortCode::i_conv_ovf_u:
+        case ShortCode::i_add_ovf:
+        case ShortCode::i_add_ovf_un:
+        case ShortCode::i_mul_ovf:
+        case ShortCode::i_mul_ovf_un:
+        case ShortCode::i_sub_ovf:
+        case ShortCode::i_sub_ovf_un:
+        {
+            ++it;
+            return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { });
+        }
+        break;
+
+        // Short representations of branching opcodes
+        case ShortCode::i_br_s:
+        case ShortCode::i_brfalse_s:
+        case ShortCode::i_brtrue_s:
+        case ShortCode::i_beq_s:
+        case ShortCode::i_bge_s:
+        case ShortCode::i_bgt_s:
+        case ShortCode::i_ble_s:
+        case ShortCode::i_blt_s:
+        case ShortCode::i_bne_un_s:
+        case ShortCode::i_bge_un_s:
+        case ShortCode::i_bgt_un_s:
+        case ShortCode::i_ble_un_s:
+        case ShortCode::i_blt_un_s:
+        {
+            it++;
+            auto newcode = _u(ShortCode::i_br) + (_u(opcode) - _u(ShortCode::i_br_s));
+            return pair<Instruction, vector<argument> >(static_cast<Instruction>(newcode), { *(it++) });
+        }
+        break;
+
+        // Leave normal representation of branching opcodes as is.
+        case ShortCode::i_br:
+        case ShortCode::i_brfalse:
+        case ShortCode::i_brtrue:
+        case ShortCode::i_beq:
+        case ShortCode::i_bge:
+        case ShortCode::i_bgt:
+        case ShortCode::i_ble:
+        case ShortCode::i_blt:
+        case ShortCode::i_bne_un:
+        case ShortCode::i_bge_un:
+        case ShortCode::i_bgt_un:
+        case ShortCode::i_ble_un:
+        case ShortCode::i_blt_un:
+        {
+            it++;
+            auto target = static_cast<uint32_t>(*(it++)) | static_cast<uint32_t>(*(it++)) << 8 | static_cast<uint32_t>(*(it++)) << 16 | static_cast<uint32_t>(*(it++)) << 24;
+            return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { target });
+        }
+        break;
+
+        /*
+            TODO: remaining opcodes.
+
+        */
+
+        default:
+            throw runtime_error("Invalid opcode");
+    }
+}
+
+std::shared_ptr<InstructionTree> InstructionTree::MakeTree(vector<uint8_t>& methodData) {
+    auto treeObj = new InstructionTree();
+
+    for(auto it = methodData.begin(); it != methodData.end(); ++it) {
+        auto op = decodeOp(it);
+        treeObj->tree[distance(methodData.begin(), it)] = op;
+    }
+
+    return shared_ptr<InstructionTree>(treeObj);
+}
