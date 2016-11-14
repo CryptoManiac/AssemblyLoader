@@ -54,6 +54,9 @@
     <ClCompile Include="CLR\ExecutionThread.cxx">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="CLR\InstructionTree.cxx">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CLR\AssemblyData.hxx">
@@ -129,6 +132,9 @@
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="CLR\HexStr.hxx">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="CLR\InstructionTree.hxx">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>
