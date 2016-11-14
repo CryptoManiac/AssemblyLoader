@@ -1,5 +1,5 @@
-#ifndef __INSTRUCTIONTREE_CXX_
-#define __INSTRUCTIONTREE_CXX_
+#ifndef __INSTRUCTIONTREE_HXX_
+#define __INSTRUCTIONTREE_HXX_
 
 #include <map>
 #include <memory>

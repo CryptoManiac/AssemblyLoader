@@ -8,7 +8,6 @@
 
 #include "AssemblyData.hxx"
 #include "ExecutionThread.hxx"
-#include "crossguid/guid.hxx"
 
 struct AppDomain {
     std::map<Guid, std::shared_ptr<const AssemblyData> > assemblies;

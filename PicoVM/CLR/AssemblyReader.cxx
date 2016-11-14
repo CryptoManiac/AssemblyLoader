@@ -3,10 +3,6 @@
 #include "AssemblyReader.hxx"
 #include "utf8.h"
 #include "Property.hxx"
-#include "ImageNTHeader32.hxx"
-#include "ImageNTHeader64.hxx"
-#include "ImageSectionHeader.hxx"
-#include "CLIHeader.hxx"
 
 using namespace std;
 

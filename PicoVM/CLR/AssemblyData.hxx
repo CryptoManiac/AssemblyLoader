@@ -1,10 +1,9 @@
 #ifndef __ASSEMBLYDATA_HXX__
 #define __ASSEMBLYDATA_HXX__
-#include <cinttypes>
+#include <cstdint>
 #include <vector>
 
 #include "AssemblyReader.hxx"
-#include "Property.hxx"
 #include "CLIMetadata.hxx"
 #include "CLIMetadataTableRows.hxx"
 #include "CLIMethodBody.hxx"

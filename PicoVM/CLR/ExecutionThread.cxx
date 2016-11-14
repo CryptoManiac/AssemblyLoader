@@ -1,7 +1,5 @@
 #include "ExecutionThread.hxx"
 #include "AppDomain.hxx"
-#include "AssemblyData.hxx"
-#include "CLIMethodBody.hxx"
 #include <iomanip>
 
 using namespace std;
