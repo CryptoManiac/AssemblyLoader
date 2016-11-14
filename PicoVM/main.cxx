@@ -63,7 +63,7 @@ int main(int argc, const char *argv[]) {
         cout << "methodName=" << string(methodDef.name.begin(), methodDef.name.end()) << endl;
         cout << methodDef.methodBody.str(true) << endl;
 
-        // auto tree = InstructionTree::MakeTree(methodDef.methodBody.data);
+        auto tree = InstructionTree::MakeTree(methodDef.methodBody.data);
 
     } else {
         cout << "No entrypoint, this must be a library assembly" << endl;

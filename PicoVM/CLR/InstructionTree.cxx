@@ -297,7 +297,7 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
             return pair<Instruction, vector<argument> >(Instruction::i_stloc, { *(it++) });
 
         case sc::i_ldc_i4_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { *(it++) });
+            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { static_cast<int8_t>(*(it++)) });
 
         // Short representations of branching opcodes
         case sc::i_br_s:
@@ -315,11 +315,11 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
         case sc::i_blt_un_s:
         {
             auto newcode = _u(sc::i_br) + (_u(opcode) - _u(sc::i_br_s));
-            return pair<Instruction, vector<argument> >(Instruction(newcode), { *(it++) });
+            return pair<Instruction, vector<argument> >(static_cast<Instruction>(newcode), { static_cast<int8_t>(*(it++)) });
         }
 
         case sc::i_leave_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_leave, { *(it++) });
+            return pair<Instruction, vector<argument> >(Instruction::i_leave, { static_cast<int8_t>(*(it++)) });
 
         // Leave normal representation of branching opcodes as is.
         case sc::i_br:
@@ -337,8 +337,8 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
         case sc::i_blt_un:
         case sc::i_leave:
         {
-            auto target = static_cast<uint32_t>(*(it++)) | static_cast<uint32_t>(*(it++)) << 8 | static_cast<uint32_t>(*(it++)) << 16 | static_cast<uint32_t>(*(it++)) << 24;
-            return pair<Instruction, vector<argument> >(Instruction(opcode), { target });
+            auto target = static_cast<int32_t>(*(it++)) | static_cast<int32_t>(*(it++)) << 8 | static_cast<int32_t>(*(it++)) << 16 | static_cast<int32_t>(*(it++)) << 24;
+            return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { target });
         }
 
         case sc::i_box:
@@ -370,7 +370,7 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
         case sc::i_callvirt:
         {
             auto token = static_cast<uint32_t>(*(it++)) | static_cast<uint32_t>(*(it++)) << 8 | static_cast<uint32_t>(*(it++)) << 16 | static_cast<uint32_t>(*(it++)) << 24;
-            return pair<Instruction, vector<argument> >(Instruction(opcode), { token });
+            return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { token });
         }
 
         case sc::p_multibyte:
@@ -390,7 +390,7 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
                 case tb::i_localloc:
                 case tb::i_endfilter:
                 case tb::i_refanytype:
-                    return pair<Instruction, vector<argument> >(Instruction(lopcode), {});
+                    return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), {});
 
                 case tb::i_ldloc:
                 case tb::i_ldloca:
@@ -400,7 +400,7 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
                 case tb::i_stloc:
                 {
                     auto arg = static_cast<uint16_t>(*(it++)) | static_cast<uint16_t>(*(it++)) << 8;
-                    return pair<Instruction, vector<argument> >(Instruction(lopcode), { arg });
+                    return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), { arg });
                 }
 
                 case tb::i_sizeof:
@@ -409,14 +409,13 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
                 case tb::i_initobj:
                 {
                     auto token = static_cast<uint16_t>(*(it++)) | static_cast<uint16_t>(*(it++)) << 8 | static_cast<uint16_t>(*(it++)) << 16 | static_cast<uint16_t>(*(it++)) << 24;
-                    return pair<Instruction, vector<argument> >(Instruction(lopcode), { token });
+                    return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), { token });
                 }
             }
         }
 
         default:
             // Direct conversion of parameterless instructions
-            //++it;
             return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), {});
     }
 }
@@ -426,8 +425,9 @@ std::shared_ptr<InstructionTree> InstructionTree::MakeTree(const vector<uint8_t>
     vector<uint8_t> data = methodData;
 
     for(auto it = data.begin(); it != data.end(); ) {
+        auto offset = distance(data.begin(), it);
         auto op = decodeOp(it);
-        treeObj->tree[distance(data.begin(), it)] = op;
+        treeObj->tree[offset] = op;
     }
 
     return shared_ptr<InstructionTree>(treeObj);
