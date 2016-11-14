@@ -4,7 +4,6 @@
 #include <cstdint>
 
 #include "crossguid/guid.hxx"
-#include "Property.hxx"
 #include "ImageNTHeader32.hxx"
 #include "ImageNTHeader64.hxx"
 #include "ImageSectionHeader.hxx"
