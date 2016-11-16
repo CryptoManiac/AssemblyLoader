@@ -230,7 +230,34 @@ enum struct TwoByteCode : uint16_t {
     p_readonly = 0x1EFE, // Prefix 
 };
 
-static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& it) {
+static bool is_branching(const pair<Instruction, vector<argument> >& instr, int32_t& param) {
+
+    switch(instr.first)
+    {
+        case Instruction::i_br:
+        case Instruction::i_brfalse:
+        case Instruction::i_brtrue:
+        case Instruction::i_beq:
+        case Instruction::i_bge:
+        case Instruction::i_bgt:
+        case Instruction::i_ble:
+        case Instruction::i_blt:
+        case Instruction::i_bne_un:
+        case Instruction::i_bge_un:
+        case Instruction::i_bgt_un:
+        case Instruction::i_ble_un:
+        case Instruction::i_blt_un:
+        case Instruction::i_leave:
+        {
+            param = instr.second.begin()->get<int32_t>();
+            return true;
+        }
+        default:
+            return false;
+    }
+}
+
+static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint8_t>::iterator& it) {
     using sc = ShortCode;
     using tb = TwoByteCode;
 
@@ -315,11 +342,15 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
         case sc::i_blt_un_s:
         {
             auto newcode = _u(sc::i_br) + (_u(opcode) - _u(sc::i_br_s));
-            return pair<Instruction, vector<argument> >(static_cast<Instruction>(newcode), { static_cast<int8_t>(*(it++)) });
+            auto target = static_cast<int8_t>(*(it++));
+            return pair<Instruction, vector<argument> >(static_cast<Instruction>(newcode), { offset + 1 + target });
         }
 
         case sc::i_leave_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_leave, { static_cast<int8_t>(*(it++)) });
+        {
+            auto target = static_cast<int8_t>(*(it++));
+            return pair<Instruction, vector<argument> >(Instruction::i_leave, { offset + 1 + target });
+        }
 
         // Leave normal representation of branching opcodes as is.
         case sc::i_br:
@@ -338,7 +369,7 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
         case sc::i_leave:
         {
             auto target = static_cast<int32_t>(*(it++)) | static_cast<int32_t>(*(it++)) << 8 | static_cast<int32_t>(*(it++)) << 16 | static_cast<int32_t>(*(it++)) << 24;
-            return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { target });
+            return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { offset + 5 + target });
         }
 
         case sc::i_box:
@@ -360,9 +391,9 @@ static pair<Instruction, vector<argument> > decodeOp(vector<uint8_t>::iterator& 
         case sc::i_newarr:
         case sc::i_newobj:
         case sc::i_refanyval:
-        case sc::i_ldelem: // TODO: short versions
-        case sc::i_ldelema: // TODO: short versions
-        case sc::i_stelem: // TODO: short versions
+        case sc::i_ldelem:
+        case sc::i_ldelema:
+        case sc::i_stelem:
         case sc::i_castclass:
         case sc::i_jmp:
         case sc::i_call:
@@ -426,8 +457,13 @@ std::shared_ptr<InstructionTree> InstructionTree::MakeTree(const vector<uint8_t>
 
     for(auto it = data.begin(); it != data.end(); ) {
         auto offset = distance(data.begin(), it);
-        auto op = decodeOp(it);
+        auto op = decodeOp(offset, it);
         treeObj->tree[offset] = op;
+
+        int32_t targetValue;
+        if (is_branching(op, targetValue)) {
+            treeObj->targets.push_back(targetValue);
+        }
     }
 
     return shared_ptr<InstructionTree>(treeObj);
