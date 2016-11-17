@@ -65,6 +65,8 @@ int main(int argc, const char *argv[]) {
 
         auto tree = InstructionTree::MakeTree(methodDef.methodBody.data);
 
+        cout << tree->str() << endl;
+
     } else {
         cout << "No entrypoint, this must be a library assembly" << endl;
         cout << "List of methods defined by this assembly:" << endl << endl;

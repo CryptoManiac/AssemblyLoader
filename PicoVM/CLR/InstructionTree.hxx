@@ -4,6 +4,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <string>
 #include <cstdint>
 #include <mapbox/variant.hpp>
 
@@ -189,8 +190,12 @@ struct InstructionTree {
     // offset -> (instruction, [arg1, arg2, ...])
     typedef std::map<int32_t, std::pair<Instruction, std::vector<argument> > > TreeMap;
 
-    TreeMap tree;
+    std::string str() const;
+
     static std::shared_ptr<InstructionTree> MakeTree(const std::vector<uint8_t>& methodData);
+
+private:
+    TreeMap tree;
 };
 
 #endif

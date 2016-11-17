@@ -1,6 +1,10 @@
 #include "InstructionTree.hxx"
 #include "EnumCasting.hxx"
 
+#include <iostream>
+#include <sstream>
+#include <iomanip>
+
 using namespace std;
 
 // One-byte opcodes
@@ -234,6 +238,27 @@ inline static int32_t read_int32(vector<uint8_t>::iterator& it) {
     return static_cast<int32_t>(*(it++)) | static_cast<int32_t>(*(it++)) << 8 | static_cast<int32_t>(*(it++)) << 16 | static_cast<int32_t>(*(it++)) << 24;
 }
 
+inline static int64_t read_int64(vector<uint8_t>::iterator& it) {
+    return  static_cast<int64_t>(*(it++)) | 
+            static_cast<int64_t>(*(it++)) << 8 | 
+            static_cast<int64_t>(*(it++)) << 16 |
+            static_cast<int64_t>(*(it++)) << 24 |
+            static_cast<int64_t>(*(it++)) << 32 |
+            static_cast<int64_t>(*(it++)) << 40 |
+            static_cast<int64_t>(*(it++)) << 48 |
+            static_cast<int64_t>(*(it++)) << 56;
+}
+
+inline static float read_float(vector<uint8_t>::iterator& it) {
+    auto num = read_int32(it);
+    return *reinterpret_cast<float*>(&num);
+}
+
+inline static double read_double(vector<uint8_t>::iterator& it) {
+    auto num = read_int64(it);
+    return *reinterpret_cast<double*>(&num);
+}
+
 static bool is_branching(const pair<Instruction, vector<argument> >& instr, vector<int32_t>& targets) {
 
     switch(instr.first)
@@ -271,40 +296,40 @@ static bool is_branching(const pair<Instruction, vector<argument> >& instr, vect
     }
 }
 
-static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint8_t>::iterator& it) {
+static pair<Instruction, vector<argument> > loadOp(int32_t offset, vector<uint8_t>::iterator& it) {
     using sc = ShortCode;
     using tb = TwoByteCode;
 
     auto opcode = static_cast<sc>(*(it++));
 
     switch(opcode) {
-        // Predefined aliases for ldarg [int32 num] where num is between 0 and 3.
+        // Predefined aliases for ldarg [uint16_t num] where num is between 0 and 3.
         case sc::i_ldarg_0:
         case sc::i_ldarg_1:
         case sc::i_ldarg_2:
         case sc::i_ldarg_3:
         {
-            auto arg = _u(opcode) - _u(sc::i_ldarg_0);
+            uint16_t arg = _u(opcode) - _u(sc::i_ldarg_0);
             return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { arg });
         }
 
-        // Predefined aliases for ldloc [int32 num] where num is between 0 and 3.
+        // Predefined aliases for ldloc [uint16_t num] where num is between 0 and 3.
         case sc::i_ldloc_0:
         case sc::i_ldloc_1:
         case sc::i_ldloc_2:
         case sc::i_ldloc_3:
         {
-            auto arg = _u(opcode) - _u(sc::i_ldloc_0);
+            uint16_t arg = _u(opcode) - _u(sc::i_ldloc_0);
             return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { arg });
         }
 
-        // Predefined aliases for stloc [int32 num] where num is between 0 and 3.
+        // Predefined aliases for stloc [uint16_t num] where num is between 0 and 3.
         case sc::i_stloc_0:
         case sc::i_stloc_1:
         case sc::i_stloc_2:
         case sc::i_stloc_3:
         {
-            auto arg = _u(opcode) - _u(sc::i_stloc_0);
+            uint16_t arg = _u(opcode) - _u(sc::i_stloc_0);
             return pair<Instruction, vector<argument> >(Instruction::i_stloc, { arg });
         }
 
@@ -319,44 +344,97 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
         case sc::i_ldc_i4_7:
         case sc::i_ldc_i4_8:
         {
-            auto arg = _u(opcode) - _u(sc::i_ldc_i4_0);
+            int32_t arg = _u(opcode) - _u(sc::i_ldc_i4_0);
             return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { arg });
         }
 
         // Load argument (short version)
         // ldarg.s [uint8_t argnum]
         case sc::i_ldarg_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { *(it++) });
+        {
+            uint16_t arg = *(it++);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { arg });
+        }
 
         // Load argument address (short version)
         // ldarga.s [uint8_t argnum]
         case sc::i_ldarga_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_ldarga, { *(it++) });
+        {
+            uint16_t arg = *(it++);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldarga, { arg });
+        }
 
         // Save argument (short version)
         // starg.s [uint8_t argnum]
         case sc::i_starg_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_starg, { *(it++) });
+        {
+            uint16_t arg = *(it++);
+            return pair<Instruction, vector<argument> >(Instruction::i_starg, { arg });
+        }
 
         // Load local variable (short version)
         // ldloc.s [uint8_t varnum]
         case sc::i_ldloc_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { *(it++) });
+        {
+            uint16_t arg = *(it++);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { arg });
+        }
 
         // Load local variable address (short version)
         // ldloca.s [uint8_t varnum]
         case sc::i_ldloca_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_ldloca, { *(it++) });
+        {
+            uint16_t arg = *(it++);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldloca, { arg });
+        }
 
         // Save local variable (short version)
         // stloc.s [uint8_t varnum]
         case sc::i_stloc_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_stloc, { *(it++) });
+        {
+            uint16_t arg = *(it++);
+            return pair<Instruction, vector<argument> >(Instruction::i_stloc, { arg });
+        }
 
         // Load integer as int32_t (short version)
         // ldc.i4.s [int8_t smallint]
         case sc::i_ldc_i4_s:
-            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { static_cast<int8_t>(*(it++)) });
+        {
+            int32_t arg = static_cast<int8_t>(*(it++));
+            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { arg });
+        }
+
+        // Load integer as int32_t
+        // ldc.i4 [int32_t int]
+        case sc::i_ldc_i4:
+        {
+            auto arg = read_int32(it);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { arg });
+        }
+
+        // Load integer as int64_t
+        // ldc.i8 [int64_t int]
+        case sc::i_ldc_i8:
+        {
+            auto arg = read_int64(it);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i8, { arg });
+        }
+
+        // Load float as double
+        // ldc.r4 [float num]
+        case sc::i_ldc_r4:
+        {
+            auto arg = read_float(it);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldc_r4, { arg });
+        }
+
+        // Load double
+        // ldc.r8 [double num]
+        case sc::i_ldc_r8:
+        {
+            auto arg = read_double(it);
+            return pair<Instruction, vector<argument> >(Instruction::i_ldc_r8, { arg });
+        }
 
         // Short representations of branching opcodes
         // xx [int8_t target]
@@ -485,7 +563,7 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
                     return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), {});
 
                 // Local variable and argument operations
-                // <instruction> [int16_t index]
+                // <instruction> [uint16_t index]
                 case tb::i_ldloc:
                 case tb::i_ldloca:
                 case tb::i_ldarg:
@@ -493,7 +571,7 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
                 case tb::i_starg:
                 case tb::i_stloc:
                 {
-                    auto arg = static_cast<uint16_t>(*(it++)) | static_cast<uint16_t>(*(it++)) << 8;
+                    uint16_t arg = static_cast<uint16_t>(*(it++)) | static_cast<uint16_t>(*(it++)) << 8;
                     return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), { arg });
                 }
 
@@ -516,13 +594,13 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
     }
 }
 
-std::shared_ptr<InstructionTree> InstructionTree::MakeTree(const vector<uint8_t>& methodData) {
+shared_ptr<InstructionTree> InstructionTree::MakeTree(const vector<uint8_t>& methodData) {
     auto treeObj = new InstructionTree();
     vector<uint8_t> data = methodData;
 
     for(auto it = data.begin(); it != data.end(); ) {
         auto offset = distance(data.begin(), it);
-        auto op = decodeOp(offset, it);
+        auto op = loadOp(offset, it);
         treeObj->tree[offset] = op;
 
         vector<int32_t> targets;
@@ -532,4 +610,264 @@ std::shared_ptr<InstructionTree> InstructionTree::MakeTree(const vector<uint8_t>
     }
 
     return shared_ptr<InstructionTree>(treeObj);
+}
+
+string InstructionTree::str() const {
+    using i = Instruction;
+
+    ostringstream s;
+
+    for (const auto &item : tree) {
+        auto instr = item.second.first;
+        auto args = item.second.second;
+        auto offset = item.first;
+
+        s << hex << setw(4) << setfill('0') << offset;
+
+        switch (instr) {
+        // Local variable and argument operations
+        // <operation> [uint16_t]
+        case i::i_ldarg:
+        case i::i_ldarga:
+        case i::i_ldloc:
+        case i::i_ldloca:
+        case i::i_starg:
+        case i::i_stloc:
+        {
+            switch (instr) {
+            case i::i_ldarg:  s << ": ldarg"; break;
+            case i::i_ldarga: s << ": ldarga"; break;
+            case i::i_ldloc:  s << ": ldloc"; break;
+            case i::i_ldloca: s << ": ldloca"; break;
+            case i::i_starg:  s << ": starg"; break;
+            case i::i_stloc:  s << ": stloc"; break;
+            }
+
+            s << " " << dec << args.begin()->get<uint16_t>();
+        }
+        break;
+
+        // Load number
+        case i::i_ldc_i4: s << ": ldc_i4 " << dec << args.begin()->get<int32_t>(); break;
+        case i::i_ldc_i8: s << ": ldc_i8 " << dec << args.begin()->get<int64_t>(); break;
+        case i::i_ldc_r4: s << ": ldc_r4 " << dec << args.begin()->get<float>(); break;
+        case i::i_ldc_r8: s << ": ldc_r8 " << dec << args.begin()->get<double>(); break;
+
+        // Branching
+        case i::i_br:
+        case i::i_brfalse:
+        case i::i_brtrue:
+        case i::i_beq:
+        case i::i_bge:
+        case i::i_bgt:
+        case i::i_ble:
+        case i::i_blt:
+        case i::i_bne_un:
+        case i::i_bge_un:
+        case i::i_bgt_un:
+        case i::i_ble_un:
+        case i::i_blt_un:
+        case i::i_leave:
+        {
+            switch (instr) {
+            case i::i_br: s << ": br"; break;
+            case i::i_brfalse: s << ": brfalse"; break;
+            case i::i_brtrue: s << ": brtrue"; break;
+            case i::i_beq: s << ": beq"; break;
+            case i::i_bge: s << ": bge"; break;
+            case i::i_bgt: s << ": bgt"; break;
+            case i::i_ble: s << ": ble"; break;
+            case i::i_blt: s << ": blt"; break;
+            case i::i_bne_un: s << ": bne_un"; break;
+            case i::i_bge_un: s << ": bge_un"; break;
+            case i::i_bgt_un: s << ": bgt_un"; break;
+            case i::i_ble_un: s << ": ble_un"; break;
+            case i::i_blt_un: s << ": blt_un"; break;
+            case i::i_leave: s << ": leave"; break;
+            }
+
+            s << " " << hex << args.begin()->get<int32_t>();
+        }
+        break;
+
+        // Argumentless instructions
+        case i::i_nop:  s << ": nop"; break;
+        case i::i_throw:  s << ": throw"; break;
+        case i::i_rethrow: s << ": rethrow"; break;
+        case i::i_ldnull: s << ": ldnull"; break;
+        case i::i_dup:    s << ": dup"; break;
+        case i::i_pop:    s << ": pop"; break;
+        case i::i_ret:    s << ": ret"; break;
+        case i::i_add:    s << ": add"; break;
+        case i::i_and:    s << ": and"; break;
+        case i::i_or:     s << ": or"; break;
+        case i::i_xor:    s << ": xor"; break;
+        case i::i_neg:    s << ": neg"; break;
+        case i::i_not:    s << ": not"; break;
+        case i::i_sub:    s << ": sub"; break;
+        case i::i_mul:    s << ": mul"; break;
+        case i::i_div:    s << ": duv"; break;
+        case i::i_div_un: s << ": duv_un"; break;
+        case i::i_rem:    s << ": rem"; break;
+        case i::i_rem_un: s << ": rem_un"; break;
+        case i::i_shr:    s << ": shr"; break;
+        case i::i_shr_un: s << ": shr_un"; break;
+
+        case i::i_add_ovf:    s << ": add_ovf"; break;
+        case i::i_add_ovf_un: s << ": add_ovf_un"; break;
+        case i::i_sub_ovf:    s << ": sub_ovf"; break;
+        case i::i_sub_ovf_un: s << ": sub_ovf_un"; break;
+        case i::i_mul_ovf:    s << ": mul_ovf"; break;
+        case i::i_mul_ovf_un: s << ": mul_ovf_un"; break;
+
+        case i::i_ldind_i:   s << ": ldind_i"; break;
+        case i::i_ldind_i1:  s << ": ldind_i1"; break;
+        case i::i_ldind_i2:  s << ": ldind_i2"; break;
+        case i::i_ldind_i4:  s << ": ldind_i4"; break;
+        case i::i_ldind_i8:  s << ": ldind_i8"; break;
+        case i::i_ldind_u1:  s << ": ldind_u1"; break;
+        case i::i_ldind_u2:  s << ": ldind_u2"; break;
+        case i::i_ldind_u4:  s << ": ldind_u4"; break;
+        case i::i_ldind_r4:  s << ": ldind_r4"; break;
+        case i::i_ldind_r8:  s << ": ldind_r8"; break;
+        case i::i_ldind_ref: s << ": ldind_ref"; break;
+        case i::i_stind_ref: s << ": stind_ref"; break;
+        case i::i_stind_i:   s << ": stind_i"; break;
+        case i::i_stind_i1:  s << ": stind_i1"; break;
+        case i::i_stind_i2:  s << ": stind_i2"; break;
+        case i::i_stind_i4:  s << ": stind_i4"; break;
+        case i::i_stind_i8:  s << ": stind_i8"; break;
+
+        case i::i_ldelem_i:   s << ": ldelem_i"; break;
+        case i::i_ldelem_i1:  s << ": ldelem_i1"; break;
+        case i::i_ldelem_i2:  s << ": ldelem_i2"; break;
+        case i::i_ldelem_i4:  s << ": ldelem_i4"; break;
+        case i::i_ldelem_i8:  s << ": ldelem_i8"; break;
+        case i::i_ldelem_u1:  s << ": ldelem_u1"; break;
+        case i::i_ldelem_u2:  s << ": ldelem_u2"; break;
+        case i::i_ldelem_u4:  s << ": ldelem_u4"; break;
+        case i::i_ldelem_r4:  s << ": ldelem_r4"; break;
+        case i::i_ldelem_r8:  s << ": ldelem_r8"; break;
+        case i::i_ldelem_ref: s << ": ldelem_ref"; break;
+
+        case i::i_stelem_i:   s << ": stelem_i"; break;
+        case i::i_stelem_i1:  s << ": stelem_i1"; break;
+        case i::i_stelem_i2:  s << ": stelem_i2"; break;
+        case i::i_stelem_i4:  s << ": stelem_i4"; break;
+        case i::i_stelem_i8:  s << ": stelem_i8"; break;
+        case i::i_stelem_r4:  s << ": stelem_r4"; break;
+        case i::i_stelem_r8:  s << ": stelem_r8"; break;
+        case i::i_stelem_ref: s << ": stelem_ref"; break;
+
+        case i::i_conv_i:   s << ": conv_i"; break;
+        case i::i_conv_i1:  s << ": conv_i1"; break;
+        case i::i_conv_i2:  s << ": conv_i2"; break;
+        case i::i_conv_i4:  s << ": conv_i4"; break;
+        case i::i_conv_i8:  s << ": conv_i8"; break;
+        case i::i_conv_u:   s << ": conv_u"; break;
+        case i::i_conv_u1:  s << ": conv_u1"; break;
+        case i::i_conv_u2:  s << ": conv_u2"; break;
+        case i::i_conv_u4:  s << ": conv_u4"; break;
+        case i::i_conv_u8:  s << ": conv_u8"; break;
+        case i::i_conv_ovf_i:   s << ": conv_ovf_i"; break;
+        case i::i_conv_ovf_i1:  s << ": conv_ovf_i1"; break;
+        case i::i_conv_ovf_i2:  s << ": conv_ovf_i2"; break;
+        case i::i_conv_ovf_i4:  s << ": conv_ovf_i4"; break;
+        case i::i_conv_ovf_i8:  s << ": conv_ovf_i8"; break;
+        case i::i_conv_ovf_u:   s << ": conv_ovf_u"; break;
+        case i::i_conv_ovf_u1:  s << ": conv_ovf_u1"; break;
+        case i::i_conv_ovf_u2:  s << ": conv_ovf_u2"; break;
+        case i::i_conv_ovf_u4:  s << ": conv_ovf_u4"; break;
+        case i::i_conv_ovf_u8:  s << ": conv_ovf_u8"; break;
+        case i::i_conv_ovf_i_un:   s << ": conv_ovf_i_un"; break;
+        case i::i_conv_ovf_i1_un:  s << ": conv_ovf_i1_un"; break;
+        case i::i_conv_ovf_i2_un:  s << ": conv_ovf_i2_un"; break;
+        case i::i_conv_ovf_i4_un:  s << ": conv_ovf_i4_un"; break;
+        case i::i_conv_ovf_i8_un:  s << ": conv_ovf_i8_un"; break;
+        case i::i_conv_r4:  s << ": conv_r4"; break;
+        case i::i_conv_r8:  s << ": conv_r8"; break;
+
+        case i::i_arglist: s << " arglist"; break;
+        case i::i_ceq: s << " ceq"; break;
+        case i::i_cgt: s << " cgt"; break;
+        case i::i_clt: s << " clt"; break;
+        case i::i_cgt_un: s << " cgt_un"; break;
+        case i::i_clt_un: s << " clt_un"; break;
+        case i::i_cpblk: s << " cpblk"; break;
+        case i::i_initblk: s << " initblk"; break;
+        case i::i_localloc: s << " localloc"; break;
+        case i::i_endfilter: s << " endfilter"; break;
+        case i::i_refanytype: s << " refanytyoe"; break;
+
+        // Some object model instructions
+        // <instruction> [uint32_t Token]
+        case i::i_box: 
+        case i::i_unbox:
+        case i::i_unbox_any:
+        case i::i_cpobj:
+        case i::i_ldobj:
+        case i::i_stobj:
+        case i::i_isinst:
+        case i::i_ldfld:
+        case i::i_stfld:
+        case i::i_stsfld:
+        case i::i_ldflda:
+        case i::i_ldsfld:
+        case i::i_ldsflda:
+        case i::i_ldstr:
+        case i::i_ldtoken:
+        case i::i_mkrefany:
+        case i::i_newarr:
+        case i::i_newobj:
+        case i::i_refanyval:
+        case i::i_ldelem:
+        case i::i_ldelema:
+        case i::i_stelem:
+        case i::i_castclass:
+        case i::i_jmp:
+        case i::i_call:
+        case i::i_calli:
+        case i::i_callvirt:
+        {
+            switch (instr) {
+            case i::i_box: s << ": box"; break;
+                case i::i_unbox: s << ": unbox"; break;
+                case i::i_unbox_any: s << ": unbox_any"; break;
+                case i::i_cpobj: s << ": cpobj"; break;
+                case i::i_ldobj: s << ": ldobj"; break;
+                case i::i_stobj: s << ": stobj"; break;
+                case i::i_isinst: s << ": isinst"; break;
+                case i::i_ldfld: s << ": ldfld"; break;
+                case i::i_stfld: s << ": stfld"; break;
+                case i::i_stsfld: s << ": stsfld"; break;
+                case i::i_ldflda: s << ": ldflda"; break;
+                case i::i_ldsfld: s << ": ldsfld"; break;
+                case i::i_ldsflda: s << ": ldsflda"; break;
+                case i::i_ldstr: s << ": ldstr"; break;
+                case i::i_ldtoken: s << ": ldtoken"; break;
+                case i::i_mkrefany: s << ": mkrefany"; break;
+                case i::i_newarr: s << ": newarr"; break;
+                case i::i_newobj: s << ": newobj"; break;
+                case i::i_refanyval: s << ": refanyval"; break;
+                case i::i_ldelem: s << ": ldelem"; break;
+                case i::i_ldelema: s << ": ldelema"; break;
+                case i::i_stelem: s << ": stelem"; break;
+                case i::i_castclass: s << ": castclass"; break;
+                case i::i_jmp: s << ": jmp"; break;
+                case i::i_call: s << ": call"; break;
+                case i::i_calli: s << ": calli"; break;
+                case i::i_callvirt: s << ": callvirt"; break;
+            }
+
+            s << " <" << args.begin()->get<uint32_t>() << ">";
+        }
+        break;
+
+        default:
+        }
+
+        s << endl;
+    }
+
+    return s.str();
 }
