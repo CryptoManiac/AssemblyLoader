@@ -736,6 +736,7 @@ string InstructionTree::str() const {
         case i::i_mul_ovf:    s << ": mul_ovf"; break;
         case i::i_mul_ovf_un: s << ": mul_ovf_un"; break;
 
+        case i::i_ldlen:     s << ": ldlen"; break;
         case i::i_ldind_i:   s << ": ldind_i"; break;
         case i::i_ldind_i1:  s << ": ldind_i1"; break;
         case i::i_ldind_i2:  s << ": ldind_i2"; break;
@@ -802,6 +803,7 @@ string InstructionTree::str() const {
         case i::i_conv_ovf_i8_un:  s << ": conv_ovf_i8_un"; break;
         case i::i_conv_r4:  s << ": conv_r4"; break;
         case i::i_conv_r8:  s << ": conv_r8"; break;
+        case i::i_conv_r_un:  s << ": conv_r_un"; break;
 
         case i::i_arglist: s << " arglist"; break;
         case i::i_ceq: s << " ceq"; break;
