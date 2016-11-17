@@ -796,6 +796,8 @@ string InstructionTree::str() const {
         case i::i_cpblk: s << " cpblk"; break;
         case i::i_initblk: s << " initblk"; break;
         case i::i_localloc: s << " localloc"; break;
+        case i::i_ckfinite:  s << ": ckfinite"; break;
+        case i::i_endfinally: s << " endfinally"; break;
         case i::i_endfilter: s << " endfilter"; break;
         case i::i_refanytype: s << " refanytyoe"; break;
 
@@ -828,6 +830,10 @@ string InstructionTree::str() const {
         case i::i_call:
         case i::i_calli:
         case i::i_callvirt:
+        case i::i_sizeof:
+        case i::i_ldftn:
+        case i::i_ldvirtftn:
+        case i::i_initobj:
         {
             switch (instr) {
             case i::i_box: s << ": box"; break;
@@ -857,6 +863,10 @@ string InstructionTree::str() const {
                 case i::i_call: s << ": call"; break;
                 case i::i_calli: s << ": calli"; break;
                 case i::i_callvirt: s << ": callvirt"; break;
+                case i::i_sizeof: s << ": sizeof"; break;
+                case i::i_ldftn: s << ": ldftn"; break;
+                case i::i_ldvirtftn: s << ": ldvirtftn"; break;
+                case i::i_initobj: s << ": initobj"; break;
             }
 
             s << " <" << args.begin()->get<uint32_t>() << ">";
