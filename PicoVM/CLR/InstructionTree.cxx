@@ -230,7 +230,11 @@ enum struct TwoByteCode : uint16_t {
     p_readonly = 0x1EFE, // Prefix 
 };
 
-static bool is_branching(const pair<Instruction, vector<argument> >& instr, int32_t& param) {
+inline static int32_t read_int32(vector<uint8_t>::iterator& it) {
+    return static_cast<int32_t>(*(it++)) | static_cast<int32_t>(*(it++)) << 8 | static_cast<int32_t>(*(it++)) << 16 | static_cast<int32_t>(*(it++)) << 24;
+}
+
+static bool is_branching(const pair<Instruction, vector<argument> >& instr, vector<int32_t>& targets) {
 
     switch(instr.first)
     {
@@ -249,7 +253,17 @@ static bool is_branching(const pair<Instruction, vector<argument> >& instr, int3
         case Instruction::i_blt_un:
         case Instruction::i_leave:
         {
-            param = instr.second.begin()->get<int32_t>();
+            auto target = instr.second.begin()->get<int32_t>();
+            targets.push_back(target);
+            return true;
+        }
+        case Instruction::i_switch:
+        {
+            for (auto it = instr.second.begin() + 1; it != instr.second.end(); ++it) {
+                auto target = it->get<int32_t>();
+                targets.push_back(target);
+            }
+
             return true;
         }
         default:
@@ -264,6 +278,7 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
     auto opcode = static_cast<sc>(*(it++));
 
     switch(opcode) {
+        // Predefined aliases for ldarg [int32 num] where num is between 0 and 3.
         case sc::i_ldarg_0:
         case sc::i_ldarg_1:
         case sc::i_ldarg_2:
@@ -273,6 +288,7 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
             return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { arg });
         }
 
+        // Predefined aliases for ldloc [int32 num] where num is between 0 and 3.
         case sc::i_ldloc_0:
         case sc::i_ldloc_1:
         case sc::i_ldloc_2:
@@ -282,6 +298,7 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
             return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { arg });
         }
 
+        // Predefined aliases for stloc [int32 num] where num is between 0 and 3.
         case sc::i_stloc_0:
         case sc::i_stloc_1:
         case sc::i_stloc_2:
@@ -291,6 +308,7 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
             return pair<Instruction, vector<argument> >(Instruction::i_stloc, { arg });
         }
 
+        // Predefined aliases for ldc.i4 [int32_t num] where num is between -1 and 8.
         case sc::i_ldc_i4_m1:
         case sc::i_ldc_i4_0:
         case sc::i_ldc_i4_1:
@@ -305,28 +323,43 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
             return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { arg });
         }
 
+        // Load argument (short version)
+        // ldarg.s [uint8_t argnum]
         case sc::i_ldarg_s:
             return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { *(it++) });
 
+        // Load argument address (short version)
+        // ldarga.s [uint8_t argnum]
         case sc::i_ldarga_s:
             return pair<Instruction, vector<argument> >(Instruction::i_ldarga, { *(it++) });
 
+        // Save argument (short version)
+        // starg.s [uint8_t argnum]
         case sc::i_starg_s:
             return pair<Instruction, vector<argument> >(Instruction::i_starg, { *(it++) });
 
+        // Load local variable (short version)
+        // ldloc.s [uint8_t varnum]
         case sc::i_ldloc_s:
             return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { *(it++) });
 
+        // Load local variable address (short version)
+        // ldloca.s [uint8_t varnum]
         case sc::i_ldloca_s:
             return pair<Instruction, vector<argument> >(Instruction::i_ldloca, { *(it++) });
 
+        // Save local variable (short version)
+        // stloc.s [uint8_t varnum]
         case sc::i_stloc_s:
             return pair<Instruction, vector<argument> >(Instruction::i_stloc, { *(it++) });
 
+        // Load integer as int32_t (short version)
+        // ldc.i4.s [int8_t smallint]
         case sc::i_ldc_i4_s:
             return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { static_cast<int8_t>(*(it++)) });
 
         // Short representations of branching opcodes
+        // xx [int8_t target]
         case sc::i_br_s:
         case sc::i_brfalse_s:
         case sc::i_brtrue_s:
@@ -346,6 +379,8 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
             return pair<Instruction, vector<argument> >(static_cast<Instruction>(newcode), { offset + 1 + target });
         }
 
+        // Leave protected region of code
+        // leave.s [int8_t offset]
         case sc::i_leave_s:
         {
             auto target = static_cast<int8_t>(*(it++));
@@ -353,6 +388,7 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
         }
 
         // Leave normal representation of branching opcodes as is.
+        // xx [int32_t target]
         case sc::i_br:
         case sc::i_brfalse:
         case sc::i_brtrue:
@@ -366,12 +402,35 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
         case sc::i_bgt_un:
         case sc::i_ble_un:
         case sc::i_blt_un:
+
+        // Leave protected region of code
+        // leave.s [int32_t offset]
         case sc::i_leave:
         {
-            auto target = static_cast<int32_t>(*(it++)) | static_cast<int32_t>(*(it++)) << 8 | static_cast<int32_t>(*(it++)) << 16 | static_cast<int32_t>(*(it++)) << 24;
+            auto target = read_int32(it);
             return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { offset + 5 + target });
         }
 
+        // Jump table instruction
+        // switch [uint32_t num] [int32_t offset1, int32_t offset2, ..., int32_t offsetN]
+        case sc::i_switch:
+        {
+            // Switch table size
+            auto table_size = static_cast<uint32_t>(read_int32(it));
+            int32_t instr_size = 1 + 4 * (table_size + 1);
+            vector<argument> args = { table_size };
+
+            // Jump targets collection
+            for (uint32_t i = 0; i < table_size; ++i) {
+                auto target = read_int32(it);
+                args.push_back(offset + instr_size + target);
+            }
+
+            return pair<Instruction, vector<argument> >(Instruction::i_switch, args);
+        }
+
+        // Some object model instructions
+        // <instruction> [int32_t Token]
         case sc::i_box:
         case sc::i_unbox:
         case sc::i_unbox_any:
@@ -400,15 +459,17 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
         case sc::i_calli:
         case sc::i_callvirt:
         {
-            auto token = static_cast<uint32_t>(*(it++)) | static_cast<uint32_t>(*(it++)) << 8 | static_cast<uint32_t>(*(it++)) << 16 | static_cast<uint32_t>(*(it++)) << 24;
+            auto token = static_cast<uint32_t>(read_int32(it));
             return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { token });
         }
 
+        // All two-byte instructions and instruction modifiers are marked by 0xFE prefix
         case sc::p_multibyte:
         {
             auto lopcode = tb(static_cast<uint16_t>(sc::p_multibyte) | static_cast<uint16_t>(*(it++)) << 8);
 
             switch (lopcode) {
+                // Argumentless instruction
                 case tb::i_arglist:
                 case tb::i_rethrow:
                 case tb::i_ceq:
@@ -423,6 +484,8 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
                 case tb::i_refanytype:
                     return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), {});
 
+                // Local variable and argument operations
+                // <instruction> [int16_t index]
                 case tb::i_ldloc:
                 case tb::i_ldloca:
                 case tb::i_ldarg:
@@ -434,12 +497,14 @@ static pair<Instruction, vector<argument> > decodeOp(int32_t offset, vector<uint
                     return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), { arg });
                 }
 
+                // Object model instructions
+                // <instruction> [int32_t Token]
                 case tb::i_sizeof:
                 case tb::i_ldftn:
                 case tb::i_ldvirtftn:
                 case tb::i_initobj:
                 {
-                    auto token = static_cast<uint16_t>(*(it++)) | static_cast<uint16_t>(*(it++)) << 8 | static_cast<uint16_t>(*(it++)) << 16 | static_cast<uint16_t>(*(it++)) << 24;
+                    auto token = static_cast<uint32_t>(read_int32(it));
                     return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), { token });
                 }
             }
@@ -460,9 +525,9 @@ std::shared_ptr<InstructionTree> InstructionTree::MakeTree(const vector<uint8_t>
         auto op = decodeOp(offset, it);
         treeObj->tree[offset] = op;
 
-        int32_t targetValue;
-        if (is_branching(op, targetValue)) {
-            treeObj->targets.push_back(targetValue);
+        vector<int32_t> targets;
+        if (is_branching(op, targets)) {
+            treeObj->targets.insert(treeObj->targets.end(), targets.begin(), targets.end());
         }
     }
 
