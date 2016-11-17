@@ -284,7 +284,7 @@ static bool is_branching(const pair<Instruction, vector<argument> >& instr, vect
         }
         case Instruction::i_switch:
         {
-            for (auto it = instr.second.begin() + 1; it != instr.second.end(); ++it) {
+            for (auto it = instr.second.begin(); it != instr.second.end(); ++it) {
                 auto target = it->get<int32_t>();
                 targets.push_back(target);
             }
@@ -496,7 +496,7 @@ static pair<Instruction, vector<argument> > loadOp(int32_t offset, vector<uint8_
             // Switch table size
             auto table_size = static_cast<uint32_t>(read_int32(it));
             int32_t instr_size = 1 + 4 * (table_size + 1);
-            vector<argument> args = { table_size };
+            vector<argument> args = { };
 
             // Jump targets collection
             for (uint32_t i = 0; i < table_size; ++i) {
@@ -687,6 +687,22 @@ string InstructionTree::str() const {
             }
 
             s << " " << hex << args.begin()->get<int32_t>();
+        }
+        break;
+
+        // Jump table instruction
+        // switch [uint32_t num] [int32_t offset1, int32_t offset2, ..., int32_t offsetN]
+        case i::i_switch:
+        {
+            s << ": switch [" << hex << setw(4) << setfill('0');
+            for (const auto& item : args) {
+                if (&item != &args[0]) {
+                    s << ", ";
+                }
+
+                s << item.get<int32_t>();
+            }
+            s << "]";
         }
         break;
 
