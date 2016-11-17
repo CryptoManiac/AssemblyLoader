@@ -805,19 +805,19 @@ string InstructionTree::str() const {
         case i::i_conv_r8:  s << ": conv_r8"; break;
         case i::i_conv_r_un:  s << ": conv_r_un"; break;
 
-        case i::i_arglist: s << " arglist"; break;
-        case i::i_ceq: s << " ceq"; break;
-        case i::i_cgt: s << " cgt"; break;
-        case i::i_clt: s << " clt"; break;
-        case i::i_cgt_un: s << " cgt_un"; break;
-        case i::i_clt_un: s << " clt_un"; break;
-        case i::i_cpblk: s << " cpblk"; break;
-        case i::i_initblk: s << " initblk"; break;
-        case i::i_localloc: s << " localloc"; break;
+        case i::i_arglist: s << ": arglist"; break;
+        case i::i_ceq: s << ": ceq"; break;
+        case i::i_cgt: s << ": cgt"; break;
+        case i::i_clt: s << ": clt"; break;
+        case i::i_cgt_un: s << ": cgt_un"; break;
+        case i::i_clt_un: s << ": clt_un"; break;
+        case i::i_cpblk: s << ": cpblk"; break;
+        case i::i_initblk: s << ": initblk"; break;
+        case i::i_localloc: s << ": localloc"; break;
         case i::i_ckfinite:  s << ": ckfinite"; break;
-        case i::i_endfinally: s << " endfinally"; break;
-        case i::i_endfilter: s << " endfilter"; break;
-        case i::i_refanytype: s << " refanytyoe"; break;
+        case i::i_endfinally: s << ": endfinally"; break;
+        case i::i_endfilter: s << ": endfilter"; break;
+        case i::i_refanytype: s << ": refanytyoe"; break;
 
         // Some object model instructions
         // <instruction> [uint32_t Token]
