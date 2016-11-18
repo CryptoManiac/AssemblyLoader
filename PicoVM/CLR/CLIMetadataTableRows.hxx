@@ -16,14 +16,14 @@ struct MetadataRowsReader {
     AssemblyReader& reader;
     std::map<CLIMetadataTableItem, uint32_t> mapTableLength;
 
-    bool stringsIsLong = false;
-    bool guidIsLong = false;
-    bool blobIsLong = false;
-
     uint32_t metaDataOffset = 0;
     uint32_t stringStreamOffset = 0;
     uint32_t guidStreamOffset = 0;
     uint32_t blobStreamOffset = 0;
+
+    bool stringsIsLong = false;
+    bool guidIsLong = false;
+    bool blobIsLong = false;
 
     MetadataRowsReader() = delete;
     MetadataRowsReader(AssemblyReader& Reader, CLIMetadata& cliMetadata);
@@ -47,9 +47,9 @@ private:
 
 // A one row table representing the current assembly.
 struct ModuleRow {
-    uint16_t generation = 0;
-    std::u16string name;
     Guid guid;
+    std::u16string name;
+    uint16_t generation = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Module;
 
@@ -71,13 +71,19 @@ struct TypeRefRow {
 };
 
 struct TypeDefRow {
-    // 4-byte bit mask of type TypeAttributes
-    uint32_t flags = 0;
     std::u16string typeName;
     std::u16string typeNamespace;
+
+    // Index into TypeDef, TypeRef or TypeSpec table
     std::pair<uint32_t, CLIMetadataTableItem> extendsType;
 
+    // 4-byte bit mask of type TypeAttributes
+    uint32_t flags = 0;
+
+    // Index into Field table
     uint32_t fieldList = 0;
+
+    // Index into MethodDef table
     uint32_t methodList = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::TypeDef;
@@ -170,17 +176,21 @@ struct FieldDefRow {
 };
 
 struct MethodDefRow {
+    // Method name and signature
+    std::u16string name;
+    std::vector<uint32_t> signature;
+
+    // Method body data, in-memory only
+    MethodBody methodBody;
+
+    // Index into ParamDef table
+    uint32_t paramList = 0;
+    // Method RVA
     uint32_t rva = 0;
     // 2-byte bit mask of type MethodImplAttributes
     uint16_t implFlags = 0;
     // 2-byte bit mask of type MethodAttribute
     uint16_t flags = 0;
-    std::u16string name;
-    std::vector<uint32_t> signature;
-    uint32_t paramList = 0;
-
-    // In memory only
-    MethodBody methodBody;
 
     // For FillTable<T>()
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MethodDef;
@@ -250,10 +260,12 @@ struct MethodDefRow {
 };
 
 struct ParamDefRow {
-    uint16_t flags = 0;
-    // 2-byte bit mask of type ParamAttributes
-    uint16_t sequence = 0;
+    // Parameter name
     std::u16string name;
+    // 2-byte bit mask of type ParamAttributes
+    uint16_t flags = 0;
+    // Param record index
+    uint16_t sequence = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ParamDef;
 
@@ -274,8 +286,10 @@ struct ParamDefRow {
 };
 
 struct InterfaceImplRow {
-    uint32_t classRef = 0;
+    // Index into the TypeDef, TypeRef or TypeSpec table
     std::pair<uint32_t, CLIMetadataTableItem> interfaceRef;
+    // Index into the TypeDef table
+    uint32_t classRef = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::InterfaceImpl;
 
@@ -284,6 +298,7 @@ struct InterfaceImplRow {
 };
 
 struct MemberRefRow {
+    // Index into the TypeRef, ModuleRef, MethodDef, TypeSpec, or TypeDef
     std::pair<uint32_t, CLIMetadataTableItem> classRef;
     std::u16string name;
     std::vector<uint32_t> signature;
@@ -295,9 +310,11 @@ struct MemberRefRow {
 };
 
 struct ConstantRow {
-    uint16_t type = 0;
+    // Index into the Param or Field or Property table
     std::pair<uint32_t, CLIMetadataTableItem> parent;
+    // Constant value
     std::vector<uint8_t> value;
+    uint16_t type = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Constant;
 
@@ -306,6 +323,7 @@ struct ConstantRow {
 };
 
 struct CustomAttributeRow {
+    // HasCustomAttribute index.
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::pair<uint32_t, CLIMetadataTableItem> type;
     std::vector<uint8_t> value;
@@ -317,6 +335,7 @@ struct CustomAttributeRow {
 };
 
 struct FieldMarshalRow {
+    // HasFieldMarshal index.
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> nativeType;
 
@@ -327,9 +346,11 @@ struct FieldMarshalRow {
 };
 
 struct DeclSecurityRow {
-    uint16_t action = 0;
+    // HasDeclSecurity index.
     std::pair<uint32_t, CLIMetadataTableItem> parent;
     std::vector<uint8_t> permissionSet;
+
+    uint16_t action = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::DeclSecurity;
 
@@ -338,9 +359,9 @@ struct DeclSecurityRow {
 };
 
 struct ClassLayoutRow {
-    uint16_t packingSize = 0;
     uint32_t classSize = 0;
     uint32_t parent = 0;
+    uint16_t packingSize = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ClassLayout;
 
@@ -369,10 +390,11 @@ struct EventMapRow {
 };
 
 struct EventRow {
-    // 2-byte bit mask of type EventAttribute
-    uint16_t eventFlags = 0;
     std::u16string name;
     std::pair<uint32_t, CLIMetadataTableItem> eventType;
+
+    // 2-byte bit mask of type EventAttribute
+    uint16_t eventFlags = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Event;
 
@@ -398,10 +420,11 @@ struct PropertyMapRow {
 };
 
 struct PropertyRow {
-    // 2-byte bit mask of type PropertyAttributes
-    uint16_t flags = 0;
     std::u16string name;
     std::vector<uint32_t> signature;
+
+    // 2-byte bit mask of type PropertyAttributes
+    uint16_t flags = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Property;
 
@@ -419,10 +442,11 @@ struct PropertyRow {
 };
 
 struct MethodSemanticsRow {
-    // 2-byte bit mask of type MethodSemanticsAttributes
-    uint16_t semantics = 0;
     uint32_t method = 0;
     std::pair<uint32_t, CLIMetadataTableItem> association;
+
+    // 2-byte bit mask of type MethodSemanticsAttributes
+    uint16_t semantics = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MethodSemantics;
 
@@ -440,9 +464,9 @@ struct MethodSemanticsRow {
 };
 
 struct MethodImplRow {
-    uint32_t classRef = 0;
     std::pair<uint32_t, CLIMetadataTableItem> methodBody;
     std::pair<uint32_t, CLIMetadataTableItem> methodDeclaration;
+    uint32_t classRef = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::MethodImpl;
 
@@ -451,11 +475,12 @@ struct MethodImplRow {
 };
 
 struct ImplMapRow {
-    // 2-byte bit mask of type PInvokeAttributes
-    uint16_t mappingFlags = 0;
     std::pair<uint32_t, CLIMetadataTableItem> memberForwarded;
     std::u16string importName;
+    // Index into the ModuleRef table
     uint32_t importScope = 0;
+    // 2-byte bit mask of type PInvokeAttributes
+    uint16_t mappingFlags = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ImplMap;
 
@@ -509,14 +534,16 @@ struct FieldRVARow {
 };
 
 struct AssemblyRow {
-    // 4-byte constant of type AssemblyHashAlgorithm
-    uint32_t hashAlgId = 0;
+    // MajorVersion, MinorVersion, BuildNumber, RevisionNumber 
     std::vector<uint16_t> version;
-    // 4-byte bit mask of type AssemblyFlags
-    uint32_t flags = 0;
     std::vector<uint8_t> publicKey;
     std::u16string name;
     std::u16string culture;
+
+    // 4-byte constant of type AssemblyHashAlgorithm
+    uint32_t hashAlgId = 0;
+    // 4-byte bit mask of type AssemblyFlags
+    uint32_t flags = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::Assembly;
 
@@ -568,13 +595,15 @@ struct AssemblyOSRow {
 };
 
 struct AssemblyRefRow {
+    // MajorVersion, MinorVersion, BuildNumber, RevisionNumber 
     std::vector<uint16_t> version;
-    // 4-byte bit mask of type AssemblyFlags
-    uint32_t flags = 0;
     std::vector<uint8_t> publicKeyOrToken;
+    std::vector<uint8_t> hashValue;
     std::u16string name;
     std::u16string culture;
-    std::vector<uint8_t> hashValue;
+
+    // 4-byte bit mask of type AssemblyFlags
+    uint32_t flags = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::AssemblyRef;
 
@@ -605,10 +634,11 @@ struct AssemblyRefOSRow {
 };
 
 struct FileRow {
-    // 4-byte bit mask of type FileAttributes
-    uint32_t flags = 0;
     std::u16string name;
     std::vector<uint8_t> hashValue;
+
+    // 4-byte bit mask of type FileAttributes
+    uint32_t flags = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::File;
 
@@ -622,12 +652,16 @@ struct FileRow {
 };
 
 struct ExportedTypeRow {
+    // Names of type and namespace
+    std::u16string typeName;
+    std::u16string typeNamespace;
+
+    // Implementation coded index
+    std::pair<uint32_t, CLIMetadataTableItem> implementation;
+
     // 4-byte bit mask of type TypeAttributes
     uint32_t flags = 0;
     uint32_t typeDefId = 0;
-    std::u16string typeName;
-    std::u16string typeNamespace;
-    std::pair<uint32_t, CLIMetadataTableItem> implementation;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ExportedType;
 
@@ -636,11 +670,13 @@ struct ExportedTypeRow {
 };
 
 struct ManifestResourceRow {
+    std::u16string name;
+    // Implementation coded index
+    std::pair<uint32_t, CLIMetadataTableItem> implementation;
+    
     uint32_t offset;
     // 4-byte bit mask of type ManifestResourceAttributes
     uint32_t flags = 0;
-    std::u16string name;
-    std::pair<uint32_t, CLIMetadataTableItem> implementation;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::ManifestResource;
 
@@ -665,11 +701,13 @@ struct NestedClassRow {
 };
 
 struct GenericParamRow {
+    std::pair<uint32_t, CLIMetadataTableItem> owner;
+    std::u16string name;
+
+    // 2-byte index of the generic parameter
     uint16_t number = 0;
     // 2-byte bitmask of type GenericParamAttributes
     uint16_t flags = 0;
-    std::pair<uint32_t, CLIMetadataTableItem> owner;
-    std::u16string name;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::GenericParam;
 
@@ -705,8 +743,10 @@ struct MethodSpecRow {
 };
 
 struct GenericParamConstraintRow {
-    uint32_t owner = 0;
+    // Index into the TypeDef, TypeRef, or TypeSpec tables
     std::pair<uint32_t, CLIMetadataTableItem> constraint;
+    // Index into the GenericParam table
+    uint32_t owner = 0;
 
     static const CLIMetadataTableItem tableID = CLIMetadataTableItem::GenericParamConstraint;
 
