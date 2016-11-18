@@ -13,6 +13,7 @@ typedef mapbox::util::variant<int8_t, int16_t, int32_t, int64_t, uint8_t, uint16
 // Enum for internal representation of instructions
 enum struct Instruction : uint16_t {
     i_nop = 0x00,
+    i_break = 0x01,
     i_ldnull = 0x14,
     i_ldc_i4 = 0x20,
     i_ldc_i8 = 0x21,

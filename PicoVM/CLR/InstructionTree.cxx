@@ -10,6 +10,7 @@ using namespace std;
 // One-byte opcodes
 enum struct ShortCode : uint8_t {
     i_nop = 0x00,
+    i_break = 0x01,
     i_ldarg_0 = 0x02,
     i_ldarg_1 = 0x03,
     i_ldarg_2 = 0x04,
@@ -706,14 +707,9 @@ string InstructionTree::str() const {
         }
         break;
 
-        // Argumentless instructions
-        case i::i_nop:  s << ": nop"; break;
-        case i::i_throw:  s << ": throw"; break;
-        case i::i_rethrow: s << ": rethrow"; break;
-        case i::i_ldnull: s << ": ldnull"; break;
-        case i::i_dup:    s << ": dup"; break;
-        case i::i_pop:    s << ": pop"; break;
-        case i::i_ret:    s << ": ret"; break;
+        //// Argumentless instructions
+        
+        // Arithmetics
         case i::i_add:    s << ": add"; break;
         case i::i_and:    s << ": and"; break;
         case i::i_or:     s << ": or"; break;
@@ -729,14 +725,16 @@ string InstructionTree::str() const {
         case i::i_shr:    s << ": shr"; break;
         case i::i_shr_un: s << ": shr_un"; break;
 
+        // Checked arithmetics
         case i::i_add_ovf:    s << ": add_ovf"; break;
         case i::i_add_ovf_un: s << ": add_ovf_un"; break;
         case i::i_sub_ovf:    s << ": sub_ovf"; break;
         case i::i_sub_ovf_un: s << ": sub_ovf_un"; break;
         case i::i_mul_ovf:    s << ": mul_ovf"; break;
         case i::i_mul_ovf_un: s << ": mul_ovf_un"; break;
+        case i::i_ckfinite:  s << ": ckfinite"; break;
 
-        case i::i_ldlen:     s << ": ldlen"; break;
+        // Indirect load
         case i::i_ldind_i:   s << ": ldind_i"; break;
         case i::i_ldind_i1:  s << ": ldind_i1"; break;
         case i::i_ldind_i2:  s << ": ldind_i2"; break;
@@ -755,6 +753,8 @@ string InstructionTree::str() const {
         case i::i_stind_i4:  s << ": stind_i4"; break;
         case i::i_stind_i8:  s << ": stind_i8"; break;
 
+        // Working with array elements
+        case i::i_ldlen:     s << ": ldlen"; break;
         case i::i_ldelem_i:   s << ": ldelem_i"; break;
         case i::i_ldelem_i1:  s << ": ldelem_i1"; break;
         case i::i_ldelem_i2:  s << ": ldelem_i2"; break;
@@ -766,7 +766,7 @@ string InstructionTree::str() const {
         case i::i_ldelem_r4:  s << ": ldelem_r4"; break;
         case i::i_ldelem_r8:  s << ": ldelem_r8"; break;
         case i::i_ldelem_ref: s << ": ldelem_ref"; break;
-
+        case i::i_stelem_ref: s << ": stelem_ref"; break;
         case i::i_stelem_i:   s << ": stelem_i"; break;
         case i::i_stelem_i1:  s << ": stelem_i1"; break;
         case i::i_stelem_i2:  s << ": stelem_i2"; break;
@@ -774,8 +774,8 @@ string InstructionTree::str() const {
         case i::i_stelem_i8:  s << ": stelem_i8"; break;
         case i::i_stelem_r4:  s << ": stelem_r4"; break;
         case i::i_stelem_r8:  s << ": stelem_r8"; break;
-        case i::i_stelem_ref: s << ": stelem_ref"; break;
 
+        // Numeric conversion
         case i::i_conv_i:   s << ": conv_i"; break;
         case i::i_conv_i1:  s << ": conv_i1"; break;
         case i::i_conv_i2:  s << ": conv_i2"; break;
@@ -805,19 +805,35 @@ string InstructionTree::str() const {
         case i::i_conv_r8:  s << ": conv_r8"; break;
         case i::i_conv_r_un:  s << ": conv_r_un"; break;
 
-        case i::i_arglist: s << ": arglist"; break;
+        // Condition checking operations
         case i::i_ceq: s << ": ceq"; break;
         case i::i_cgt: s << ": cgt"; break;
         case i::i_clt: s << ": clt"; break;
         case i::i_cgt_un: s << ": cgt_un"; break;
         case i::i_clt_un: s << ": clt_un"; break;
+
+        // Special opcodes, which are doing literally nothing
+        case i::i_nop:  s << ": nop"; break;
+        case i::i_break:  s << ": break"; break;
+
+        // Exception throwing and handling
+        case i::i_throw:  s << ": throw"; break;
+        case i::i_rethrow: s << ": rethrow"; break;
+        case i::i_endfinally: s << ": endfinally"; break;
+        case i::i_endfilter: s << ": endfilter"; break;
+
+        // Memory operations
         case i::i_cpblk: s << ": cpblk"; break;
         case i::i_initblk: s << ": initblk"; break;
         case i::i_localloc: s << ": localloc"; break;
-        case i::i_ckfinite:  s << ": ckfinite"; break;
-        case i::i_endfinally: s << ": endfinally"; break;
-        case i::i_endfilter: s << ": endfilter"; break;
-        case i::i_refanytype: s << ": refanytyoe"; break;
+
+        // Misc
+        case i::i_dup:    s << ": dup"; break;
+        case i::i_pop:    s << ": pop"; break;
+        case i::i_ret:    s << ": ret"; break;
+        case i::i_arglist: s << ": arglist"; break;
+        case i::i_ldnull: s << ": ldnull"; break;
+        case i::i_refanytype: s << ": refanytype"; break;
 
         // Some object model instructions
         // <instruction> [uint32_t Token]
