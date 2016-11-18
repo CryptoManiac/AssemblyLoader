@@ -21,10 +21,10 @@ enum struct CLISignatureFlags : uint32_t {
 };
 
 struct ArrayShape {
-    CLIElementType type;
-    uint32_t rank;
     std::vector<uint32_t> hiBounds;
     std::vector<uint32_t> loBounds;
+    uint32_t rank;
+    CLIElementType type;
 
     ArrayShape(std::vector<uint32_t>::const_iterator& it);
 };

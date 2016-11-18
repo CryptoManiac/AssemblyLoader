@@ -82,10 +82,11 @@ public:
     const std::vector<AssemblyRefRow>& getAssemblyRef() const;
 
 private:
+    // Reader instance
+    AssemblyReader reader;
     // Image header
     ImageFileHeader fileHeader;
 
-    AssemblyReader reader;
     void InitAssembly(); // called from constructor
 
     template<typename T1>
