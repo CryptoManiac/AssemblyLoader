@@ -260,7 +260,7 @@ inline static double read_double(vector<uint8_t>::iterator& it) {
     return *reinterpret_cast<double*>(&num);
 }
 
-static bool is_branching(const pair<Instruction, vector<argument> >& instr, vector<int32_t>& targets) {
+static bool is_branching(const pair<Instruction, vector<argument> >& instr, vector<ptrdiff_t>& targets) {
 
     switch(instr.first)
     {
@@ -279,14 +279,14 @@ static bool is_branching(const pair<Instruction, vector<argument> >& instr, vect
         case Instruction::i_blt_un:
         case Instruction::i_leave:
         {
-            auto target = instr.second.begin()->get<int32_t>();
+            auto target = instr.second.begin()->get<ptrdiff_t>();
             targets.push_back(target);
             return true;
         }
         case Instruction::i_switch:
         {
             for (auto it = instr.second.begin(); it != instr.second.end(); ++it) {
-                auto target = it->get<int32_t>();
+                auto target = it->get<ptrdiff_t>();
                 targets.push_back(target);
             }
 
@@ -297,7 +297,7 @@ static bool is_branching(const pair<Instruction, vector<argument> >& instr, vect
     }
 }
 
-static pair<Instruction, vector<argument> > loadOp(int32_t offset, vector<uint8_t>::iterator& it) {
+static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint8_t>::iterator& it) {
     using sc = ShortCode;
     using tb = TwoByteCode;
 
@@ -310,7 +310,7 @@ static pair<Instruction, vector<argument> > loadOp(int32_t offset, vector<uint8_
         case sc::i_ldarg_2:
         case sc::i_ldarg_3:
         {
-            uint16_t arg = _u(opcode) - _u(sc::i_ldarg_0);
+            auto arg = static_cast<uint16_t>(_u(opcode) - _u(sc::i_ldarg_0));
             return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { arg });
         }
 
@@ -320,7 +320,7 @@ static pair<Instruction, vector<argument> > loadOp(int32_t offset, vector<uint8_
         case sc::i_ldloc_2:
         case sc::i_ldloc_3:
         {
-            uint16_t arg = _u(opcode) - _u(sc::i_ldloc_0);
+            auto arg = static_cast<uint16_t>(_u(opcode) - _u(sc::i_ldloc_0));
             return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { arg });
         }
 
@@ -330,7 +330,7 @@ static pair<Instruction, vector<argument> > loadOp(int32_t offset, vector<uint8_
         case sc::i_stloc_2:
         case sc::i_stloc_3:
         {
-            uint16_t arg = _u(opcode) - _u(sc::i_stloc_0);
+            auto arg = static_cast<uint16_t>(_u(opcode) - _u(sc::i_stloc_0));
             return pair<Instruction, vector<argument> >(Instruction::i_stloc, { arg });
         }
 
@@ -495,12 +495,12 @@ static pair<Instruction, vector<argument> > loadOp(int32_t offset, vector<uint8_
         case sc::i_switch:
         {
             // Switch table size
-            auto table_size = static_cast<uint32_t>(read_int32(it));
-            int32_t instr_size = 1 + 4 * (table_size + 1);
+            auto table_size = read_int32(it);
+            auto instr_size = 1 + 4 * (table_size + 1);
             vector<argument> args = { };
 
             // Jump targets collection
-            for (uint32_t i = 0; i < table_size; ++i) {
+            for (auto i = 0; i < table_size; ++i) {
                 auto target = read_int32(it);
                 args.push_back(offset + instr_size + target);
             }
@@ -604,7 +604,7 @@ shared_ptr<InstructionTree> InstructionTree::MakeTree(const vector<uint8_t>& met
         auto op = loadOp(offset, it);
         treeObj->tree[offset] = op;
 
-        vector<int32_t> targets;
+        vector<ptrdiff_t> targets;
         if (is_branching(op, targets)) {
             treeObj->targets.insert(treeObj->targets.end(), targets.begin(), targets.end());
         }
@@ -642,6 +642,8 @@ string InstructionTree::str() const {
             case i::i_ldloca: s << ": ldloca"; break;
             case i::i_starg:  s << ": starg"; break;
             case i::i_stloc:  s << ": stloc"; break;
+            default:
+                throw runtime_error("We shouldn't be here.");
             }
 
             s << " " << dec << args.begin()->get<uint16_t>();
@@ -685,9 +687,11 @@ string InstructionTree::str() const {
             case i::i_ble_un: s << ": ble_un"; break;
             case i::i_blt_un: s << ": blt_un"; break;
             case i::i_leave: s << ": leave"; break;
+            default:
+                throw runtime_error("We shouldn't be here.");
             }
 
-            s << " " << hex << args.begin()->get<int32_t>();
+            s << " " << hex << args.begin()->get<ptrdiff_t>();
         }
         break;
 
@@ -701,7 +705,7 @@ string InstructionTree::str() const {
                     s << ", ";
                 }
 
-                s << elem.get<int32_t>();
+                s << elem.get<ptrdiff_t>();
             }
             s << "]";
         }
@@ -901,6 +905,8 @@ string InstructionTree::str() const {
                 case i::i_ldftn: s << ": ldftn"; break;
                 case i::i_ldvirtftn: s << ": ldvirtftn"; break;
                 case i::i_initobj: s << ": initobj"; break;
+                default:
+                    throw runtime_error("We shouldn't be here.");
             }
 
             s << " <" << args.begin()->get<uint32_t>() << ">";

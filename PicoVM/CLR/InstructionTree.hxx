@@ -187,9 +187,9 @@ enum struct Instruction : uint16_t {
 
 struct InstructionTree {
     // Branch targets, will be suitable for linking
-    std::vector<int32_t> targets;
+    std::vector<ptrdiff_t> targets;
     // offset -> (instruction, [arg1, arg2, ...])
-    typedef std::map<int32_t, std::pair<Instruction, std::vector<argument> > > TreeMap;
+    typedef std::map<ptrdiff_t, std::pair<Instruction, std::vector<argument> > > TreeMap;
 
     std::string str() const;
 
