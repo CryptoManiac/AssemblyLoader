@@ -695,12 +695,12 @@ string InstructionTree::str() const {
         case i::i_switch:
         {
             s << ": switch [" << hex << setw(4) << setfill('0');
-            for (const auto& item : args) {
-                if (&item != &args[0]) {
+            for (const auto& elem : args) {
+                if (&elem != &args[0]) {
                     s << ", ";
                 }
 
-                s << item.get<int32_t>();
+                s << elem.get<int32_t>();
             }
             s << "]";
         }
@@ -891,7 +891,7 @@ string InstructionTree::str() const {
         }
         break;
 
-        default:
+        default: {}
         }
 
         s << endl;
