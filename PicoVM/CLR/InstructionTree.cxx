@@ -455,7 +455,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         {
             auto newcode = _u(sc::i_br) + (_u(opcode) - _u(sc::i_br_s));
             auto target = static_cast<int8_t>(*(it++));
-            return pair<Instruction, vector<argument> >(static_cast<Instruction>(newcode), { offset + 1 + target });
+            return pair<Instruction, vector<argument> >(static_cast<Instruction>(newcode), { offset + 2 + target });
         }
 
         // Leave protected region of code
@@ -463,7 +463,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_leave_s:
         {
             auto target = static_cast<int8_t>(*(it++));
-            return pair<Instruction, vector<argument> >(Instruction::i_leave, { offset + 1 + target });
+            return pair<Instruction, vector<argument> >(Instruction::i_leave, { offset + 2 + target });
         }
 
         // Leave normal representation of branching opcodes as is.
