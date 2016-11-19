@@ -47,29 +47,23 @@ uint8_t  AssemblyReader::read_uint8() {
 
 uint16_t AssemblyReader::read_uint16()
 {
-    return static_cast<uint16_t>(*(pc++)) | static_cast<uint16_t>(*(pc++)) << 8;
+    return static_cast<uint16_t>(*(pc++) | *(pc++) << 8);
 }
 
 uint16_t AssemblyReader::read_uint16(uint32_t offset) const
 {
-    return static_cast<uint16_t>(data[offset]) | static_cast<uint16_t>(data[offset + 1]) << 8;
+    return static_cast<uint16_t>(data[offset] | data[offset + 1] << 8);
 }
 
 uint32_t AssemblyReader::read_uint32()
 {
-    return static_cast<uint32_t>(*(pc++)) |
-           static_cast<uint32_t>(*(pc++)) << 8 |
-           static_cast<uint32_t>(*(pc++)) << 16 |
-           static_cast<uint32_t>(*(pc++)) << 24;
+    return static_cast<uint32_t>(*(pc++) | *(pc++) << 8 | *(pc++) << 16 | *(pc++) << 24);
 }
 
 uint32_t AssemblyReader::read_uint32(uint32_t offset) const
 {
     auto it = next(data.cbegin(), offset);
-    return static_cast<uint32_t>(*(it++)) |
-           static_cast<uint32_t>(*(it++)) << 8 |
-           static_cast<uint32_t>(*(it++)) << 16 |
-           static_cast<uint32_t>(*(it++)) << 24;
+    return static_cast<uint32_t>(*(it++) | *(it++) << 8 | *(it++) << 16 | *(it++) << 24);
 }
 
 uint64_t AssemblyReader::read_uint64()

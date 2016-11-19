@@ -236,7 +236,7 @@ enum struct TwoByteCode : uint16_t {
 };
 
 inline static int32_t read_int32(vector<uint8_t>::iterator& it) {
-    return static_cast<int32_t>(*(it++)) | static_cast<int32_t>(*(it++)) << 8 | static_cast<int32_t>(*(it++)) << 16 | static_cast<int32_t>(*(it++)) << 24;
+    return static_cast<int32_t>(*(it++) | *(it++) << 8 | *(it++) << 16 | *(it++) << 24);
 }
 
 inline static int64_t read_int64(vector<uint8_t>::iterator& it) {
@@ -545,7 +545,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         // All two-byte instructions and instruction modifiers are marked by 0xFE prefix
         case sc::p_multibyte:
         {
-            auto lopcode = tb(static_cast<uint16_t>(sc::p_multibyte) | static_cast<uint16_t>(*(it++)) << 8);
+            auto lopcode = tb(static_cast<uint16_t>(_u(sc::p_multibyte) | *(it++) << 8));
 
             switch (lopcode) {
                 // Argumentless instruction
@@ -572,7 +572,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
                 case tb::i_starg:
                 case tb::i_stloc:
                 {
-                    uint16_t arg = static_cast<uint16_t>(*(it++)) | static_cast<uint16_t>(*(it++)) << 8;
+                    auto arg = static_cast<uint16_t>(*(it++) | *(it++) << 8);
                     return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), { arg });
                 }
 
