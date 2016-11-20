@@ -270,7 +270,42 @@ enum struct Instruction : uint16_t {
     i_d2f = 0x036B,
 
     // Checked conversion operators
-    // TODO
+    i2b_ovf = 0x01B3,
+    i2ub_ovf = 0x01B4,
+    i2s_ovf = 0x01B5,
+    i2us_ovf = 0x01B6,
+    i2ui_ovf = 0x01B8,
+    i2ul_ovf = 0x01BA,
+
+    ui2b_ovf = 0x02B3,
+    ui2ub_ovf = 0x02B4,
+    ui2s_ovf = 0x02B5,
+    ui2us_ovf = 0x02B6,
+    ui2i_ovf = 0x02B7,
+
+    l2b_ovf = 0x03B3,
+    l2ub_ovf = 0x03B4,
+    l2s_ovf = 0x03B5,
+    l2us_ovf = 0x03B6,
+    l2i_ovf = 0x03B7,
+    l2ui_ovf = 0x03B8,
+
+    ul2b_ovf = 0x04B3,
+    ul2ub_ovf = 0x04B4,
+    ul2s_ovf = 0x04B5,
+    ul2us_ovf = 0x04B6,
+    ul2i_ovf = 0x04B7,
+    ul2iu_ovf = 0x04B8,
+    ul2l_ovf = 0x04B9,
+
+    i_f2b_ovf = 0x05B3,
+    i_f2ub_ovf = 0x05B4,
+    i_f2s_ovf = 0x05B5,
+    i_f2us_ovf = 0x05B6,
+    i_f2i_ovf = 0x05B7,
+    i_f2ui_ovf = 0x05B8,
+    i_f2l_ovf = 0x05B9,
+    i_f2ul_ovf = 0x05BA,
 };
 
 struct InstructionTree {
