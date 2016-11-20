@@ -267,7 +267,7 @@ enum struct Instruction : uint16_t {
     i_f2ui = 0x036D,
     i_f2l = 0x036A,
     i_f2ul = 0x036E,
-    i_f2d = 0x036B,
+    i_d2f = 0x036B,
 
     // Checked conversion operators
     // TODO
