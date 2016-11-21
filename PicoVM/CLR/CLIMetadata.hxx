@@ -18,6 +18,8 @@ struct CLIMetadata {
     uint16_t streamsCount = 0;
 
     uint32_t getStreamOffset(const std::string& name) const;
+
+    ~CLIMetadata() noexcept;
 };
 
 #endif
