@@ -56,6 +56,8 @@ struct ModuleRow {
     ModuleRow() = default;
     ModuleRow(MetadataRowsReader& mr);
     std::string str() const;
+
+    ~ModuleRow() noexcept;
 };
 
 // Each row represents an imported class, its namespace, and the assembly which contains it.
@@ -68,6 +70,8 @@ struct TypeRefRow {
 
     TypeRefRow() = default;
     TypeRefRow(MetadataRowsReader& mr);
+
+    ~TypeRefRow() noexcept;
 };
 
 struct TypeDefRow {
@@ -134,6 +138,8 @@ struct TypeDefRow {
         RTSpecialName = 0x00000800,    // Runtime should check name encoding.
         HasSecurity = 0x00040000       // Class has security associate with it.
     };
+
+    ~TypeDefRow() noexcept;
 };
 
 struct FieldDefRow {
@@ -173,6 +179,8 @@ struct FieldDefRow {
         HasDefault = 0x8000,      // Field has default.
         HasFieldRVA = 0x0100      // Field has RVA.
     };
+
+    ~FieldDefRow() noexcept;
 };
 
 struct MethodDefRow {
@@ -257,6 +265,8 @@ struct MethodDefRow {
         NoInlining = 0x0008,       // Method may not be inlined.
         MaxMethodImplVal = 0xffff  // Range check value
     };
+
+    ~MethodDefRow() noexcept;
 };
 
 struct ParamDefRow {
@@ -307,6 +317,8 @@ struct MemberRefRow {
 
     MemberRefRow() = default;
     MemberRefRow(MetadataRowsReader& mr);
+
+    ~MemberRefRow() noexcept;
 };
 
 struct ConstantRow {
@@ -439,6 +451,8 @@ struct PropertyRow {
         HasDefault = 0x1000,    // Property has default.
         Unused = 0xe9ff
     };
+
+    ~PropertyRow() noexcept;
 };
 
 struct MethodSemanticsRow {
@@ -581,6 +595,8 @@ struct AssemblyRow {
         SHA_384 = 0x800D,
         SHA_512 = 0x800E
     };
+
+    ~AssemblyRow() noexcept;
 };
 
 struct AssemblyOSRow {
@@ -609,6 +625,8 @@ struct AssemblyRefRow {
 
     AssemblyRefRow() = default;
     AssemblyRefRow(MetadataRowsReader& mr);
+
+    ~AssemblyRefRow() noexcept;
 };
 
 struct AssemblyRefProcessorRow {
@@ -649,6 +667,8 @@ struct FileRow {
         ContainsMetaData = 0x0000,  // This is not a resource file.
         ContainsNoMetaData = 0x0001 // This is a resource file or other non-metadata-containing file.
     };
+
+    ~FileRow() noexcept;
 };
 
 struct ExportedTypeRow {
@@ -667,6 +687,8 @@ struct ExportedTypeRow {
 
     ExportedTypeRow() = default;
     ExportedTypeRow(MetadataRowsReader& mr);
+
+    ~ExportedTypeRow() noexcept;
 };
 
 struct ManifestResourceRow {

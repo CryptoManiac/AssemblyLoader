@@ -163,6 +163,10 @@ string ModuleRow::str() const {
        return ss.str();
 }
 
+ModuleRow::~ModuleRow() noexcept
+{
+}
+
 TypeRefRow::TypeRefRow(MetadataRowsReader& mr) {
     // ResolutionScope coded index
     resolutionScope = mr.readRowIndexChoice(resolutionScopeIndex);
@@ -170,6 +174,10 @@ TypeRefRow::TypeRefRow(MetadataRowsReader& mr) {
     // Type name and namespace
     mr.readString(typeName);
     mr.readString(typeNamespace);
+}
+
+TypeRefRow::~TypeRefRow() noexcept
+{
 }
 
 TypeDefRow::TypeDefRow(MetadataRowsReader& mr) {
@@ -186,11 +194,19 @@ TypeDefRow::TypeDefRow(MetadataRowsReader& mr) {
     methodList = mr.readRowIndex(CLIMetadataTableItem::MethodDef);
 }
 
+TypeDefRow::~TypeDefRow() noexcept
+{
+}
+
 FieldDefRow::FieldDefRow(MetadataRowsReader& mr) {
     // 2-byte bit mask of type FieldAttributes
     flags = mr.reader.read_uint16();
     mr.readString(name);
     mr.readSignature(signature);
+}
+
+FieldDefRow::~FieldDefRow() noexcept
+{
 }
 
 MethodDefRow::MethodDefRow(MetadataRowsReader& mr) {
@@ -202,6 +218,10 @@ MethodDefRow::MethodDefRow(MetadataRowsReader& mr) {
     mr.readSignature(signature);
     // Index into the ParamDef table
     paramList = mr.readRowIndex(CLIMetadataTableItem::ParamDef);
+}
+
+MethodDefRow::~MethodDefRow() noexcept
+{
 }
 
 ParamDefRow::ParamDefRow(MetadataRowsReader& mr) {
@@ -223,6 +243,10 @@ MemberRefRow::MemberRefRow(MetadataRowsReader& mr) {
     classRef = mr.readRowIndexChoice(memberRefParent);
     mr.readString(name);
     mr.readSignature(signature);
+}
+
+MemberRefRow::~MemberRefRow() noexcept
+{
 }
 
 ConstantRow::ConstantRow(MetadataRowsReader& mr) {
@@ -289,6 +313,10 @@ PropertyRow::PropertyRow(MetadataRowsReader& mr) {
     mr.readSignature(signature);
 }
 
+PropertyRow::~PropertyRow() noexcept
+{
+}
+
 MethodSemanticsRow::MethodSemanticsRow(MetadataRowsReader& mr) {
     // 2-byte bit mask of type MethodSemanticsAttributes
     semantics = mr.reader.read_uint16();
@@ -342,6 +370,10 @@ AssemblyRow::AssemblyRow(MetadataRowsReader& mr) {
     mr.readString(culture);
 }
 
+AssemblyRow::~AssemblyRow() noexcept
+{
+}
+
 AssemblyOSRow::AssemblyOSRow(MetadataRowsReader& mr) {
     osPlatformID = mr.reader.read_uint32();
     osMajorVersion = mr.reader.read_uint32();
@@ -368,6 +400,10 @@ AssemblyRefRow::AssemblyRefRow(MetadataRowsReader& mr) {
     mr.readBlob(hashValue);
 }
 
+AssemblyRefRow::~AssemblyRefRow() noexcept
+{
+}
+
 AssemblyRefProcessorRow::AssemblyRefProcessorRow(MetadataRowsReader& mr) {
     processor = mr.reader.read_uint32();
     assemblyRef = mr.readRowIndex(CLIMetadataTableItem::AssemblyRef);
@@ -387,6 +423,10 @@ FileRow::FileRow(MetadataRowsReader& mr) {
     mr.readBlob(hashValue);
 }
 
+FileRow::~FileRow() noexcept
+{
+}
+
 ExportedTypeRow::ExportedTypeRow(MetadataRowsReader& mr) {
     // 4-byte bit mask of type TypeAttributes
     flags = mr.reader.read_uint32();
@@ -395,6 +435,10 @@ ExportedTypeRow::ExportedTypeRow(MetadataRowsReader& mr) {
     mr.readString(typeName);
     mr.readString(typeNamespace);
     implementation = mr.readRowIndexChoice(implementationIndex);
+}
+
+ExportedTypeRow::~ExportedTypeRow() noexcept
+{
 }
 
 ManifestResourceRow::ManifestResourceRow(MetadataRowsReader& mr) {
