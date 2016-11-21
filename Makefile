@@ -8,9 +8,14 @@ ifeq (${USE_CLANG}, 1)
     CXX=clang++
     CLSPECIFIC=
 endif
+ifeq (${USE_WCLANG}, 1)
+    CXX=clang++
+    CLSPECIFIC=-O2 --target=x86_64-w64-mingw32 -static -DWIN32=1
+    EXEC:=$(EXEC).exe
+endif
 ifeq (${USE_MINGW}, 1)
-    CXX=x86_64-w64-mingw32-g++ -static -DWIN32=1
-    CLSPECIFIC=-Og
+    CXX=x86_64-w64-mingw32-g++
+    CLSPECIFIC=-Og -static -DWIN32=1
     EXEC:=$(EXEC).exe
 endif
 ifeq (${USE_ICPC}, 1)
