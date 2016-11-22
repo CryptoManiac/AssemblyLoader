@@ -6,12 +6,12 @@
 #include <string>
 
 struct CLIMetadata {
-    std::u16string version;
     struct CLIStream {
+        std::string name;
         uint32_t offset = 0;
         uint32_t size = 0;
-        std::string name;
     };
+    std::u16string version;
     std::vector<CLIStream> streams;
 
     uint32_t cliMetadataOffset; // In memory only

@@ -21,8 +21,9 @@ public:
     // CLI streams information
     CLIMetadata cliMetadata;
 
+    // In-memory representation of CLI metadata tables
     struct CLIMetaDataTables {
-        ModuleRow module;
+        std::vector<ModuleRow> _Module;
         std::vector<TypeRefRow> _TypeRef;
         std::vector<TypeDefRow> _TypeDef;
         std::vector<FieldDefRow> _FieldDef;

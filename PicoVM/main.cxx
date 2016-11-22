@@ -45,7 +45,7 @@ int main(int argc, const char *argv[]) {
     const auto* clrData = domain.getAssembly(clrData1->getName(), clrData1->getVersion()); // getting AssemblyData reference from our AppDomain, using name and value pair as a key 
 
     // Print some module and entrypoint data.
-    cout << clrData->cliMetaDataTables.module.str() << endl;
+    cout << clrData->cliMetaDataTables._Module[0].str() << endl;
     auto version = clrData->getVersion();
     auto name = clrData->getName();
     cout << "Name: " << string(name.begin(), name.end()) << endl; 

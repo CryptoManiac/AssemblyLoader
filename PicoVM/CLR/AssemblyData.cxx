@@ -171,8 +171,9 @@ void AssemblyData::FillTables()
     if (mr.mapTableLength[CLIMetadataTableItem::Module] != 1) {
         throw runtime_error("Module table must contain one and only one row.");
     }
+
     // Load module information.
-    cliMetaDataTables.module = ModuleRow(mr);
+    FillTable<ModuleRow>(mr, cliMetaDataTables._Module);
 
     // TypeRef
     FillTable<TypeRefRow>(mr, cliMetaDataTables._TypeRef);
