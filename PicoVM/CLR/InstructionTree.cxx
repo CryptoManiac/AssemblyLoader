@@ -586,6 +586,14 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
                     auto token = static_cast<uint32_t>(read_int32(it));
                     return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), { token });
                 }
+
+                // Prefixes
+                case tb::p_unaligned:
+                case tb::p_volatile:
+                case tb::p_tail:
+                case tb::p_constrained:
+                case tb::p_no:
+                case tb::p_readonly: {}
             }
         }
 
