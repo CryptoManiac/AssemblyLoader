@@ -140,8 +140,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Users\Alex\Documents\GitHub\variant\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <UseIntelOptimizedHeaders>true</UseIntelOptimizedHeaders>
+      <AdditionalIncludeDirectories>.\CLR;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <UseIntelOptimizedHeaders>false</UseIntelOptimizedHeaders>
       <Parallelization>false</Parallelization>
       <OptimizeForWindowsApplication>true</OptimizeForWindowsApplication>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
