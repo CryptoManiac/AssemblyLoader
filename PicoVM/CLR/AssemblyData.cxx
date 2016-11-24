@@ -442,7 +442,7 @@ size_t AssemblyData::getMethodCount() const {
 }
 
 const Guid& AssemblyData::getGUID() const {
-    return cliMetaDataTables.module.guid;
+    return cliMetaDataTables._Module[0].guid;
 }
 
 const u16string& AssemblyData::getName() const {
