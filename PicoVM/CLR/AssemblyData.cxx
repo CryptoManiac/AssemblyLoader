@@ -11,6 +11,10 @@
 
 using namespace std;
 
+AssemblyData::CLIMetaDataTables::~CLIMetaDataTables() noexcept
+{
+}
+
 AssemblyData::AssemblyData(string strFilePathName)
 {
     ifstream AssemblyStream(strFilePathName, ios_base::in | ios_base::binary | ios_base::ate);

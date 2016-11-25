@@ -612,9 +612,9 @@ shared_ptr<InstructionTree> InstructionTree::MakeTree(const vector<uint8_t>& met
         auto op = loadOp(offset, it);
         treeObj->tree[offset] = op;
 
-        vector<ptrdiff_t> targets;
-        if (is_branching(op, targets)) {
-            treeObj->targets.insert(treeObj->targets.end(), targets.begin(), targets.end());
+        vector<ptrdiff_t> vtargets;
+        if (is_branching(op, vtargets)) {
+            treeObj->targets.insert(treeObj->targets.end(), vtargets.begin(), vtargets.end());
         }
     }
 

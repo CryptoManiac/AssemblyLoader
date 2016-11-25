@@ -61,6 +61,8 @@ public:
         std::vector<GenericParamRow> _GenericParam;
         std::vector<MethodSpecRow> _MethodSpec;
         std::vector<GenericParamConstraintRow> _GenericParamConstraint;
+
+        ~CLIMetaDataTables() noexcept;
     } cliMetaDataTables;
 
     AssemblyData() = delete;
