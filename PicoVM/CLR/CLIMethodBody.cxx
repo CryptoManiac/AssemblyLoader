@@ -68,3 +68,7 @@ void MethodBody::swap(MethodBody & other) noexcept
     ::swap(maxStack, other.maxStack);
     ::swap(initLocals, other.initLocals);
 }
+
+MethodBody::~MethodBody() noexcept
+{
+}
