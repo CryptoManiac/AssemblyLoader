@@ -236,28 +236,23 @@ enum struct TwoByteCode : uint16_t {
 };
 
 inline static int32_t read_int32(vector<uint8_t>::iterator& it) {
-    return static_cast<int32_t>(*(it++) | *(it++) << 8 | *(it++) << 16 | *(it++) << 24);
+    it += 4;
+    return *reinterpret_cast<int64_t*>(&(*(it - 4)));
 }
 
 inline static int64_t read_int64(vector<uint8_t>::iterator& it) {
-    return  static_cast<int64_t>(*(it++)) | 
-            static_cast<int64_t>(*(it++)) << 8 | 
-            static_cast<int64_t>(*(it++)) << 16 |
-            static_cast<int64_t>(*(it++)) << 24 |
-            static_cast<int64_t>(*(it++)) << 32 |
-            static_cast<int64_t>(*(it++)) << 40 |
-            static_cast<int64_t>(*(it++)) << 48 |
-            static_cast<int64_t>(*(it++)) << 56;
+    it += 8;
+    return *reinterpret_cast<int64_t*>(&(*(it - 8)));
 }
 
 inline static float read_float(vector<uint8_t>::iterator& it) {
-    auto num = read_int32(it);
-    return *reinterpret_cast<float*>(&num);
+    it += 4;
+    return *reinterpret_cast<float*>(&(*(it - 4)));
 }
 
 inline static double read_double(vector<uint8_t>::iterator& it) {
-    auto num = read_int64(it);
-    return *reinterpret_cast<double*>(&num);
+    it += 8;
+    return *reinterpret_cast<double*>(&(*(it - 8)));
 }
 
 static bool is_branching(const pair<Instruction, vector<argument> >& instr, vector<ptrdiff_t>& targets) {

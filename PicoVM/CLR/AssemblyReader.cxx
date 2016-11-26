@@ -57,7 +57,8 @@ uint16_t AssemblyReader::read_uint16(uint32_t offset) const
 
 uint32_t AssemblyReader::read_uint32()
 {
-    return static_cast<uint32_t>(*(pc++) | *(pc++) << 8 | *(pc++) << 16 | *(pc++) << 24);
+    pc += 4;
+    return *reinterpret_cast<uint64_t*>(&(*(pc - 4)));
 }
 
 uint32_t AssemblyReader::read_uint32(uint32_t offset) const
@@ -68,27 +69,14 @@ uint32_t AssemblyReader::read_uint32(uint32_t offset) const
 
 uint64_t AssemblyReader::read_uint64()
 {
-    return static_cast<uint64_t>(*(pc++)) |
-           static_cast<uint64_t>(*(pc++)) << 8 |
-           static_cast<uint64_t>(*(pc++)) << 16 |
-           static_cast<uint64_t>(*(pc++)) << 24 |
-           static_cast<uint64_t>(*(pc++)) << 32 |
-           static_cast<uint64_t>(*(pc++)) << 40 |
-           static_cast<uint64_t>(*(pc++)) << 48 |
-           static_cast<uint64_t>(*(pc++)) << 56;
+    pc += 8;
+    return *reinterpret_cast<uint64_t*>(&(*(pc - 8)));
 }
 
 uint64_t AssemblyReader::read_uint64(uint32_t offset) const
 {
     auto it = next(data.cbegin(), offset);
-    return static_cast<uint64_t>(*(it++)) |
-           static_cast<uint64_t>(*(it++)) << 8 |
-           static_cast<uint64_t>(*(it++)) << 16 |
-           static_cast<uint64_t>(*(it++)) << 24 |
-           static_cast<uint64_t>(*(it++)) << 32 |
-           static_cast<uint64_t>(*(it++)) << 40 |
-           static_cast<uint64_t>(*(it++)) << 48 |
-           static_cast<uint64_t>(*(it++)) << 56;
+    return *reinterpret_cast<const uint64_t*>(&(*it));
 }
 
 uint32_t AssemblyReader::read_asciiz(string& result, uint32_t limit)
