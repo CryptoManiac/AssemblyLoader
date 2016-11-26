@@ -48,6 +48,8 @@ struct MethodBody {
 
     MethodBody& operator=(const MethodBody& other);
     void swap(MethodBody& other) noexcept;
+
+    ~MethodBody() noexcept;
 };
 
 #endif
