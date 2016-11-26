@@ -58,7 +58,7 @@ uint16_t AssemblyReader::read_uint16(uint32_t offset) const
 uint32_t AssemblyReader::read_uint32()
 {
     pc += 4;
-    return *reinterpret_cast<uint64_t*>(&(*(pc - 4)));
+    return *reinterpret_cast<uint32_t*>(&(*(pc - 4)));
 }
 
 uint32_t AssemblyReader::read_uint32(uint32_t offset) const
