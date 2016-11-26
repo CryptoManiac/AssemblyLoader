@@ -153,10 +153,10 @@ uint32_t AssemblyReader::read_varsize(uint32_t& code)
     if ((b1 & 0x80) == 0) {
         code = b1;
     } else if ((b1 & 0xC0) == 0x80) {
-        code = (b1 & 0x3F) << 8;
+        code = (b1 & 0x3Fu) << 8;
         code |= *(pc++);
     } else if ((b1 & 0xE0) == 0xC0) {
-        code = (b1 & 0x1F) << 24;
+        code = (b1 & 0x1Fu) << 24;
         code |= *(pc++) << 16;
         code |= *(pc++) << 8;
         code |= *(pc++);
@@ -175,10 +175,10 @@ uint32_t AssemblyReader::read_varsize(uint32_t& code, uint32_t offset) const
     if ((b1 & 0x80) == 0) {
         code = b1;
     } else if ((b1 & 0xC0) == 0x80) {
-        code = (b1 & 0x3F) << 8;
+        code = (b1 & 0x3Fu) << 8;
         code |= *(it++);
     } else if ((b1 & 0xE0) == 0xC0) {
-        code = (b1 & 0x1F) << 24;
+        code = (b1 & 0x1Fu) << 24;
         code |= *(it++) << 16;
         code |= *(it++) << 8;
         code |= *(it++);
@@ -198,11 +198,11 @@ uint32_t AssemblyReader::read_varsize(uint32_t& code, const vector<uint8_t>& _da
         code = b1;
     }
     else if ((b1 & 0xC0) == 0x80) {
-        code = (b1 & 0x3F) << 8;
+        code = (b1 & 0x3Fu) << 8;
         code |= *(it++);
     }
     else if ((b1 & 0xE0) == 0xC0) {
-        code = (b1 & 0x1F) << 24;
+        code = (b1 & 0x1Fu) << 24;
         code |= *(it++) << 16;
         code |= *(it++) << 8;
         code |= *(it++);
