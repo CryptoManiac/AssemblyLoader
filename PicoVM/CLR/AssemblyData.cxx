@@ -13,6 +13,7 @@ using namespace std;
 
 AssemblyData::CLIMetaDataTables::~CLIMetaDataTables() noexcept
 {
+    
 }
 
 AssemblyData::AssemblyData(string strFilePathName)

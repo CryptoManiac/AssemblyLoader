@@ -18,7 +18,6 @@ set( HEADERS_ONLY
 
         CLIHeader
         EnumCasting
-        EvaluationStackItem
         Formatting
         ImageDataDirectory
         ImageFileHeader
@@ -39,6 +38,7 @@ set( OUR_SRC
         AssemblyData
         AssemblyReader
         ExecutionThread
+        EvaluationStack
         InstructionTree
         CLIElementTypes
         CLIMetadata

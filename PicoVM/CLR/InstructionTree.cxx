@@ -1,5 +1,7 @@
 #include "InstructionTree.hxx"
 #include "EnumCasting.hxx"
+#include "NumCasting.hxx"
+
 
 #include <iostream>
 #include <sstream>

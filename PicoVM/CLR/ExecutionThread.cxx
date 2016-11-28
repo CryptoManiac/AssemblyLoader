@@ -4,7 +4,9 @@
 
 using namespace std;
 
-ExecutionThread::ExecutionThread(AppDomain* appDomain) : domain(appDomain) {}
+ExecutionThread::ExecutionThread(AppDomain* appDomain) : domain(appDomain) {
+    evaluationStack = EvaluationStack();
+}
 
 bool ExecutionThread::run() {
     bool result = false;
@@ -14,7 +16,7 @@ bool ExecutionThread::run() {
         switch (frame->state) {
         case ExecutionState::FrameSetup:
         {
-            frame->prevStackSize = static_cast<uint32_t>(evaluationStack.size());
+            // frame->prevStackSize = static_cast<uint32_t>(evaluationStack.size());
             switch (frame->methodToken >> 24) {
             case 0x06: // MethodDef
             {
@@ -84,12 +86,13 @@ bool ExecutionThread::run() {
         case ExecutionState::NativeMethodExecution:
         case ExecutionState::MethodExecution:
         case ExecutionState::Cleanup:
-            if (frame->locals.size() != 0) {
+            /*if (frame->locals.size() != 0) {
                 // TODO
             }
             if (frame->arguments.size() != 0) {
                 // TODO
             }
+            */
             callStack.pop_back();
             result = true;
             break;

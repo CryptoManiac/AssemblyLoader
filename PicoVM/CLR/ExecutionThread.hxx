@@ -6,7 +6,7 @@
 #include <memory>
 
 #include "crossguid/guid.hxx"
-#include "EvaluationStackItem.hxx"
+#include "EvaluationStack.hxx"
 
 enum struct ExecutionState : uint8_t {
     FrameSetup = 0,
@@ -32,12 +32,12 @@ struct CallStackItem {
     const MethodDefRow* methodDef = nullptr;
 
     uint32_t methodToken = 0;
-    uint32_t prevStackSize = 0;
+    //uint32_t prevStackSize = 0;
     uint32_t instructionPointer = 0;
     uint32_t argumentsCount = 0;
     
-    std::vector<EvaluationStackItem> locals;
-    std::vector<EvaluationStackItem> arguments;
+    //std::vector<EvaluationStackItem> locals;
+    //std::vector<EvaluationStackItem> arguments;
     std::vector<uint32_t> localVarSigs;
     std::vector<uint32_t> methodDefSig;
     ExecutionState state = ExecutionState::Undefined;
@@ -47,7 +47,7 @@ struct CallStackItem {
 struct ExecutionThread {
     AppDomain* domain = nullptr;
     std::deque<CallStackItem> callStack;
-    std::deque<EvaluationStackItem> evaluationStack;
+    EvaluationStack evaluationStack;
 
     bool run();
     void setup(const Guid& guid);
