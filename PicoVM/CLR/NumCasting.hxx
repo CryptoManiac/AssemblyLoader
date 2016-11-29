@@ -3,10 +3,10 @@
 
 #include <cstdint>
 
-inline int32_t floatToInt(float value) {
+inline uint32_t floatToUInt(float value) {
     union {
         float f;
-        int32_t i;
+        uint32_t i;
     } u;
 
     u.f = value;
@@ -14,10 +14,10 @@ inline int32_t floatToInt(float value) {
     return u.i;
 }
 
-inline int64_t doubleToLong(double value) {
+inline uint64_t doubleToULong(double value) {
     union {
         double d;
-        int64_t l;
+        uint64_t l;
     } u;
 
     u.d = value;
@@ -25,19 +25,19 @@ inline int64_t doubleToLong(double value) {
     return u.l;
 }
 
-inline float intToFloat(int32_t value) {
+inline float uintToFloat(uint32_t value) {
     union {
         float f;
-        int32_t i;
+        uint32_t i;
     } u;
     u.f = value;
     return u.i;
 }
 
-inline double longToDouble(int64_t value) {
+inline double ulongToDouble(uint64_t value) {
     union {
         double d;
-        int64_t l;
+        uint64_t l;
     } u;
 
     u.l = value;
