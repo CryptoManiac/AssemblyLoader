@@ -136,7 +136,6 @@
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>
       </PrecompiledHeader>
-      <Optimization>MaxSpeedHighLevel</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -164,6 +163,7 @@
     <ClCompile Include="CLR\CLIMethodBody.cxx" />
     <ClCompile Include="CLR\CLISignature.cxx" />
     <ClCompile Include="CLR\crossguid\guid.cxx" />
+    <ClCompile Include="CLR\EvaluationStack.cxx" />
     <ClCompile Include="CLR\HexStr.cxx" />
     <ClCompile Include="CLR\ExecutionThread.cxx" />
     <ClCompile Include="CLR\InstructionTree.cxx" />
@@ -182,6 +182,7 @@
     <ClInclude Include="CLR\CLISignature.hxx" />
     <ClInclude Include="CLR\crossguid\guid.hxx" />
     <ClInclude Include="CLR\EnumCasting.hxx" />
+    <ClInclude Include="CLR\EvaluationStack.hxx" />
     <ClInclude Include="CLR\EvaluationStackItem.hxx" />
     <ClInclude Include="CLR\ExecutionThread.hxx" />
     <ClInclude Include="CLR\Formatting.hxx" />
@@ -194,6 +195,7 @@
     <ClInclude Include="CLR\ImageOptionalHeader32.hxx" />
     <ClInclude Include="CLR\ImageOptionalHeader64.hxx" />
     <ClInclude Include="CLR\InstructionTree.hxx" />
+    <ClInclude Include="CLR\NumCasting.hxx" />
     <ClInclude Include="CLR\Property.hxx" />
     <ClInclude Include="CLR\utf8.h" />
   </ItemGroup>
