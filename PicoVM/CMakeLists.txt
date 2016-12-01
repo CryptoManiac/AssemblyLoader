@@ -26,6 +26,7 @@ set( HEADERS_ONLY
         ImageOptionalHeader32
         ImageOptionalHeader64
         ImageSectionHeader
+        NumCasting
         Property
         utf8
    )
