@@ -10,7 +10,7 @@
 using namespace std;
 
 // One-byte opcodes
-enum struct ShortCode : uint8_t {
+enum struct sc : uint8_t {
     i_nop = 0x00,
     i_break = 0x01,
     i_ldarg_0 = 0x02,
@@ -206,7 +206,7 @@ enum struct ShortCode : uint8_t {
 };
 
 // Two-byte opcodes and prefixes
-enum struct TwoByteCode : uint16_t {
+enum struct tb : uint16_t {
     i_arglist = 0x00FE,
     i_ceq = 0x01FE,
     i_cgt = 0x02FE,
@@ -237,6 +237,231 @@ enum struct TwoByteCode : uint16_t {
     p_readonly = 0x1EFE, // Prefix 
 };
 
+map<uint16_t, int8_t> stackBehaviour {
+    { _u(sc::i_nop), 0 },
+    { _u(sc::i_break), 0 },
+    { _u(sc::i_ldarg_0), 1 },
+    { _u(sc::i_ldarg_1), 1 },
+    { _u(sc::i_ldarg_2), 1 },
+    { _u(sc::i_ldarg_3), 1 },
+    { _u(sc::i_ldloc_0), 1 },
+    { _u(sc::i_ldloc_1), 1 },
+    { _u(sc::i_ldloc_2), 1 },
+    { _u(sc::i_ldloc_3), 1 },
+    { _u(sc::i_stloc_0), -1 },
+    { _u(sc::i_stloc_1), -1 },
+    { _u(sc::i_stloc_2), -1 },
+    { _u(sc::i_stloc_3), -1 },
+    { _u(sc::i_ldarg_s), 1 },
+    { _u(sc::i_ldarga_s), 1 },
+    { _u(sc::i_starg_s), -1 },
+    { _u(sc::i_ldloc_s), 1 },
+    { _u(sc::i_ldloca_s), 1 },
+    { _u(sc::i_stloc_s), -1 },
+    { _u(sc::i_ldnull), 1 },
+    { _u(sc::i_ldc_i4_m1), 1 },
+    { _u(sc::i_ldc_i4_0), 1 },
+    { _u(sc::i_ldc_i4_1), 1 },
+    { _u(sc::i_ldc_i4_2), 1 },
+    { _u(sc::i_ldc_i4_3), 1 },
+    { _u(sc::i_ldc_i4_4), 1 },
+    { _u(sc::i_ldc_i4_5), 1 },
+    { _u(sc::i_ldc_i4_6), 1 },
+    { _u(sc::i_ldc_i4_7), 1 },
+    { _u(sc::i_ldc_i4_8), 1 },
+    { _u(sc::i_ldc_i4_s), 1 },
+    { _u(sc::i_ldc_i4), 1 },
+    { _u(sc::i_ldc_i8), 1 },
+    { _u(sc::i_ldc_r4), 1 },
+    { _u(sc::i_ldc_r8), 1 },
+    { _u(sc::i_dup), 1 },
+    { _u(sc::i_pop), -1 },
+    { _u(sc::i_jmp), 0 },
+    { _u(sc::i_call), 0 },
+    { _u(sc::i_calli), -1 },
+    { _u(sc::i_ret), 0 },
+    { _u(sc::i_br_s), 0 },
+    { _u(sc::i_brfalse_s), -1 }, 
+    { _u(sc::i_brtrue_s), -1 },
+    { _u(sc::i_beq_s), -2 },
+    { _u(sc::i_bge_s), -2 },
+    { _u(sc::i_bgt_s), -2 },
+    { _u(sc::i_ble_s), -2 },
+    { _u(sc::i_blt_s), -2 },
+    { _u(sc::i_bne_un_s), -2 },
+    { _u(sc::i_bge_un_s), -2 },
+    { _u(sc::i_bgt_un_s), -2 },
+    { _u(sc::i_ble_un_s), -2 },
+    { _u(sc::i_blt_un_s), -2 },
+    { _u(sc::i_br), 0 },
+    { _u(sc::i_brfalse), -1 },
+    { _u(sc::i_brtrue), -1 },
+    { _u(sc::i_beq), -2 },
+    { _u(sc::i_bge), -2 },
+    { _u(sc::i_bgt), -2 },
+    { _u(sc::i_ble), -2 },
+    { _u(sc::i_blt), -2 },
+    { _u(sc::i_bne_un), -2 },
+    { _u(sc::i_bge_un), -2 },
+    { _u(sc::i_bgt_un), -2 },
+    { _u(sc::i_ble_un), -2 },
+    { _u(sc::i_blt_un), -2 },
+    { _u(sc::i_switch), -1 },
+    { _u(sc::i_ldind_i1), 0 },
+    { _u(sc::i_ldind_u1), 0 },
+    { _u(sc::i_ldind_i2), 0 },
+    { _u(sc::i_ldind_u2), 0 },
+    { _u(sc::i_ldind_i4), 0 },
+    { _u(sc::i_ldind_u4), 0 },
+    { _u(sc::i_ldind_i8), 0 },
+    { _u(sc::i_ldind_i), 0 },
+    { _u(sc::i_ldind_r4), 0 },
+    { _u(sc::i_ldind_r8), 0 },
+    { _u(sc::i_ldind_ref), 0 },
+    { _u(sc::i_stind_ref), -2 },
+    { _u(sc::i_stind_i1), -2 },
+    { _u(sc::i_stind_i2), -2 },
+    { _u(sc::i_stind_i4), -2 },
+    { _u(sc::i_stind_i8), -2 },
+    { _u(sc::i_stind_r4), -2 },
+    { _u(sc::i_stind_r8), -2 },
+    { _u(sc::i_add), -1 },
+    { _u(sc::i_sub), -1 },
+    { _u(sc::i_mul), -1 },
+    { _u(sc::i_div), -1 },
+    { _u(sc::i_div_un), -1 },
+    { _u(sc::i_rem), -1 },
+    { _u(sc::i_rem_un), -1 },
+    { _u(sc::i_and), -1 },
+    { _u(sc::i_or), -1 },
+    { _u(sc::i_xor), -1 },
+    { _u(sc::i_shl), -1 },
+    { _u(sc::i_shr), -1 },
+    { _u(sc::i_shr_un), -1 },
+    { _u(sc::i_neg), 0 },
+    { _u(sc::i_not), 0 },
+    { _u(sc::i_conv_i1), 0 },
+    { _u(sc::i_conv_i2), 0 },
+    { _u(sc::i_conv_i4), 0 },
+    { _u(sc::i_conv_i8), 0 },
+    { _u(sc::i_conv_r4), 0 },
+    { _u(sc::i_conv_r8), 0 },
+    { _u(sc::i_conv_u4), 0 },
+    { _u(sc::i_conv_u8), 0 },
+    { _u(sc::i_callvirt), -1 }, 
+    { _u(sc::i_cpobj), -1 },
+    { _u(sc::i_ldobj), 0 },
+    { _u(sc::i_ldstr), 1 },
+    { _u(sc::i_newobj), 1 },
+    { _u(sc::i_castclass), 0 },
+    { _u(sc::i_isinst), 0 },
+    { _u(sc::i_conv_r_un), 0 },
+    { _u(sc::i_unbox), 0 },
+    { _u(sc::i_throw), 1 },
+    { _u(sc::i_ldfld), 0 },
+    { _u(sc::i_ldflda), 0 },
+    { _u(sc::i_stfld), -2 },
+    { _u(sc::i_ldsfld), 1 },
+    { _u(sc::i_ldsflda), 1 },
+    { _u(sc::i_stsfld), -1 },
+    { _u(sc::i_stobj), -2 },
+    { _u(sc::i_conv_ovf_i1_un), 0 },
+    { _u(sc::i_conv_ovf_i2_un), 0 },
+    { _u(sc::i_conv_ovf_i4_un), 0 },
+    { _u(sc::i_conv_ovf_i8_un), 0 },
+    { _u(sc::i_conv_ovf_u1_un), 0 },
+    { _u(sc::i_conv_ovf_u2_un), 0 },
+    { _u(sc::i_conv_ovf_u4_un), 0 },
+    { _u(sc::i_conv_ovf_u8_un), 0 },
+    { _u(sc::i_conv_ovf_i_un), 0 },
+    { _u(sc::i_conv_ovf_u_un), 0 },
+    { _u(sc::i_box), 0 },
+    { _u(sc::i_newarr), 0 }, 
+    { _u(sc::i_ldlen), 0 },
+    { _u(sc::i_ldelema), -1 },
+    { _u(sc::i_ldelem_i1), -1 },
+    { _u(sc::i_ldelem_u1), -1 },
+    { _u(sc::i_ldelem_i2), -1 },
+    { _u(sc::i_ldelem_u2), -1 },
+    { _u(sc::i_ldelem_i4), -1 },
+    { _u(sc::i_ldelem_u4), -1 },
+    { _u(sc::i_ldelem_i8), -1 },
+    { _u(sc::i_ldelem_i), -1 },
+    { _u(sc::i_ldelem_r4), -1 },
+    { _u(sc::i_ldelem_r8), -1 },
+    { _u(sc::i_ldelem_ref), -1 },
+    { _u(sc::i_stelem_i), -3 },
+    { _u(sc::i_stelem_i1), -3 },
+    { _u(sc::i_stelem_i2), -3 },
+    { _u(sc::i_stelem_i4), -3 },
+    { _u(sc::i_stelem_i8), -3 },
+    { _u(sc::i_stelem_r4), -3 },
+    { _u(sc::i_stelem_r8), -3 },
+    { _u(sc::i_stelem_ref), -3 },
+    { _u(sc::i_ldelem), -1 }, 
+    { _u(sc::i_stelem), -3 },
+    { _u(sc::i_unbox_any), 0 },
+    { _u(sc::i_conv_ovf_i1), 0 },
+    { _u(sc::i_conv_ovf_u1), 0 },
+    { _u(sc::i_conv_ovf_i2), 0 },
+    { _u(sc::i_conv_ovf_u2), 0 },
+    { _u(sc::i_conv_ovf_i4), 0 },
+    { _u(sc::i_conv_ovf_u4), 0 },
+    { _u(sc::i_conv_ovf_i8), 0 },
+    { _u(sc::i_conv_ovf_u8), 0 },
+    { _u(sc::i_refanyval), 0 },
+    { _u(sc::i_ckfinite), 0 },
+    { _u(sc::i_mkrefany), 0 },
+    { _u(sc::i_ldtoken), 1 },
+    { _u(sc::i_conv_u2), 0 },
+    { _u(sc::i_conv_u1), 0 },
+    { _u(sc::i_conv_i), 0 },
+    { _u(sc::i_conv_ovf_i), 0 },
+    { _u(sc::i_conv_ovf_u), 0 },
+    { _u(sc::i_add_ovf), -1 },
+    { _u(sc::i_add_ovf_un), -1 },
+    { _u(sc::i_mul_ovf), -1 },
+    { _u(sc::i_mul_ovf_un), -1 },
+    { _u(sc::i_sub_ovf), -1 },
+    { _u(sc::i_sub_ovf_un), -1 },
+    { _u(sc::i_endfinally), 0 },
+    { _u(sc::i_leave), 0 },
+    { _u(sc::i_leave_s), 0  },
+    { _u(sc::i_stind_i), -2 },
+    { _u(sc::i_conv_u), 0 },
+
+    { _u(tb::i_arglist), 1 },
+    { _u(tb::i_ceq), -1 },
+    { _u(tb::i_cgt), -1 },
+    { _u(tb::i_cgt_un), -1 },
+    { _u(tb::i_clt), -1 },
+    { _u(tb::i_clt_un), -1 },
+    { _u(tb::i_ldftn), 1 },
+    { _u(tb::i_ldvirtftn), 1 }, 
+    { _u(tb::i_ldarg), 1 },
+    { _u(tb::i_ldarga), 1 },
+    { _u(tb::i_starg), -1 },
+    { _u(tb::i_ldloc), 1 },
+    { _u(tb::i_ldloca), 1 },
+    { _u(tb::i_stloc), -1 },
+    { _u(tb::i_localloc), 0 },
+    { _u(tb::i_endfilter), -1 },
+    { _u(tb::i_initobj), -1 },
+    { _u(tb::i_cpblk), -3 },
+    { _u(tb::i_initblk), -3 },
+    { _u(tb::i_rethrow), 0 },
+    { _u(tb::i_sizeof), 1 },
+    { _u(tb::i_refanytype), 0 },
+
+    // Prefixes
+    { _u(tb::p_unaligned), 0 },
+    { _u(tb::p_volatile), 0 },
+    { _u(tb::p_tail), 0 },
+    { _u(tb::p_constrained), 0 },  
+    { _u(tb::p_no), 0 },
+    { _u(tb::p_readonly), 0 }
+};
+
 inline static int32_t read_int32(vector<uint8_t>::iterator& it) {
     it += 4;
     return *reinterpret_cast<int32_t*>(&(*(it - 4)));
@@ -257,9 +482,9 @@ inline static double read_double(vector<uint8_t>::iterator& it) {
     return *reinterpret_cast<double*>(&(*(it - 8)));
 }
 
-static bool is_branching(const pair<Instruction, vector<argument> >& instr, vector<ptrdiff_t>& targets) {
+static bool is_branching(const tuple<Instruction, vector<argument>, int8_t >& instr, vector<ptrdiff_t>& targets) {
 
-    switch(instr.first)
+    switch(get<0>(instr))
     {
         case Instruction::i_br:
         case Instruction::i_brfalse:
@@ -276,13 +501,13 @@ static bool is_branching(const pair<Instruction, vector<argument> >& instr, vect
         case Instruction::i_blt_un:
         case Instruction::i_leave:
         {
-            auto target = instr.second.begin()->get<ptrdiff_t>();
+            auto target = get<1>(instr).begin()->get<ptrdiff_t>();
             targets.push_back(target);
             return true;
         }
         case Instruction::i_switch:
         {
-            for (auto it = instr.second.begin(); it != instr.second.end(); ++it) {
+            for (auto it = get<1>(instr).begin(); it != get<1>(instr).end(); ++it) {
                 auto target = it->get<ptrdiff_t>();
                 targets.push_back(target);
             }
@@ -294,10 +519,7 @@ static bool is_branching(const pair<Instruction, vector<argument> >& instr, vect
     }
 }
 
-static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint8_t>::iterator& it) {
-    using sc = ShortCode;
-    using tb = TwoByteCode;
-
+static tuple<Instruction, vector<argument>, int8_t > loadOp(ptrdiff_t offset, vector<uint8_t>::iterator& it) {
     auto opcode = static_cast<sc>(*(it++));
 
     switch(opcode) {
@@ -308,7 +530,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldarg_3:
         {
             auto arg = static_cast<uint16_t>(_u(opcode) - _u(sc::i_ldarg_0));
-            return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldarg, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Predefined aliases for ldloc [uint16_t num] where num is between 0 and 3.
@@ -318,7 +540,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldloc_3:
         {
             auto arg = static_cast<uint16_t>(_u(opcode) - _u(sc::i_ldloc_0));
-            return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldloc, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Predefined aliases for stloc [uint16_t num] where num is between 0 and 3.
@@ -328,7 +550,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_stloc_3:
         {
             auto arg = static_cast<uint16_t>(_u(opcode) - _u(sc::i_stloc_0));
-            return pair<Instruction, vector<argument> >(Instruction::i_stloc, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_stloc, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Predefined aliases for ldc.i4 [int32_t num] where num is between -1 and 8.
@@ -343,7 +565,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldc_i4_8:
         {
             int32_t arg = _u(opcode) - _u(sc::i_ldc_i4_0);
-            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldc_i4, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Load argument (short version)
@@ -351,7 +573,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldarg_s:
         {
             uint16_t arg = *(it++);
-            return pair<Instruction, vector<argument> >(Instruction::i_ldarg, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldarg, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Load argument address (short version)
@@ -359,7 +581,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldarga_s:
         {
             uint16_t arg = *(it++);
-            return pair<Instruction, vector<argument> >(Instruction::i_ldarga, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldarga, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Save argument (short version)
@@ -367,7 +589,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_starg_s:
         {
             uint16_t arg = *(it++);
-            return pair<Instruction, vector<argument> >(Instruction::i_starg, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_starg, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Load local variable (short version)
@@ -375,7 +597,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldloc_s:
         {
             uint16_t arg = *(it++);
-            return pair<Instruction, vector<argument> >(Instruction::i_ldloc, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldloc, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Load local variable address (short version)
@@ -383,7 +605,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldloca_s:
         {
             uint16_t arg = *(it++);
-            return pair<Instruction, vector<argument> >(Instruction::i_ldloca, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldloca, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Save local variable (short version)
@@ -391,7 +613,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_stloc_s:
         {
             uint16_t arg = *(it++);
-            return pair<Instruction, vector<argument> >(Instruction::i_stloc, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_stloc, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Load integer as int32_t (short version)
@@ -399,7 +621,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldc_i4_s:
         {
             int32_t arg = static_cast<int8_t>(*(it++));
-            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldc_i4, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Load integer as int32_t
@@ -407,7 +629,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldc_i4:
         {
             auto arg = read_int32(it);
-            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i4, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldc_i4, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Load integer as int64_t
@@ -415,7 +637,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldc_i8:
         {
             auto arg = read_int64(it);
-            return pair<Instruction, vector<argument> >(Instruction::i_ldc_i8, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldc_i8, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Load float as double
@@ -423,7 +645,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldc_r4:
         {
             auto arg = read_float(it);
-            return pair<Instruction, vector<argument> >(Instruction::i_ldc_r4, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldc_r4, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Load double
@@ -431,7 +653,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_ldc_r8:
         {
             auto arg = read_double(it);
-            return pair<Instruction, vector<argument> >(Instruction::i_ldc_r8, { arg });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_ldc_r8, { arg }, stackBehaviour[_u(opcode)]);
         }
 
         // Short representations of branching opcodes
@@ -452,7 +674,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         {
             auto newcode = _u(sc::i_br) + (_u(opcode) - _u(sc::i_br_s));
             auto target = static_cast<int8_t>(*(it++));
-            return pair<Instruction, vector<argument> >(static_cast<Instruction>(newcode), { offset + 2 + target });
+            return tuple<Instruction, vector<argument>, int8_t >(static_cast<Instruction>(newcode), { offset + 2 + target }, stackBehaviour[_u(opcode)]);
         }
 
         // Leave protected region of code
@@ -460,7 +682,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_leave_s:
         {
             auto target = static_cast<int8_t>(*(it++));
-            return pair<Instruction, vector<argument> >(Instruction::i_leave, { offset + 2 + target });
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_leave, { offset + 2 + target }, stackBehaviour[_u(opcode)]);
         }
 
         // Leave normal representation of branching opcodes as is.
@@ -484,14 +706,14 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_leave:
         {
             auto target = read_int32(it);
-            return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { offset + 5 + target });
+            return tuple<Instruction, vector<argument>, int8_t >(static_cast<Instruction>(opcode), { offset + 5 + target }, stackBehaviour[_u(opcode)]);
         }
 
         // Jump table instruction
-        // switch [uint32_t num] [int32_t offset1, int32_t offset2, ..., int32_t offsetN]
+        // switbh [uint32_t num] [int32_t offset1, int32_t offset2, ..., int32_t offsetN]
         case sc::i_switch:
         {
-            // Switch table size
+            // Switbh table size
             auto table_size = read_int32(it);
             auto instr_size = 1 + 4 * (table_size + 1);
             vector<argument> args = { };
@@ -502,7 +724,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
                 args.push_back(offset + instr_size + target);
             }
 
-            return pair<Instruction, vector<argument> >(Instruction::i_switch, args);
+            return tuple<Instruction, vector<argument>, int8_t >(Instruction::i_switch, args, stackBehaviour[_u(opcode)]);
         }
 
         // Some object model instructions
@@ -536,7 +758,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
         case sc::i_callvirt:
         {
             auto token = static_cast<uint32_t>(read_int32(it));
-            return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), { token });
+            return tuple<Instruction, vector<argument>, int8_t >(static_cast<Instruction>(opcode), { token }, stackBehaviour[_u(opcode)]);
         }
 
         // All two-byte instructions and instruction modifiers are marked by 0xFE prefix
@@ -558,7 +780,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
                 case tb::i_localloc:
                 case tb::i_endfilter:
                 case tb::i_refanytype:
-                    return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), {});
+                    return tuple<Instruction, vector<argument>, int8_t >(static_cast<Instruction>(lopcode), {}, stackBehaviour[_u(lopcode)]);
 
                 // Local variable and argument operations
                 // <instruction> [uint16_t index]
@@ -570,7 +792,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
                 case tb::i_stloc:
                 {
                     auto arg = static_cast<uint16_t>(*(it++) | *(it++) << 8);
-                    return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), { arg });
+                    return tuple<Instruction, vector<argument>, int8_t >(static_cast<Instruction>(lopcode), { arg }, stackBehaviour[_u(lopcode)]);
                 }
 
                 // Object model instructions
@@ -581,7 +803,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
                 case tb::i_initobj:
                 {
                     auto token = static_cast<uint32_t>(read_int32(it));
-                    return pair<Instruction, vector<argument> >(static_cast<Instruction>(lopcode), { token });
+                    return tuple<Instruction, vector<argument>, int8_t >(static_cast<Instruction>(lopcode), { token }, stackBehaviour[_u(lopcode)]);
                 }
 
                 // Prefixes
@@ -596,7 +818,7 @@ static pair<Instruction, vector<argument> > loadOp(ptrdiff_t offset, vector<uint
 
         default:
             // Direct conversion of parameterless instructions
-            return pair<Instruction, vector<argument> >(static_cast<Instruction>(opcode), {});
+            return tuple<Instruction, vector<argument>, int8_t >(static_cast<Instruction>(opcode), {}, stackBehaviour[_u(opcode)]);
     }
 }
 
@@ -624,8 +846,8 @@ string InstructionTree::str() const {
     ostringstream s;
 
     for (const auto &item : tree) {
-        auto instr = item.second.first;
-        auto args = item.second.second;
+        auto instr = get<0>(item.second);
+        auto args = get<1>(item.second);
         auto offset = item.first;
 
         s << hex << setw(4) << setfill('0') << offset;
@@ -701,7 +923,7 @@ string InstructionTree::str() const {
         break;
 
         // Jump table instruction
-        // switch [uint32_t num] [int32_t offset1, int32_t offset2, ..., int32_t offsetN]
+        // switbh [uint32_t num] [int32_t offset1, int32_t offset2, ..., int32_t offsetN]
         case i::i_switch:
         {
             s << ": switch [" << hex << setw(4) << setfill('0');

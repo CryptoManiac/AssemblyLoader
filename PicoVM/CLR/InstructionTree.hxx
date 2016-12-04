@@ -2,6 +2,7 @@
 #define __INSTRUCTIONTREE_HXX_
 
 #include <map>
+#include <tuple>
 #include <memory>
 #include <vector>
 #include <string>
@@ -311,8 +312,8 @@ enum struct Instruction : uint16_t {
 struct InstructionTree {
     // Branch targets, will be suitable for linking
     std::vector<ptrdiff_t> targets;
-    // offset -> (instruction, [arg1, arg2, ...])
-    typedef std::map<ptrdiff_t, std::pair<Instruction, std::vector<argument> > > TreeMap;
+    // offset -> (Operation code, [arg1, arg2, ...], stack activity)
+    typedef std::map<ptrdiff_t, std::tuple<Instruction, std::vector<argument>, int8_t > > TreeMap;
 
     std::string str() const;
 
