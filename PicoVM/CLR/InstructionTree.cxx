@@ -239,7 +239,7 @@ enum struct TwoByteCode : uint16_t {
 
 inline static int32_t read_int32(vector<uint8_t>::iterator& it) {
     it += 4;
-    return *reinterpret_cast<int64_t*>(&(*(it - 4)));
+    return *reinterpret_cast<int32_t*>(&(*(it - 4)));
 }
 
 inline static int64_t read_int64(vector<uint8_t>::iterator& it) {
