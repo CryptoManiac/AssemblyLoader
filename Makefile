@@ -31,6 +31,7 @@ SOURCES=\
 	PicoVM/CLR/crossguid/guid.cxx
 INCDIRS=PicoVM/CLR/
 OBJECTS=$(SOURCES:.cxx=.o)
+DEPS=$(OBJECTS:.o=.d)
 
 .PHONY: clean
 
@@ -40,9 +41,11 @@ $(EXEC): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 %.o: %.cxx
-	$(CXX) $(CXXFLAGS) -I $(INCDIRS) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -I $(INCDIRS) -c -MMD -MP -o $@ $<
 
 $(VERBOSE).SILENT: clean
 
 clean:
-	-rm -rf $(EXEC) $(OBJECTS) $(EXEC).exe
+	-rm -rf $(EXEC) $(OBJECTS) $(DEPS) $(EXEC).exe
+
+-include $(DEPS)
