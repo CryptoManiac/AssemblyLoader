@@ -1,3 +1,8 @@
+SHELL = /bin/sh
+
+.SUFFIXES:
+.SUFFIXES: .o .cxx .hxx .h
+
 # Default: g++ , as option USE_CLANG=1 or USE_MINGW=1 or USE_ICPC=1
 CXX=g++
 CLSPECIFIC=-Og -Winline
@@ -26,9 +31,9 @@ endif
 CXXFLAGS=-g -std=c++11 -Wall -Wextra -Wshadow $(CLSPECIFIC)
 
 SOURCES=\
-	PicoVM/main.cxx \
-	$(wildcard PicoVM/CLR/*.cxx) \
-	PicoVM/CLR/crossguid/guid.cxx
+    PicoVM/main.cxx \
+    $(wildcard PicoVM/CLR/*.cxx) \
+    PicoVM/CLR/crossguid/guid.cxx
 INCDIRS=PicoVM/CLR/
 OBJECTS=$(SOURCES:.cxx=.o)
 DEPS=$(OBJECTS:.o=.d)
@@ -38,14 +43,14 @@ DEPS=$(OBJECTS:.o=.d)
 all: $(EXEC)
 
 $(EXEC): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	@ echo "LD  " $(notdir $@)
+	@ $(CXX) $(LDFLAGS) -o $@ $^
 
 %.o: %.cxx
-	$(CXX) $(CXXFLAGS) -I $(INCDIRS) -c -MMD -MP -o $@ $<
-
-$(VERBOSE).SILENT: clean
+	@ echo "CXX " $(notdir $<)
+	@ $(CXX) $(CXXFLAGS) -I $(INCDIRS) -c -MMD -MP -o $@ $<
 
 clean:
-	-rm -rf $(EXEC) $(OBJECTS) $(DEPS) $(EXEC).exe
+	@ -rm -rf $(EXEC) $(OBJECTS) $(DEPS) $(EXEC).exe
 
 -include $(DEPS)
